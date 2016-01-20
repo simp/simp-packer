@@ -1,0 +1,25 @@
+{
+    "builders": [
+        {
+            "type": "virtualbox-iso",
+            "guest_os_type": "RedHat_64",
+            "iso_url": "file:///home/chris/src/ISO/SIMP-5.1.0-2-CentOS-7.0-x86_64.iso",
+            "iso_checksum": "4011158f6b567f1703cc72b93548283d",
+            "iso_checksum_type": "md5",
+            "ssh_username": "simp",
+            "ssh_password": "SimpPassword",
+            "shutdown_command": "echo 'packer' | sudo -S shutdown -P now"
+        }
+    ],
+    "post-processors": [
+        [
+            {
+                "type": "vagrant",
+                "keep_input_artifact": false,
+                "only": [
+                    "virtualbox-iso"
+                ]
+            }
+        ]
+    ]
+}
