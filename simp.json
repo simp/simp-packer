@@ -10,10 +10,15 @@
             "iso_url": "file:///home/chris/src/ISO/SIMP-5.1.0-2-CentOS-7.0-x86_64.iso",
             "iso_checksum": "4011158f6b567f1703cc72b93548283d",
             "iso_checksum_type": "md5",
+            "disk_size": "50000",
+            "vboxmanage": [
+              ["modifyvm", "{{.Name}}", "--memory", "2048"],
+              ["modifyvm", "{{.Name}}", "--cpus", "2"]
+            ],
             "ssh_username": "simp",
             "ssh_password": "UserPassword",
             "shutdown_command": "echo 'packer' | sudo -S shutdown -P now",
-            "boot_command": "simp<enter><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10>"
+            "boot_command": "simp<enter><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10>"
         }
     ],
     "post-processors": [
