@@ -1,4 +1,8 @@
 {
+    "__": "My First SIMP Packer manifest",
+    "__": "",
+    "__": "NOTES:",
+    "__": "The `<wait10>` are killing time until SSH can connect without timing out",
     "builders": [
         {
             "type": "virtualbox-iso",
@@ -7,8 +11,9 @@
             "iso_checksum": "4011158f6b567f1703cc72b93548283d",
             "iso_checksum_type": "md5",
             "ssh_username": "simp",
-            "ssh_password": "SimpPassword",
-            "shutdown_command": "echo 'packer' | sudo -S shutdown -P now"
+            "ssh_password": "UserPassword",
+            "shutdown_command": "echo 'packer' | sudo -S shutdown -P now",
+            "boot_command": "simp<enter><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10>"
         }
     ],
     "post-processors": [
