@@ -1,24 +1,72 @@
 {
-    "__": "My First SIMP Packer manifest",
+    "__": "Sooper dooper brand-new SIMP Packer manifest",
     "__": "",
     "__": "NOTES:",
-    "__": "The `<wait10>` are killing time until SSH can connect without timing out",
+    "__": "  - The `<wait10>` are killing time until SSH can connect",
+
+
     "builders": [
         {
             "type": "virtualbox-iso",
             "guest_os_type": "RedHat_64",
             "iso_url": "file:///home/chris/src/ISO/SIMP-5.1.0-2-CentOS-7.0-x86_64.iso",
-            "iso_checksum": "4011158f6b567f1703cc72b93548283d",
+            "iso_checksum": "f80982e4238e4dee6c6ebba254b99e21",
             "iso_checksum_type": "md5",
             "disk_size": "50000",
             "vboxmanage": [
               ["modifyvm", "{{.Name}}", "--memory", "2048"],
               ["modifyvm", "{{.Name}}", "--cpus", "2"]
             ],
+
+            "boot_command": [
+              "simp<enter>",
+              
+              "<wait10><wait10><wait10><wait10><wait10><wait10>",
+              "<wait10><wait10><wait10><wait10><wait10><wait10>",
+              "<wait10><wait10><wait10><wait10><wait10><wait10>",
+              "<wait10><wait10><wait10><wait10><wait10><wait10>",
+              "<wait10><wait10><wait10><wait10><wait10><wait10>",
+
+              "<wait10><wait10><wait10><wait10><wait10><wait10>",
+              "<wait10><wait10><wait10><wait10><wait10><wait10>",
+              "<wait10><wait10><wait10><wait10><wait10><wait10>",
+              "<wait10><wait10><wait10><wait10><wait10><wait10>",
+              "<wait10><wait10><wait10><wait10><wait10><wait10>",
+
+              "simp<enter>UserPassword<enter>",
+              "<wait><wait>",
+              "UserPassword<enter>",
+              "suP3rP@ssw0r!suP3rP@ssw0r!suP3rP@ssw0r!<enter>",
+              "suP3rP@ssw0r!suP3rP@ssw0r!suP3rP@ssw0r!<enter>",
+
+              "<wait10><wait10><wait10><wait10><wait10><wait10>",
+              "<wait10><wait10><wait10><wait10><wait10><wait10>",
+              "<wait10><wait10><wait10><wait10><wait10><wait10>",
+              "<wait10><wait10><wait10><wait10><wait10><wait10>",
+              "<wait10><wait10><wait10><wait10><wait10><wait10>",
+
+              "<wait10><wait10><wait10><wait10><wait10><wait10>",
+              "<wait10><wait10><wait10><wait10><wait10><wait10>",
+              "<wait10><wait10><wait10><wait10><wait10><wait10>",
+              "<wait10><wait10><wait10><wait10><wait10><wait10>",
+              "<wait10><wait10><wait10><wait10><wait10><wait10>",
+
+              "<wait10><wait10><wait10><wait10><wait10><wait10>",
+              "<wait10><wait10><wait10><wait10><wait10><wait10>",
+              "<wait10><wait10><wait10><wait10><wait10><wait10>",
+              "<wait10><wait10><wait10><wait10><wait10><wait10>",
+              "<wait10><wait10><wait10><wait10><wait10><wait10>",
+
+              "<wait10><wait10><wait10><wait10><wait10><wait10>",
+              "<wait10><wait10><wait10><wait10><wait10><wait10>",
+              "<wait10><wait10><wait10><wait10><wait10><wait10>",
+              "<wait10><wait10><wait10><wait10><wait10><wait10>",
+              "<wait10><wait10><wait10><wait10><wait10><wait10>"
+             ],
+            
             "ssh_username": "simp",
-            "ssh_password": "UserPassword",
-            "shutdown_command": "echo 'packer' | sudo -S shutdown -P now",
-            "boot_command": "simp<enter><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10>"
+            "ssh_password": "suP3rP@ssw0r!suP3rP@ssw0r!suP3rP@ssw0r!",
+            "shutdown_command": "echo 'packer' | sudo -S shutdown -P now"
         }
     ],
     "post-processors": [
