@@ -7,24 +7,11 @@
 `~/bin/packer build -var-file=vars.json simp.json`
 
 ### TODO
-- [ ] fix sudo tty issue
-- [ ] work on `<wait10>` timings
-- [x] **???** put paths, credentials in `-var-` or `-var-file`?
-```bash
-sudo su -
-<password>
-echo 'simp ALL=(ALL) NOPASSWD:ALL'  >> /etc/sudoers
-sed -e '/Defaults requiretty/d' /etc/sudoers
-```
+- work on `<wait10>` timings
 
-#### sudo tty issue
-```
-==> virtualbox-iso: Connected to SSH!
-==> virtualbox-iso: Uploading VirtualBox version info (5.0.10)
-==> virtualbox-iso: Uploading VirtualBox guest additions ISO...
-==> virtualbox-iso: Gracefully halting virtual machine...
-    virtualbox-iso: sudo: sorry, you must have a tty to run sudo
-```
+### DONE
+- fix sudo tty issue
+- put paths, credentials in `-var-` or `-var-file`?
 
 ### `packer build --help`
 ```

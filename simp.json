@@ -1,8 +1,11 @@
 {
-    "__": "Sooper dooper brand-new SIMP Packer manifest",
-    "__": "",
-    "__": "NOTES:",
-    "__": "  - The `<wait10>` are killing time until SSH can connect",
+    "__": " Sooper dooper brand-new SIMP Packer manifest                      ",
+    "__": "                                                                   ",
+    "__": " USAGE:                                                            ",
+    "__": "   `~/bin/packer build -var-file=vars.json simp.json`              ",
+    "__": "                                                                   ",
+    "__": " NOTES:                                                            ",
+    "__": "   - The first `<wait10>`s are killing time until SSH can connect  ",
 
 
     "builders": [
@@ -39,9 +42,12 @@
               "sudo su -<enter>",
               "{{user `new_password`}}<enter>",
               "echo 'simp ALL=(ALL) NOPASSWD:ALL'  >> /etc/sudoers<enter>",
-              "sed -e '/Defaults requiretty/d' /etc/sudoers<enter>",
+              "sed -ie '/Defaults *requiretty/d' /etc/sudoers<enter>",
 
-
+              "<wait10><wait10><wait10><wait10><wait10><wait10>",
+              "<wait10><wait10><wait10><wait10><wait10><wait10>",
+              "<wait10><wait10><wait10><wait10><wait10><wait10>",
+              "<wait10><wait10><wait10><wait10><wait10><wait10>",
               "<wait10><wait10><wait10><wait10><wait10><wait10>"
              ],
 
