@@ -9,9 +9,9 @@
         {
             "type": "virtualbox-iso",
             "guest_os_type": "RedHat_64",
-            "iso_url": "file:///home/chris/src/ISO/SIMP-5.1.0-2-CentOS-7.0-x86_64.iso",
-            "iso_checksum": "f80982e4238e4dee6c6ebba254b99e21",
-            "iso_checksum_type": "md5",
+            "iso_url":           "{{user `iso_url`}}",
+            "iso_checksum":      "{{user `iso_checksum`}}",
+            "iso_checksum_type": "{{user `iso_checksum_type`}}",
             "disk_size": "50000",
             "vboxmanage": [
               ["modifyvm", "{{.Name}}", "--memory", "2048"],
@@ -20,7 +20,7 @@
 
             "boot_command": [
               "simp<enter>",
-              
+
               "<wait10><wait10><wait10><wait10><wait10><wait10>",
               "<wait10><wait10><wait10><wait10><wait10><wait10>",
               "<wait10><wait10><wait10><wait10><wait10><wait10>",
@@ -34,14 +34,19 @@
               "simp<enter>UserPassword<enter>",
               "<wait><wait>",
               "UserPassword<enter>",
-              "suP3rP@ssw0r!suP3rP@ssw0r!suP3rP@ssw0r!<enter>",
-              "suP3rP@ssw0r!suP3rP@ssw0r!suP3rP@ssw0r!<enter>",
+              "{{user `new_password`}}<enter>",
+              "{{user `new_password`}}<enter>",
+              "sudo su -<enter>",
+              "{{user `new_password`}}<enter>",
+              "echo 'simp ALL=(ALL) NOPASSWD:ALL'  >> /etc/sudoers<enter>",
+              "sed -e '/Defaults requiretty/d' /etc/sudoers<enter>",
+
 
               "<wait10><wait10><wait10><wait10><wait10><wait10>"
              ],
-            
+
             "ssh_username": "simp",
-            "ssh_password": "suP3rP@ssw0r!suP3rP@ssw0r!suP3rP@ssw0r!",
+            "ssh_password": "{{user `new_password`}}",
             "shutdown_command": "echo 'packer' | sudo -S shutdown -P now"
         }
     ],

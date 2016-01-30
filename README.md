@@ -1,15 +1,21 @@
 ## SIMP Packer manifests
 
 
-`~/bin/packer validate simp.json`
+`~/bin/packer validate -var-file=vars.json simp.json`
 
 **NOTE**
-`~/bin/packer build --debug simp.json`
+`~/bin/packer build -var-file=vars.json simp.json`
 
 ### TODO
 - [ ] fix sudo tty issue
 - [ ] work on `<wait10>` timings
-- [ ] **???** put paths, credentials in `-var-` or `-var-file`?
+- [x] **???** put paths, credentials in `-var-` or `-var-file`?
+```bash
+sudo su -
+<password>
+echo 'simp ALL=(ALL) NOPASSWD:ALL'  >> /etc/sudoers
+sed -e '/Defaults requiretty/d' /etc/sudoers
+```
 
 #### sudo tty issue
 ```
