@@ -1,19 +1,26 @@
 ## SIMP Packer manifests
 
+### Usage
+1. Tweak (or generate) the `vars.json` file with appropriate values
+2. Validate the setup
 
-`~/bin/packer validate -var-file=vars.json simp.json`
+  `~/bin/packer validate -var-file=vars.json simp.json`
 
-**NOTE**
-`~/bin/packer build -var-file=vars.json simp.json`
+3. Run packer
+
+   `~/bin/packer build -var-file=vars.json simp.json`
+
+4. Using the default values in `vars.json` a successful build should drop the new VM under `./OUTPUT`.
+
 
 ### TODO
 - work on `<wait10>` timings
 
 ### DONE
-- fix sudo tty issue
-- put paths, credentials in `-var-` or `-var-file`?
+- ~~fix sudo tty issue~~
+- ~~put paths, credentials in `-var-` or `-var-file`~~
 
-### `packer build --help`
+### packer build --help
 ```
 Usage: packer build [options] TEMPLATE
 

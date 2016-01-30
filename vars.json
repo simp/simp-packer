@@ -2,5 +2,6 @@
   "iso_url": "file:///home/chris/src/ISO/SIMP-5.1.0-2-CentOS-7.0-x86_64.iso",
   "iso_checksum": "f80982e4238e4dee6c6ebba254b99e21",
   "iso_checksum_type": "md5",
-  "new_password": "suP3rP@ssw0r!suP3rP@ssw0r!suP3rP@ssw0r!"
+  "new_password": "suP3rP@ssw0r!suP3rP@ssw0r!suP3rP@ssw0r!",
+  "output_directory": "./OUTPUT"
 }

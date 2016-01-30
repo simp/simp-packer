@@ -7,64 +7,62 @@
     "__": " NOTES:                                                            ",
     "__": "   - The first `<wait10>`s are killing time until SSH can connect  ",
 
+  "builders": [
+    {
+      "type": "virtualbox-iso",
+      "guest_os_type": "RedHat_64",
+      "iso_url":       "{{user `iso_url`}}",
+      "iso_checksum":    "{{user `iso_checksum`}}",
+      "iso_checksum_type": "{{user `iso_checksum_type`}}",
+      "output_directory":  "{{user `output_directory`}}",
+      "disk_size": "50000",
+      "vboxmanage": [
+        ["modifyvm", "{{.Name}}", "--memory", "2048"],
+        ["modifyvm", "{{.Name}}", "--cpus", "2"]
+      ],
 
-    "builders": [
-        {
-            "type": "virtualbox-iso",
-            "guest_os_type": "RedHat_64",
-            "iso_url":           "{{user `iso_url`}}",
-            "iso_checksum":      "{{user `iso_checksum`}}",
-            "iso_checksum_type": "{{user `iso_checksum_type`}}",
-            "disk_size": "50000",
-            "vboxmanage": [
-              ["modifyvm", "{{.Name}}", "--memory", "2048"],
-              ["modifyvm", "{{.Name}}", "--cpus", "2"]
-            ],
+      "boot_command": [
+        "simp<enter>",
 
-            "boot_command": [
-              "simp<enter>",
+        "<wait10><wait10><wait10><wait10><wait10><wait10>",
+        "<wait10><wait10><wait10><wait10><wait10><wait10>",
+        "<wait10><wait10><wait10><wait10><wait10><wait10>",
+        "<wait10><wait10><wait10><wait10><wait10><wait10>",
+        "<wait10><wait10><wait10><wait10><wait10><wait10>",
 
-              "<wait10><wait10><wait10><wait10><wait10><wait10>",
-              "<wait10><wait10><wait10><wait10><wait10><wait10>",
-              "<wait10><wait10><wait10><wait10><wait10><wait10>",
-              "<wait10><wait10><wait10><wait10><wait10><wait10>",
-              "<wait10><wait10><wait10><wait10><wait10><wait10>",
+        "<wait10><wait10><wait10><wait10><wait10><wait10>",
+        "<wait10><wait10><wait10><wait10><wait10><wait10>",
+        "<wait10><wait10><wait10><wait10><wait10><wait10>",
 
-              "<wait10><wait10><wait10><wait10><wait10><wait10>",
-              "<wait10><wait10><wait10><wait10><wait10><wait10>",
-              "<wait10><wait10><wait10><wait10><wait10><wait10>",
+        "simp<enter>UserPassword<enter>",
+        "<wait><wait>",
+        "UserPassword<enter>",
+        "{{user `new_password`}}<enter>",
+        "{{user `new_password`}}<enter>",
+        "sudo su -<enter>",
+        "{{user `new_password`}}<enter>",
+        "echo 'simp ALL=(ALL) NOPASSWD:ALL'  >> /etc/sudoers<enter>",
+        "sed -ie '/Defaults *requiretty/d' /etc/sudoers<enter>",
 
-              "simp<enter>UserPassword<enter>",
-              "<wait><wait>",
-              "UserPassword<enter>",
-              "{{user `new_password`}}<enter>",
-              "{{user `new_password`}}<enter>",
-              "sudo su -<enter>",
-              "{{user `new_password`}}<enter>",
-              "echo 'simp ALL=(ALL) NOPASSWD:ALL'  >> /etc/sudoers<enter>",
-              "sed -ie '/Defaults *requiretty/d' /etc/sudoers<enter>",
+        "<wait10><wait10><wait10><wait10><wait10><wait10>"
+       ],
 
-              "<wait10><wait10><wait10><wait10><wait10><wait10>",
-              "<wait10><wait10><wait10><wait10><wait10><wait10>",
-              "<wait10><wait10><wait10><wait10><wait10><wait10>",
-              "<wait10><wait10><wait10><wait10><wait10><wait10>",
-              "<wait10><wait10><wait10><wait10><wait10><wait10>"
-             ],
-
-            "ssh_username": "simp",
-            "ssh_password": "{{user `new_password`}}",
-            "shutdown_command": "echo 'packer' | sudo -S shutdown -P now"
-        }
-    ],
-    "post-processors": [
-        [
-            {
-                "type": "vagrant",
-                "keep_input_artifact": false,
-                "only": [
-                    "virtualbox-iso"
-                ]
-            }
+      "ssh_username": "simp",
+      "ssh_password": "{{user `new_password`}}",
+      "shutdown_command": "echo 'packer' | sudo -S shutdown -P now"
+    }
+  ],
+  "post-processors": [
+    [
+      {
+        "type": "vagrant",
+        "keep_input_artifact": false,
+        "compression_level": "6",
+        "output": "{{user `output_directory`}}/{{.BuildName}}-{{timestamp}}.box",
+        "only": [
+          "virtualbox-iso"
         ]
+      }
     ]
+  ]
 }
