@@ -14,7 +14,6 @@
       "iso_url":       "{{user `iso_url`}}",
       "iso_checksum":    "{{user `iso_checksum`}}",
       "iso_checksum_type": "{{user `iso_checksum_type`}}",
-      "output_directory":  "{{user `output_directory`}}",
       "disk_size": "50000",
       "vboxmanage": [
         ["modifyvm", "{{.Name}}", "--memory", "2048"],
@@ -30,6 +29,8 @@
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
 
+        "<wait10><wait10><wait10><wait10><wait10><wait10>",
+        "<wait10><wait10><wait10><wait10><wait10><wait10>",
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
@@ -58,7 +59,6 @@
         "type": "vagrant",
         "keep_input_artifact": false,
         "compression_level": "6",
-        "output": "{{user `output_directory`}}/{{.BuildName}}-{{timestamp}}.box",
         "only": [
           "virtualbox-iso"
         ]
