@@ -4,5 +4,6 @@
     "iso_checksum": "fa73fc8c57857850b7d4a37c90cfb61e191f4112f9ba74a0f0bd56711ae15530",
     "iso_checksum_type": "sha256",
     "iso_url": "/home/nick/simp-core/SIMP_ISO/SIMP-5.1.0-2-CentOS-7.0-x86_64.iso",
-    "new_password": "suP3rP@ssw0r!suP3rP@ssw0r!suP3rP@ssw0r!"
+    "new_password": "suP3rP@ssw0r!9371",
+    "output_directory": "."
 }

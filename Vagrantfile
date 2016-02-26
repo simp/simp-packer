@@ -3,21 +3,21 @@
 
 Vagrant.configure(2) do |config|
 
-  config.vm.box = "packer_virtualbox-iso_virtualbox.box"
+  config.vm.box = "5.1.X-vagrant.box"
   config.vm.hostname = "simp.test.net"
 
-  # config.vm.network "forwarded_port", guest: 80, host: 8080
-  # config.vm.network "private_network", ip: "192.168.33.10"
+  config.vm.network "forwarded_port", guest: 80, host: 8080
+  config.vm.network "private_network", ip: "192.168.33.10"
 
   config.ssh.username = 'simp'
-  config.ssh.password = 'suP3rP@ssw0r!suP3rP@ssw0r!suP3rP@ssw0r!'
-  config.ssh.insert_key = 'true'
+  config.ssh.password = 'suP3rP@ssw0r!9371'
+  config.ssh.insert_key = 'false'
   #config.ssh.sudo_command = '%c'
 
   # config.vm.synced_folder "../data", "/vagrant_data"
 
   config.vm.provider "virtualbox" do |vb|
-    vb.memory = "2048"
+    vb.memory = "2600"
     vb.cpus = "2"
   end
 

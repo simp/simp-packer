@@ -16,7 +16,7 @@
       "iso_checksum_type": "{{user `iso_checksum_type`}}",
       "disk_size": "50000",
       "vboxmanage": [
-        ["modifyvm", "{{.Name}}", "--memory", "2048"],
+        ["modifyvm", "{{.Name}}", "--memory", "2804"],
         ["modifyvm", "{{.Name}}", "--cpus", "2"]
       ],
 
@@ -45,12 +45,35 @@
         "echo 'simp ALL=(ALL) NOPASSWD:ALL'  >> /etc/sudoers<enter>",
         "sed -ie '/Defaults *requiretty/d' /etc/sudoers<enter>",
 
-        "<wait10><wait10><wait10><wait10><wait10><wait10>"
+        "<wait10><wait10>"
        ],
 
       "ssh_username": "simp",
       "ssh_password": "{{user `new_password`}}",
       "shutdown_command": "echo 'packer' | sudo -S shutdown -P now"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "remote_path": "/var/local/simp/inline-prereq.sh",
+      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
+      "inline" : [
+        "yum install -y gcc make kernel-headers kernel-devel",
+        "reboot"
+      ]
+    },
+    {
+      "type": "shell",
+      "remote_path": "/var/local/simp/inline-vbox.sh",
+      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
+      "inline" : [
+        "rm -f /lib/modules/3.10.0-327.el7.x86_64/build ; ln -s /usr/src/kernels/`rpm -q kernel-devel --queryformat %{VERSION}-%{RELEASE}.%{ARCH}`/ /lib/modules/3.10.0-327.el7.x86_64/build",
+        "mkdir /mnt/vmtools",
+        "mount /var/local/simp/VBoxGuestAdditions.iso /mnt/vmtools",
+        "sh /mnt/vmtools/VBoxLinuxAdditions.run --nox11; true",
+        "umount /mnt/vmtools; rmdir /mnt/vmtools"
+      ]
     }
   ],
   "post-processors": [
@@ -59,6 +82,7 @@
         "type": "vagrant",
         "keep_input_artifact": false,
         "compression_level": "6",
+        "output": "{{user `output_directory`}}/{{user `box_simp_release`}}-vagrant.box",
         "only": [
           "virtualbox-iso"
         ]
