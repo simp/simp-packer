@@ -82,7 +82,7 @@
         "type": "vagrant",
         "keep_input_artifact": false,
         "compression_level": "6",
-        "output": "{{user `output_directory`}}/{{user `box_simp_release`}}-vagrant.box",
+        "output": "simp-{{user `output_directory`}}/{{user `box_simp_release`}}-vagrant.box",
         "only": [
           "virtualbox-iso"
         ]
