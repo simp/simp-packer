@@ -3,7 +3,7 @@
 
 Vagrant.configure(2) do |config|
 
-  config.vm.box = "5.1.X-vagrant.box"
+  config.vm.box = "simp-5.1.X-vagrant.box"
   config.vm.hostname = "simp.test.net"
 
   config.vm.network "forwarded_port", guest: 80, host: 8080
@@ -11,13 +11,16 @@ Vagrant.configure(2) do |config|
 
   config.ssh.username = 'simp'
   config.ssh.password = 'suP3rP@ssw0r!9371'
-  config.ssh.insert_key = 'false'
-  #config.ssh.sudo_command = '%c'
+  config.ssh.insert_key = 'true'
+  #config.ssh.shell = '/bin/su root'
+  #config.ssh.sudo_command = '/bin/su root %c'
 
-  # config.vm.synced_folder "../data", "/vagrant_data"
+  #config.vm.synced_folder "./", "/root/vagrant",
+  #  owner: 'root',
+  #  group: 'root'
 
   config.vm.provider "virtualbox" do |vb|
-    vb.memory = "2600"
+    vb.memory = "3072"
     vb.cpus = "2"
   end
 

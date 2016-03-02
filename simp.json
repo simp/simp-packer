@@ -7,6 +7,12 @@
     "__": " NOTES:                                                            ",
     "__": "   - The first `<wait10>`s are killing time until SSH can connect  ",
 
+  "variables" :
+    {
+      "run_simp_config" : "{{env `SIMP_PACKER_run_simp_config`}}",
+      "run_simp_bootstrap" : "{{env `SIMP_PACKER_run_simp_bootstrap`}}"
+    },
+
   "builders": [
     {
       "type": "virtualbox-iso",
@@ -16,12 +22,12 @@
       "iso_checksum_type": "{{user `iso_checksum_type`}}",
       "disk_size": "50000",
       "vboxmanage": [
-        ["modifyvm", "{{.Name}}", "--memory", "2804"],
+        ["modifyvm", "{{.Name}}", "--memory", "3072"],
         ["modifyvm", "{{.Name}}", "--cpus", "2"]
       ],
 
       "boot_command": [
-        "simp<enter>",
+        "simp-big<enter>",
 
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
@@ -31,6 +37,8 @@
 
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
+        "<wait10><wait10><wait10><wait10><wait10><wait10>",
+
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
@@ -56,6 +64,12 @@
   "provisioners": [
     {
       "type": "shell",
+      "remote_path": "/var/local/simp/puppet-bootstrap.sh",
+      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
+      "script": "scripts/puppet-bootstrap.sh"
+    },
+    {
+      "type": "shell",
       "remote_path": "/var/local/simp/inline-prereq.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
       "inline" : [
@@ -68,12 +82,23 @@
       "remote_path": "/var/local/simp/inline-vbox.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
       "inline" : [
-        "rm -f /lib/modules/3.10.0-327.el7.x86_64/build ; ln -s /usr/src/kernels/`rpm -q kernel-devel --queryformat %{VERSION}-%{RELEASE}.%{ARCH}`/ /lib/modules/3.10.0-327.el7.x86_64/build",
+        "rm -f /lib/modules/`uname -r`/build ; ln -s /usr/src/kernels/`rpm -q kernel-devel --queryformat %{VERSION}-%{RELEASE}.%{ARCH}`/ /lib/modules/`uname -r`/build",
         "mkdir /mnt/vmtools",
         "mount /var/local/simp/VBoxGuestAdditions.iso /mnt/vmtools",
         "sh /mnt/vmtools/VBoxLinuxAdditions.run --nox11; true",
-        "umount /mnt/vmtools; rmdir /mnt/vmtools"
+        "umount /mnt/vmtools; rmdir /mnt/vmtools",
+        "reboot"
       ]
+    },
+    {
+      "type": "shell",
+      "remote_path": "/var/local/simp/inline-simp.sh",
+      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
+      "environment_vars" : [
+        "SIMP_PACKER_run_simp_config={{user `run_simp_config`}}",
+        "SIMP_PACKER_run_simp_bootstrap={{user `run_simp_bootstrap`}}"
+      ],
+      "script" : "scripts/simp-bootstrap.sh"
     }
   ],
   "post-processors": [
@@ -82,7 +107,7 @@
         "type": "vagrant",
         "keep_input_artifact": false,
         "compression_level": "6",
-        "output": "simp-{{user `output_directory`}}/{{user `box_simp_release`}}-vagrant.box",
+        "output": "{{user `output_directory`}}/simp-{{user `box_simp_release`}}-vagrant.box",
         "only": [
           "virtualbox-iso"
         ]
