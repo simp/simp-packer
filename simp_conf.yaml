@@ -1,7 +1,7 @@
 #=======================================
 # simp config answers
 #
-# generated on 2016-02-25 18:45:25 +0000
+# generated on 2016-03-04 16:09:18 +0000
 #---------------------------------------
 # you can use these answers to quickly configure subsequent simp installations
 # by running the command:
@@ -13,14 +13,14 @@
 ---
 # === use_fips ===
 # Enable FIPS mode on this system.
-# 
+#
 # FIPS mode enforces strict compliance with FIPS-140-2.  All core SIMP modules
 # can support this configuration.
-# 
+#
 # IMPORTANT: Be sure you know the security tradeoffs of FIPS-140-2 compliance.
 # FIPS mode disables the use of MD5 and may require weaker ciphers or key lengths
 # than your security policies allow.
-# 
+#
 use_fips: true
 
 # === network::interface ===
@@ -53,11 +53,11 @@ gateway: "10.0.2.2"
 
 # === dns::servers ===
 # A list of DNS servers for the managed hosts.
-# 
+#
 # If the first entry of this list is set to '127.0.0.1', then
 # all clients will configure themselves as caching DNS servers
 # pointing to the other entries in the list.
-# 
+#
 # If you have a system that's including the 'named' class and
 # is *not* in this list, then you'll need to set a variable at
 # the top of that node entry called $named_server to 'true'.
@@ -66,14 +66,15 @@ gateway: "10.0.2.2"
 # convert your system to a caching DNS server. You'll know
 # that you have this situation if you end up with a duplicate
 # definition for File['/etc/named.conf'].
-"dns::servers": 
+"dns::servers":
+  - "192.168.33.10"
   - "10.0.2.3"
   - "8.8.8.8"
 
 # === dns::search ===
 # The DNS domain search string.
 # Remember to put these in the appropriate order for your environment!
-"dns::search": 
+"dns::search":
   - test.net
 
 # === client_nets ===
@@ -86,17 +87,17 @@ client_nets:
 
 # === ntpd::servers ===
 # Your network's NTP time servers.
-# 
+#
 # A consistent time source is critical to your systems' security.
 # DO NOT run multiple production systems using individual hardware clocks!
 # For many networks, the default gateway (10.0.2.2) provides an NTP server.
-"ntpd::servers": 
+"ntpd::servers":
   - "0.pool.ntp.org"
   - "1.pool.ntp.org"
 
 # === log_servers ===
 # Your log server(s). Only use hostnames here if at all possible.
-log_servers: 
+log_servers:
   - simp.test.net
 
 # === failover_log_servers ===
@@ -105,7 +106,7 @@ failover_log_servers: []
 
 # === simp::yum::servers ===
 # Your SIMP yum server(s).
-"simp::yum::servers": 
+"simp::yum::servers":
   - "%{hiera('puppet::server')}"
 
 # === use_auditd ===
@@ -114,7 +115,7 @@ use_auditd: true
 
 # === use_iptables ===
 # Whether or not to use iptables on this system.
-# 
+#
 # If there is code that calls the IPTables native type directly, this option may
 # not function properly.  We are looking into solutions for this issue.
 use_iptables: true
@@ -125,7 +126,7 @@ use_iptables: true
 
 # === selinux::ensure ===
 # SELinux is good.
-# 
+#
 # Not all modules are compatible with SELinux in enforcing mode but the core
 # SIMP modules are. You should not take this below 'permissive' unless it is
 # truly necessary.
@@ -137,14 +138,14 @@ set_grub_password: true
 
 # === grub::password ===
 # The password to access GRUB
-"grub::password": grub.pbkdf2.sha512.10000.96CCCE3C89B06AFC483D9171F889B00C72E9C76A3B62B9E2CF62A8ACD2E77E8AF2AF954FBEFB1A268BCD1D075C6242F334B12B78E0880D15AD80EAA29154AA89.4D0AAA9854AE94738B78A698B54C4724D332923D2DD1EAA1D30320C25815ECB3FB985F7B1CFD3879FBF04BDBD84C8BE57A0353FAE79F90DAB9143C27226CF3E0
+"grub::password": grub.pbkdf2.sha512.10000.6198CB1A846FEBEA1519255F0FE7C555A864DD17DE768197F87272E2DF05308A4ED677EB69F1FBA057B432F108E06C5BF35F5A52CA16F614D022993793590384.915D0C2348D096FC42D280E44A97804D3C4652664150FB7714C217BDF6D3027378A8D9EB3D22B938D13269E2B9A20601FB2AAB34615D2E96D0143AABF9C756C3
 
 # === is_master_yum_server ===
 # Is the master also used as a YUM server?
-# 
+#
 # This option should be yes if the Puppet master (this system) will also act as a
 # YUM server.
-# 
+#
 is_master_yum_server: true
 
 # === puppet::server ===
@@ -187,23 +188,23 @@ use_ldap: true
 
 # === ldap::bind_pw ===
 # The LDAP bind password
-"ldap::bind_pw": "EjUs.S-KZSsGaW&P7r9KuTxgldgG*#ZQ"
+"ldap::bind_pw": "CU0%d%7xRYFJcI9yt7nr*0BUZ8IHg&eo"
 
 # === ldap::bind_hash ===
 # The salted LDAP bind password hash
-"ldap::bind_hash": "{SSHA}lEiSVraGWpobrMKVWUmTc9Dzjo61c/wa"
+"ldap::bind_hash": "{SSHA}DNbi/hqU/OT8vvkcprSrYwUjrlaBq9H3"
 
 # === ldap::sync_dn ===
-# 
+#
 "ldap::sync_dn": "cn=LDAPSync,ou=Hosts,%{hiera('ldap::base_dn')}"
 
 # === ldap::sync_pw ===
 # The LDAP sync password
-"ldap::sync_pw": "rCejzTv4fO79Y-u1f.rLMJm-KJ6W%ciW"
+"ldap::sync_pw": "pwJORySZfSg+Ftwb9EmMRC&ql1f7PU*N"
 
 # === ldap::sync_hash ===
-# 
-"ldap::sync_hash": "{SSHA}AFDsK1lSAr80FpVQDoCKgzPoogbYz0R9"
+#
+"ldap::sync_hash": "{SSHA}TiIgrvOOVW2x0lntQQkePVYkjoleCSvQ"
 
 # === ldap::root_dn ===
 # The LDAP root DN.
@@ -212,8 +213,8 @@ use_ldap: true
 # === ldap::root_hash ===
 # The LDAP root password hash.
 #  If you set this with simp config, type the password and the hash will be
-# generated for you.' 
-"ldap::root_hash": "{SSHA}7RDLfdSIcOq9hX4X7+KEDpQ+OaFa9Egf"
+# generated for you.'
+"ldap::root_hash": "{SSHA}M0ahDM2+42wqvexRx5vHYgR5gl0+ekMY"
 
 # === ldap::master ===
 # This is the LDAP master in URI form (ldap://server)
@@ -221,24 +222,24 @@ use_ldap: true
 
 # === ldap::uri ===
 # List of OpenLDAP servers in URI form (ldap://server)
-"ldap::uri": 
+"ldap::uri":
   - "ldap://simp.test.net"
 
 # === sssd::domains ===
 # A list of domains for SSSD to use.
 # `simp config` will automativcally populate this field with `FQDN` if
 # `use_fqdn` is true, otherwise it will comment out the field.
-# 
-"sssd::domains": 
+#
+"sssd::domains":
   - LDAP
 
 # === rsync::base ===
 # Several modules use rsync as a means of pulling down large
 # collections of files. This provides a single point of configuration
 # for the system defaults.
-# 
+#
 # Individual modules can be overridden as required.
-# 
+#
 "rsync::base": "/var/simp/rsync/%{::operatingsystem}/%{::lsbmajdistrelease}"
 
 # === rsync::server ===

@@ -73,7 +73,10 @@
       "remote_path": "/var/local/simp/inline-prereq.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
       "inline" : [
-        "yum install -y gcc make kernel-headers kernel-devel",
+        "yum install -y gcc make kernel-headers kernel-devel tree htop ncdu",
+        "rpm -ivh http://mirror.centos.org/centos/7.2.1511/os/x86_64/Packages/apr-util-ldap-1.5.2-6.el7.x86_64.rpm",
+        "rpm -ivh http://mirror.centos.org/centos/7.2.1511/os/x86_64/Packages/mod_ldap-2.4.6-40.el7.centos.x86_64.rpm",
+        "rpm -ivh http://mirror.centos.org/centos/7.2.1511/os/x86_64/Packages/openssh-ldap-6.6.1p1-22.el7.x86_64.rpm",
         "reboot"
       ]
     },
