@@ -31,6 +31,18 @@ class site {
 }
 EOF
 
+cat << EOF > /etc/puppet/environments/simp/modules/site/manifests/client_network.pp
+class site::client_network {
+  network::add_eth { 'enp0s3':
+    bootproto    => 'none',
+    gateway      => '10.0.2.2',
+    ipaddr       => '10.0.2.15',
+    netmask      => '255.255.255.0',
+    onboot       => 'yes',
+  }
+}
+EOF
+
 cat << EOF > /etc/puppet/environments/simp/hieradata/default.yaml
 ---
 classes:
@@ -49,3 +61,4 @@ simplib::sudoers::default_entry:
 # enable root login over ssh
 ssh::server::conf::permitrootlogin: true
 EOF
+

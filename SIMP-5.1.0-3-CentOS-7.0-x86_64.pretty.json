@@ -1,0 +1,9 @@
+{
+    "box_distro_release": "SIMP-5.1.X-/home/nick/simp-core/CentOS-7-DVD-1511.iso",
+    "box_simp_release": "5.1.X",
+    "iso_checksum": "6e25aa2de71c0585e632c5de7f9df5485d21875522b43bd4304f949432b27827",
+    "iso_checksum_type": "sha256",
+    "iso_url": "./SIMP-5.1.0-2-CentOS-7.0-x86_64.iso",
+    "new_password": "suP3rP@ssw0r!9371",
+    "output_directory": "."
+}

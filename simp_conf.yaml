@@ -68,7 +68,6 @@ gateway: "10.0.2.2"
 # definition for File['/etc/named.conf'].
 "dns::servers":
   - "192.168.33.10"
-  - "10.0.2.3"
   - "8.8.8.8"
 
 # === dns::search ===
@@ -81,7 +80,7 @@ gateway: "10.0.2.2"
 # A list of client networks for your systems, in CIDR notation.
 # If you need this to be more (or less) restrictive for a given class,
 # you can override it in Hiera.
-client_nets: 
+client_nets:
   - "10.0.2.0/24"
   - "192.168.33.10/24"
 
