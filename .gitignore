@@ -1,3 +1,4 @@
-*.box
+*.iso
 packer_cache
 .vagrant
+OUTPUT

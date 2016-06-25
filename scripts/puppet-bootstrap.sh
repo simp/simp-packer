@@ -1,54 +1,45 @@
 #!/bin/sh
 
-cat << EOF > /etc/puppet/environments/simp/modules/site/manifests/init.pp
+cat << EOF > /etc/puppet/environments/simp/modules/site/manifests/vagrant.pp
 # site-specific configuration
 #
 # in this instance, it is just some treaks to make sure simp in vagrant runs well
-class site {
-  pam::access::manage { 'simp':
+class site::vagrant {
+  pam::access::manage { 'vagrant':
     permission => '+',
-    users      => '(simp)',
+    users      => '(vagrant)',
     origins    => ['ALL'],
   }
-  iptables::add_tcp_stateful_listen{ 'vagrant_ssh':
-    client_nets => 'any',
-    dports      => '2222',
-  }
-  sudo::user_specification { 'simp_sudosh':
-    user_list => 'simp',
+  sudo::user_specification { 'vagrant_sudosh':
+    user_list => 'vagrant',
     host_list => 'ALL',
     runas     => 'ALL',
     cmnd      => '/usr/bin/sudosh',
     passwd    => false,
   }
-  sudo::user_specification { 'simp_vagrant_ssh':
-    user_list => 'simp',
+  sudo::user_specification { 'vagrant_ssh':
+    user_list => 'vagrant',
     passwd    => false,
     cmnd      => 'ALL'
   }
+  # network::add_eth { 'enp0s3':
+  #   bootproto    => 'none',
+  #   gateway      => '10.0.2.2',
+  #   ipaddr       => '10.0.2.15',
+  #   netmask      => '255.255.255.0',
+  #   onboot       => 'yes',
+  # }
   service { 'vboxadd': }
   service { 'vboxadd-service': }
-}
-EOF
-
-cat << EOF > /etc/puppet/environments/simp/modules/site/manifests/client_network.pp
-class site::client_network {
-  network::add_eth { 'enp0s3':
-    bootproto    => 'none',
-    gateway      => '10.0.2.2',
-    ipaddr       => '10.0.2.15',
-    netmask      => '255.255.255.0',
-    onboot       => 'yes',
-  }
 }
 EOF
 
 cat << EOF > /etc/puppet/environments/simp/hieradata/default.yaml
 ---
 classes:
-  - 'site'
+  - 'site::vagrant'
 
-# removed requiretty from defaults
+# remove requiretty from defaults
 simplib::sudoers::default_entry:
   - 'listpw=all'
   - 'syslog=authpriv'
@@ -60,5 +51,6 @@ simplib::sudoers::default_entry:
 
 # enable root login over ssh
 ssh::server::conf::permitrootlogin: true
+ssh::server::conf::authorizedkeysfile : ".ssh/authorized_keys"
 EOF
 

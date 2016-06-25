@@ -37,7 +37,7 @@ dhcp: static
 
 # === hostname ===
 # The FQDN of the system.
-hostname: simp.test.net
+hostname: puppet.test.net
 
 # === ipaddress ===
 # The IP address of this system
@@ -97,7 +97,7 @@ client_nets:
 # === log_servers ===
 # Your log server(s). Only use hostnames here if at all possible.
 log_servers:
-  - simp.test.net
+  - puppet.test.net
 
 # === failover_log_servers ===
 # Failover log server(s) in case your log servers(s) fail.
@@ -149,7 +149,7 @@ is_master_yum_server: true
 
 # === puppet::server ===
 # The Hostname or FQDN of the puppet server.
-"puppet::server": simp.test.net
+"puppet::server": puppet.test.net
 
 # === puppet::server::ip ===
 # The Puppet server's IP address.
@@ -158,7 +158,7 @@ is_master_yum_server: true
 
 # === puppet::ca ===
 # The Puppet Certificate Authority
-"puppet::ca": simp.test.net
+"puppet::ca": puppet.test.net
 
 # === puppet::ca_port ===
 # The port which the Puppet CA will listen on (8141 by default).
@@ -217,12 +217,12 @@ use_ldap: true
 
 # === ldap::master ===
 # This is the LDAP master in URI form (ldap://server)
-"ldap::master": "ldap://simp.test.net"
+"ldap::master": "ldap://puppet.test.net"
 
 # === ldap::uri ===
 # List of OpenLDAP servers in URI form (ldap://server)
 "ldap::uri":
-  - "ldap://simp.test.net"
+  - "ldap://puppet.test.net"
 
 # === sssd::domains ===
 # A list of domains for SSSD to use.
