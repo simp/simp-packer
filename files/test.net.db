@@ -1,0 +1,12 @@
+$TTL    86400
+test.net.               IN SOA  ns.test.net. hostmaster.test.net. (
+                                        2008072900
+                                        3H              ; refresh
+                                        15M             ; retry
+                                        1W              ; expiry
+                                        1D )            ; minimum
+                IN NS           ns.test.net.
+
+ns          IN  A       192.168.33.1
+puppet      IN  A       192.168.33.10
+client      IN  A       192.168.33.11

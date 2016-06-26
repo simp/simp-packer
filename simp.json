@@ -95,12 +95,29 @@
       "remote_path": "/var/local/simp/inline-users.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
       "inline" : [
+        "sed -i 's/enforce_for_root//' /etc/pam.d/system-auth /etc/pam.d/*",
         "useradd vagrant",
         "echo vagrant | passwd vagrant --stdin",
         "echo puppet | passwd root --stdin",
         "echo 'vagrant ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers",
         "#puppet apply -e 'include site::vagrant'"
       ]
+    },
+    {
+      "type": "file",
+      "source": "files",
+      "destination": "/home/vagrant/"
+    },
+    {
+      "type": "shell",
+      "remote_path": "/var/local/simp/inline-puppet_conf.sh",
+      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
+      "script": "scripts/puppet_conf.sh"
+    },
+    {
+      "type": "puppet-masterless",
+      "manifest_file": "manifests/bootstrap.pp",
+      "staging_directory": "/home/vagrant/"
     },
     {
       "type": "shell",

@@ -1,0 +1,11 @@
+$TTL    86400
+@               IN SOA  test.net. ns.test.net. (
+                                        2008072900
+                                        1h              ; refresh
+                                        15m             ; retry
+                                        1w              ; expiry
+                                        1d )            ; minimum
+                IN NS   ns.test.net.
+1       IN      PTR     ns.test.net.
+10      IN      PTR     puppet.test.net.
+11      IN      PTR     client.test.net.
