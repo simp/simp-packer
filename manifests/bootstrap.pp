@@ -10,7 +10,7 @@ if $enable_dhcp {
     owner  => 'root',
     group  => 'root',
     mode   => '0640',
-    source => 'file:///files/dhcpd.conf',
+    source => 'file:///var/local/simp/files/dhcpd.conf',
   }
 }
 
@@ -25,16 +25,16 @@ if $enable_named {
   }
   package { 'bind': ensure => latest }
   file { "$bind_path/etc/named.conf":
-    source => 'file:///files/named.conf',
+    source => 'file:///var/local/simp/files/named.conf',
   }
   file { "$bind_path/etc/zones/test.net":
-    source => 'file:///files/test.net',
+    source => 'file:///var/local/simp/files/test.net',
   }
   file { "$bind_path/var/named/forward/test.net.db":
-    source => 'file:///files/test.net.db',
+    source => 'file:///var/local/simp/files/test.net.db',
   }
   file { "$bind_path/var/named/reverse/33.168.192.db":
-    source => 'file:///files/33.168.192.db',
+    source => 'file:///var/local/simp/files/33.168.192.db',
   }
 }
 
@@ -44,20 +44,20 @@ if $enable_ks {
     mode   => '0640',
     owner  => 'root',
     group  => 'apache',
-    source => 'file:///files/pupclient_x86_64.cfg',
+    source => 'file:///var/local/simp/files/pupclient_x86_64.cfg',
   }
-  file { '/etc/puppet/environments/simp/modules/site/tftpboot.pp':
+  file { '/etc/puppet/environments/simp/modules/site/manifests/tftpboot.pp':
     ensure => file,
     mode   => '0640',
     owner  => 'root',
     group  => 'puppet',
-    source => 'file:///files/tftpboot.pp',
+    source => 'file:///var/local/simp/files/tftpboot.pp',
   }
   file { '/etc/puppet/autosign.conf':
     ensure => file,
     mode   => '0640',
     owner  => 'root',
     group  => 'puppet',
-    source => 'file:///files/autosign.conf',
+    source => 'file:///var/local/simp/files/autosign.conf',
   }
 }

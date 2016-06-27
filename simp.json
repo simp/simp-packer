@@ -100,13 +100,14 @@
         "echo vagrant | passwd vagrant --stdin",
         "echo puppet | passwd root --stdin",
         "echo 'vagrant ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers",
-        "#puppet apply -e 'include site::vagrant'"
+        "#puppet apply -e 'include site::vagrant'",
+        "chmod g+rX -R /home/vagrant"
       ]
     },
     {
       "type": "file",
       "source": "files",
-      "destination": "/home/vagrant/"
+      "destination": "/var/local/simp/"
     },
     {
       "type": "shell",
@@ -117,7 +118,7 @@
     {
       "type": "puppet-masterless",
       "manifest_file": "manifests/bootstrap.pp",
-      "staging_directory": "/home/vagrant/"
+      "staging_directory": "/var/local/simp/"
     },
     {
       "type": "shell",

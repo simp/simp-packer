@@ -54,3 +54,4 @@ ssh::server::conf::permitrootlogin: true
 ssh::server::conf::authorizedkeysfile : ".ssh/authorized_keys"
 EOF
 
+echo "  - 'site::tftpboot'" >> /etc/puppet/environments/simp/hieradata/hosts/puppet.test.net.yaml
