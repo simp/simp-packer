@@ -3,6 +3,7 @@ $enable_dhcp = true
 $enable_ks = true
 
 $rsync_path = '/var/simp/rsync/CentOS/7'
+$copied_path = '/var/local/simp/files'
 
 if $enable_dhcp {
   file { "$rsync_path/dhcpd/dhcpd.conf":
@@ -10,7 +11,7 @@ if $enable_dhcp {
     owner  => 'root',
     group  => 'root',
     mode   => '0640',
-    source => 'file:///var/local/simp/files/dhcpd.conf',
+    source => "file://$copied_path/dhcpd.conf",
   }
 }
 
@@ -25,16 +26,16 @@ if $enable_named {
   }
   package { 'bind': ensure => latest }
   file { "$bind_path/etc/named.conf":
-    source => 'file:///var/local/simp/files/named.conf',
+    source => "file://$copied_path/named.conf",
   }
   file { "$bind_path/etc/zones/test.net":
-    source => 'file:///var/local/simp/files/test.net',
+    source => "file://$copied_path/test.net",
   }
   file { "$bind_path/var/named/forward/test.net.db":
-    source => 'file:///var/local/simp/files/test.net.db',
+    source => "file://$copied_path/test.net.db",
   }
   file { "$bind_path/var/named/reverse/33.168.192.db":
-    source => 'file:///var/local/simp/files/33.168.192.db',
+    source => "file://$copied_path/33.168.192.db",
   }
 }
 
@@ -44,20 +45,20 @@ if $enable_ks {
     mode   => '0640',
     owner  => 'root',
     group  => 'apache',
-    source => 'file:///var/local/simp/files/pupclient_x86_64.cfg',
+    source => "file://$copied_path/pupclient_x86_64.cfg",
   }
   file { '/etc/puppet/environments/simp/modules/site/manifests/tftpboot.pp':
     ensure => file,
     mode   => '0640',
     owner  => 'root',
     group  => 'puppet',
-    source => 'file:///var/local/simp/files/tftpboot.pp',
+    source => "file://$copied_path/tftpboot.pp",
   }
   file { '/etc/puppet/autosign.conf':
     ensure => file,
     mode   => '0640',
     owner  => 'root',
     group  => 'puppet',
-    source => 'file:///var/local/simp/files/autosign.conf',
+    source => "file://$copied_path/autosign.conf",
   }
 }
