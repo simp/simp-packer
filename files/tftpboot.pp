@@ -4,7 +4,7 @@ class site::tftpboot {
   tftpboot::linux_model { 'centos-7-x86_64':
     kernel => 'centos-7-x86_64/vmlinuz',
     initrd => 'centos-7-x86_64/initrd.img',
-    ks     => "http://puppet.test.net/ks/pupclient_x86_64.cfg",
+    ks     => "https://puppet.test.net/ks/pupclient_x86_64.cfg",
     extra  => "noverifyssl ksdevice=bootif\nipappend 2"
   }
 

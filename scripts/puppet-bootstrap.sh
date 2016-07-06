@@ -39,7 +39,7 @@ cat << EOF > /etc/puppet/environments/simp/hieradata/default.yaml
 classes:
   - 'site::vagrant'
 
-# remove requiretty from defaults
+# remove requiretty from defaults so vagrant can provision vm
 simplib::sudoers::default_entry:
   - 'listpw=all'
   - 'syslog=authpriv'
@@ -54,4 +54,4 @@ ssh::server::conf::permitrootlogin: true
 ssh::server::conf::authorizedkeysfile : ".ssh/authorized_keys"
 EOF
 
-echo "  - 'site::tftpboot'" >> /etc/puppet/environments/simp/hieradata/hosts/puppet.test.net.yaml
+echo "  - 'site::tftpboot'" >> /etc/puppet/environments/simp/hieradata/hosts/puppet.your.domain.yaml

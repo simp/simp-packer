@@ -9,7 +9,9 @@ Vagrant.configure("2") do |c|
     v.vm.box = "simp-5.1.X-vagrant.box"
     v.vm.network "private_network",
       ip: "192.168.33.10",
-      virtualbox__intnet: "test.net"
+      virtualbox__intnet: "test.net",
+      auto_config: false,
+      virtualbox__dhcp_enabled: false
     v.ssh.username = 'vagrant'
     v.ssh.password = 'suP3rP@ssw0r!9371'
     v.vm.provider "virtualbox" do |vb|
