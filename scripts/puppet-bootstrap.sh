@@ -51,7 +51,9 @@ simplib::sudoers::default_entry:
 
 # enable root login over ssh
 ssh::server::conf::permitrootlogin: true
-ssh::server::conf::authorizedkeysfile : ".ssh/authorized_keys"
+ssh::server::conf::authorizedkeysfile: ".ssh/authorized_keys"
+
+simplib::resolv::option:rotate: false
 EOF
 
 # add tftpboot class to default puppetserver hierafile
@@ -62,5 +64,6 @@ echo '!*,vagrant,1778,1778,/home/vagrant,$6$rounds=10000$bfakeujk$TZYotmPja3t95Y
 
 # generate client certs for kickstarted client
 echo client.test.net > /etc/puppet/environments/simp/FakeCA/togen
+echo puppet.test.net > /etc/puppet/environments/simp/FakeCA/togen
 cd /etc/puppet/environments/simp/FakeCA/
 ./gencerts_nopass.sh
