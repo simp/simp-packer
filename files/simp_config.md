@@ -1,4 +1,4 @@
-| question | answer for this lab |
+| question | answer for this testenv |
 | -------: | ------------------- |
 | use_fips | yes |
 | network::interface | enp0s3 |
@@ -33,4 +33,3 @@
 | ldap::master | ldap://puppet.test.net |
 | ldap::uri | ldap://puppet.test.net |
 | rsync::base | /var/simp/rsync/%{::operatingsystem}/%{::lsbmajdistrelease} |
-

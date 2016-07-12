@@ -62,20 +62,14 @@
   ],
   "provisioners": [
     {
-      "type": "shell",
-      "remote_path": "/var/local/simp/puppet-bootstrap.sh",
-      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
-      "script": "scripts/puppet-bootstrap.sh"
-    },
-    {
      "type": "shell",
      "remote_path": "/var/local/simp/inline-prereq.sh",
      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
      "inline" : [
-       "yum install -y epel-release",
-       "yum install -y gcc make kernel-headers kernel-devel tree htop ncdu dkms",
-       "reboot"
-     ]
+        "yum install -y epel-release",
+        "yum install -y gcc make kernel-headers kernel-devel tree htop ncdu dkms",
+        "reboot"
+      ]
     },
     {
       "type": "shell",
@@ -92,7 +86,7 @@
     },
     {
       "type": "shell",
-      "remote_path": "/var/local/simp/inline-users.sh",
+      "remote_path": "/var/local/simp/inline-vagrant-users.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
       "inline" : [
         "sed -i 's/enforce_for_root//' /etc/pam.d/system-auth /etc/pam.d/*",
@@ -111,9 +105,9 @@
     },
     {
       "type": "shell",
-      "remote_path": "/var/local/simp/inline-puppet_conf.sh",
+      "remote_path": "/var/local/simp/puppet-bootstrap.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
-      "script": "scripts/puppet_conf.sh"
+      "script": "scripts/puppet-bootstrap.sh"
     },
     {
       "type": "puppet-masterless",
