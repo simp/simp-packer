@@ -58,7 +58,7 @@ simplib::sudoers::default_entry:
 ssh::server::conf::permitrootlogin: true
 ssh::server::conf::authorizedkeysfile: ".ssh/authorized_keys"
 
-simplib::resolv::option:rotate: false
+simplib::resolv::option_rotate: false
 EOF
 
 # add tftpboot class to default puppetserver hierafile
