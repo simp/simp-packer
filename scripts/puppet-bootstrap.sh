@@ -27,13 +27,13 @@ class site::vagrant {
     passwd    => false,
     cmnd      => 'ALL'
   }
-  # network::add_eth { 'enp0s3':
-  #   bootproto    => 'none',
-  #   gateway      => '10.0.2.2',
-  #   ipaddr       => '10.0.2.15',
-  #   netmask      => '255.255.255.0',
-  #   onboot       => 'yes',
-  # }
+  network::add_eth { 'enp0s3':
+    bootproto    => 'none',
+    gateway      => '10.0.2.2',
+    ipaddr       => '10.0.2.15',
+    netmask      => '255.255.255.0',
+    onboot       => 'yes',
+  }
   service { 'vboxadd': }
   service { 'vboxadd-service': }
 }
