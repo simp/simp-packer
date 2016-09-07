@@ -28,11 +28,11 @@ if $enable_named {
   file { "$bind_path/etc/named.conf":
     source => "file://$copied_path/named.conf",
   }
-  file { "$bind_path/etc/zones/test.net":
-    source => "file://$copied_path/test.net",
+  file { "$bind_path/etc/zones/simp.test":
+    source => "file://$copied_path/simp.test",
   }
-  file { "$bind_path/var/named/forward/test.net.db":
-    source => "file://$copied_path/test.net.db",
+  file { "$bind_path/var/named/forward/simp.test.db":
+    source => "file://$copied_path/simp.test.db",
   }
   file { "$bind_path/var/named/reverse/33.168.192.db":
     source => "file://$copied_path/33.168.192.db",

@@ -62,13 +62,13 @@ simplib::resolv::option_rotate: false
 EOF
 
 # add tftpboot class to default puppetserver hierafile
-echo "  - 'site::tftpboot'" >> /etc/puppet/environments/simp/hieradata/hosts/puppet.your.domain.yaml
+echo "  - 'site::tftpboot'" >> /etc/puppet/environments/simp/hieradata/hosts/server01.simp.test.yaml
 
 # # add vagrant user spec to localusers to ensure presence on all hosts
 # echo '!*,vagrant,1778,1778,/home/vagrant,$6$rounds=10000$bfakeujk$TZYotmPja3t95YXaUT2Np7cFl9TcBZML0y9e3CW6QU6EuvOFL805TAJqxqcmYJDTOO/H.PMZt54D/LaZ3UrHC.' >> /etc/puppet/environments/simp/localusers
 
 # # generate client certs for kickstarted client
-# echo client.test.net > /etc/puppet/environments/simp/FakeCA/togen
-# echo puppet.test.net > /etc/puppet/environments/simp/FakeCA/togen
+# echo client01.simp.test > /etc/puppet/environments/simp/FakeCA/togen
+# echo server01.simp.test > /etc/puppet/environments/simp/FakeCA/togen
 # cd /etc/puppet/environments/simp/FakeCA/
 # ./gencerts_nopass.sh

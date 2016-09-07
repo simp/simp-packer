@@ -1,6 +1,6 @@
-zone "test.net" IN {
+zone "simp.test" IN {
         type master;
-        file "forward/test.net.db";
+        file "forward/simp.test.db";
 };
 
 zone "33.168.192.in-addr.arpa" IN {
