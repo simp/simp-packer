@@ -1,4 +1,12 @@
+.*.sw?
+/Gemfile.lock
+.bundle/
+.vagrant/
+/OUTPUT
+/tmp
+*.zip
+*.log
 *.iso
 packer_cache
-.vagrant
-OUTPUT
+# mergetool
+*.orig
