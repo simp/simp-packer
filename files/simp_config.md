@@ -8,7 +8,7 @@
 | ipaddress | 10.0.2.15 |
 | netmask | 255.255.255.0 |
 | gateway | 10.0.2.2 |
-| dns::servers | 192.168.22.10 8.8.8.8 |
+| dns::servers | 192.168.22.10 |
 | dns::search | simp.test |
 | client_nets | 10.0.2.0/24 192.168.33.10/24 |
 | ntpd::servers | 0.pool.ntp.org 1.pool.ntp.org |
