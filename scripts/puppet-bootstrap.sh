@@ -5,6 +5,8 @@ sudo cp /var/local/simp/files/puppet.conf /etc/puppet/puppet.conf
 sudo chown :puppet /etc/puppet/puppet.conf
 sudo chmod 640 /etc/puppet/puppet.conf
 
+mv /etc/puppet/environments/simp/hieradata/hosts/puppet.your.domain.yaml /etc/puppet/environments/simp/hieradata/hosts/server01.simp.test.yaml
+
 cat << EOF > /etc/puppet/environments/simp/modules/site/manifests/vagrant.pp
 # site-specific configuration
 #
