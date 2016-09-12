@@ -63,6 +63,18 @@ ssh::server::conf::authorizedkeysfile: ".ssh/authorized_keys"
 simplib::resolv::option_rotate: false
 EOF
 
+sed "/^\$hostgroup = 'default'$/d" /etc/puppet/environments/simp/manifests/site.pp
+sed "/^hiera_include('classes')$/d" /etc/puppet/environments/simp/manifests/site.pp
+
+cat << EOF > /etc/puppet/environments/simp/manifests/site.pp
+\$hostgroup = $::trusted['certname'] ? {
+  /^client[[:digit:]]{2}\.simp\.test/ => 'clients',
+  default                             => 'default',
+}
+
+hiera_include('classes')
+EOF
+
 # add tftpboot class to default puppetserver hierafile
 echo "  - 'site::tftpboot'" >> /etc/puppet/environments/simp/hieradata/hosts/server01.simp.test.yaml
 
