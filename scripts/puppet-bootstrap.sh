@@ -75,6 +75,23 @@ cat << EOF > /etc/puppet/environments/simp/manifests/site.pp
 hiera_include('classes')
 EOF
 
+cat << EOF > /etc/puppet/environments/simp/modules/site/manifests/clients.pp
+--
+classes:
+  - 'site::clients'
+EOF
+
+cat << EOF > /etc/puppet/environments/simp/modules/site/manifests/clients.pp
+class 'site::clients' {
+  network::add_eth { 'enp0s8':
+    bootproto => 'none',
+	ipaddr    => "${::ipaddress_enp0s8}",
+    netmask   => '255.255.255.0',
+    onboot    => 'yes',
+  }
+}
+EOF
+
 # add tftpboot class to default puppetserver hierafile
 echo "  - 'site::tftpboot'" >> /etc/puppet/environments/simp/hieradata/hosts/server01.simp.test.yaml
 
