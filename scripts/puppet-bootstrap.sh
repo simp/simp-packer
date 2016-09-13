@@ -75,7 +75,7 @@ cat << EOF > /etc/puppet/environments/simp/manifests/site.pp
 hiera_include('classes')
 EOF
 
-cat << EOF > /etc/puppet/environments/simp/modules/site/manifests/clients.pp
+cat << EOF > /etc/puppet/environments/simp/hieradata/hostgroups/clients.yaml
 --
 classes:
   - 'site::clients'
