@@ -131,7 +131,7 @@
         "type": "vagrant",
         "keep_input_artifact": false,
         "compression_level": "6",
-        "output": "{{user `output_directory`}}/{{user `box_distro_release`}}-vagrant.box",
+        "output": "{{user `output_directory`}}/{{user `box_distro_release`}}.box",
         "only": [
           "virtualbox-iso"
         ]
