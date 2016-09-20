@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_c6d5a8e5",
+        "filename": "scripts/puppet-bootstrap.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 1004834
+      },
+      "writtenOn": "2016-09-20T13:19:32Z",
+      "side": 1,
+      "message": "This should be /etc/puppet/environments/simp/hieradata/hostgroups/clients.yaml",
+      "revId": "4203d6a417daebeaa1e8292d5de0ab216541a91b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
