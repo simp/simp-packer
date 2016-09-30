@@ -56,10 +56,6 @@ simplib::sudoers::default_entry:
   - 'secure_path = /usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin'
   - 'env_keep = "COLORS DISPLAY HOSTNAME HISTSIZE INPUTRC KDEDIR LS_COLORS MAIL PS1 PS2 QTDIR USERNAME LANG LC_ADDRESS LC_CTYPE LC_COLLATE LC_IDENTIFICATION LC_MEASUREMENT LC_MESSAGES LC_MONETARY LC_NAME LC_NUMERIC LC_PAPER LC_TELEPHONE LC_TIME LC_ALL LANGUAGE LINGUAS _XKB_CHARSET XAUTHORITY"'
 
-# enable root login over ssh
-ssh::server::conf::permitrootlogin: true
-ssh::server::conf::authorizedkeysfile: ".ssh/authorized_keys"
-
 simplib::resolv::option_rotate: false
 EOF
 
