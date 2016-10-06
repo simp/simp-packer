@@ -26,6 +26,9 @@
         ["modifyvm", "{{.Name}}", "--cpus", "2"]
       ],
 
+      "ssh_username": "simp",
+      "ssh_password": "{{user `new_password`}}",
+
       "boot_command": [
         "simp-big<enter>",
 
@@ -54,9 +57,6 @@
 
         "<wait10><wait10>"
        ],
-
-      "ssh_username": "simp",
-      "ssh_password": "{{user `new_password`}}",
       "shutdown_command": "echo 'packer' | sudo -S shutdown -P now"
     }
   ],
