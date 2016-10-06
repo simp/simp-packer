@@ -63,7 +63,9 @@ cat << EOF > /etc/puppet/environments/simp/manifests/site.pp
   default                             => 'default',
 }
 
-hiera_include('classes')
+node default {
+  hiera_include('classes', [])
+}
 EOF
 
 cat << EOF > /etc/puppet/environments/simp/hieradata/hostgroups/clients.yaml
