@@ -67,7 +67,7 @@ hiera_include('classes')
 EOF
 
 cat << EOF > /etc/puppet/environments/simp/hieradata/hostgroups/clients.yaml
---
+---
 classes:
   - 'site::clients'
 EOF
@@ -76,8 +76,8 @@ cat << EOF > /etc/puppet/environments/simp/modules/site/manifests/clients.pp
 class 'site::clients' {
   network::add_eth { 'enp0s8':
     bootproto => 'none',
-	ipaddr    => "${::ipaddress_enp0s8}",
-    netmask   => '255.255.255.0',
+    ipaddr    => "\${::ipaddress_enp0s8}",
+    netmask   => "\${::netmask_enp0s8}",
     onboot    => 'yes',
   }
 }
