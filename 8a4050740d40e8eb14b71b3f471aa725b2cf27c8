@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_136948f8",
+        "filename": "scripts/puppet-bootstrap.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 1005361
+      },
+      "writtenOn": "2016-10-10T18:29:39Z",
+      "side": 0,
+      "message": "Don\u0027t you need this for key auth pre-ldap?",
+      "range": {
+        "startLine": 61,
+        "startChar": 0,
+        "endLine": 61,
+        "endChar": 61
+      },
+      "revId": "8a4050740d40e8eb14b71b3f471aa725b2cf27c8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
