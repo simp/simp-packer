@@ -18,6 +18,7 @@
 
 Requirements:
   - [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
+  - [Vagrant](https://www.vagrantup.com/downloads.html)
   - SIMP ISO created from build:auto and its json file.
 
 ### Usage
@@ -36,6 +37,16 @@ Requirements:
 	   PACKER_LOG       - if set with anything, write to a log file
      PACKER_LOG_PATH  - the location of the log file
   
+      vars.json:  The *.json file from the SIMP ISO.  If you have moved the iso
+           make sure it points to the location of the SIMP ISO you want to test.
+      simp_conf.yaml:  A simp_conf.yaml file with the setup you want to test.
+      packer.profile:  A configuration file, a sample is in the sample dir.  Edit
+           this file to match your set up.  There is guidance in the sample file.
+
+     You can add additional environment variables like:
+	   PACKER_CACHE_DIR - keeps ginormous tmp files out of /tmp
+	   PACKER_LOG       - if set with anything, write to a log file
+     PACKER_LOG_PATH  - the location of the log file
 
 When setting up your test files make sure to check the following:
    a) The network interfaces.  The default names vboxnet1 were used.  You must have the network configured by VBOXManger before you run the script and you might have used a different name to create your directories.
@@ -68,7 +79,6 @@ it tests the following:
 4) Checks that selinux matches the simp_conf.yaml selinux::secure setting.
 5) If simp_crypt_disk is used in the simp.conf, it verifies that the disk is encrypted.
 
-### NOTES: 
 The templates directory:
   The templates directory was created because environment variables could not be passed to
 scripts that were run under sudo, even using the -E option.  So normally all environment variables

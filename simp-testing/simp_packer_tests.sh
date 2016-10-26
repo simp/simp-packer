@@ -16,6 +16,8 @@ function cleanup () {
 
   exit $exitcode
 
+    cd $testdir
+    rm -rf $working_dir
 }
 
 #This routine will pull variables from the simp_conf file and and set them up as
@@ -28,6 +30,7 @@ function parse_confile () {
   grep -q "SIMP_PACKER_fips" $working_dir/packer.profile
   returncode=$?
   if [[ $returncode -ne 0 ]]; then
+  if [[ `grep "SIMP_PACKER_fips" $working_dir/packer.profile` -ne 0 ]]; then
     myvalue=""
     get_value_lower "^use_fips:" $conffile
     case $myvalue in
@@ -38,7 +41,7 @@ function parse_confile () {
       SIMP_PACKER_fips='fips=1'
       ;;
   esac
-  echo "export SIMP_PACKER_fips=$SIMP_PACKER_fips" >> $working_dir/packer.profile
+  echo >> $working_dir/packer.profile "export SIMP_PACKER_fips=$SIMP_PACKER_fips"
  fi
 
   myvalue=""

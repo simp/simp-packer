@@ -14,6 +14,10 @@ function get_value_lower() {
 # If the return code is not zero then an error occurred and the value of the global
 #   variable is unreliable.
 
+#  Check if puppet is running on ports 8140 and 8141
+#  or what is set in the conf file
+
+function get_value_lower() {
   if [[ $# -ne 2 ]]; then
     echo "usage get_value_lower <search string>  <file to search>"
     return -1
@@ -35,11 +39,8 @@ function get_value_lower() {
   return
 }
 
+
 function get_simp_major_version() {
-#  This was used to determine the version of SIMP running so the scripts
-# set up their environment correctly.
-# This is not used very much.  The puppet variabes are used instaead of his
-# 
   local __myver=$1
   local simp_major_ver
 

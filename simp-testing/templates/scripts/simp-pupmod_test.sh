@@ -30,6 +30,9 @@ case $myvalue in
    ;;
 esac
 
+regexmaster=":${master_port}[[:space:]]*$"
+regexca=":${caport}[[:space:]]*$"
+
 # Check and see if the port set in the yaml file was the port implemented:
 if [[ $sc_ca_port -ne $caport ]]; then
   echo "Port $sc_ca_port expected in /etc/puppet for ca but got: $caport"
@@ -53,8 +56,6 @@ done
 
 echo "starting netstats"
 
-# Check it puppet server is listening on the port
-regexmaster=":${master_port}[[:space:]]*$"
 netstat -lp | grep java | cut -b20-40 |  grep -e "${regexmaster}"
 returnmaster=$?
 echo "Return master ${returnmaster}"
