@@ -1,0 +1,325 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_9c6628ba",
+        "filename": "simp-testing/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1005361
+      },
+      "writtenOn": "2016-11-02T17:09:16Z",
+      "side": 1,
+      "message": "lots of whitespace",
+      "revId": "4297c1c581b74918cc4ea8ef542a7b0c315605f2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_fc6f7491",
+        "filename": "simp-testing/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1005361
+      },
+      "writtenOn": "2016-11-02T17:09:16Z",
+      "side": 1,
+      "message": "this is no longer true",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 107
+      },
+      "revId": "4297c1c581b74918cc4ea8ef542a7b0c315605f2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_dc6cb09f",
+        "filename": "simp-testing/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1005361
+      },
+      "writtenOn": "2016-11-02T17:09:16Z",
+      "side": 1,
+      "message": "does this support any specific versions or will just all of them work?",
+      "range": {
+        "startLine": 24,
+        "startChar": 4,
+        "endLine": 24,
+        "endChar": 12
+      },
+      "revId": "4297c1c581b74918cc4ea8ef542a7b0c315605f2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_1c11f804",
+        "filename": "simp-testing/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1005361
+      },
+      "writtenOn": "2016-11-02T17:09:16Z",
+      "side": 1,
+      "message": "json file from SIMP_ISO",
+      "range": {
+        "startLine": 24,
+        "startChar": 45,
+        "endLine": 24,
+        "endChar": 49
+      },
+      "revId": "4297c1c581b74918cc4ea8ef542a7b0c315605f2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_3c0cbceb",
+        "filename": "simp-testing/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1005361
+      },
+      "writtenOn": "2016-11-02T17:09:16Z",
+      "side": 1,
+      "message": "consistent numbering",
+      "range": {
+        "startLine": 40,
+        "startChar": 1,
+        "endLine": 40,
+        "endChar": 2
+      },
+      "revId": "4297c1c581b74918cc4ea8ef542a7b0c315605f2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_7c29243a",
+        "filename": "simp-testing/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1005361
+      },
+      "writtenOn": "2016-11-02T17:09:16Z",
+      "side": 1,
+      "message": "remove if empty",
+      "range": {
+        "startLine": 65,
+        "startChar": 0,
+        "endLine": 66,
+        "endChar": 2
+      },
+      "revId": "4297c1c581b74918cc4ea8ef542a7b0c315605f2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_dc1a7018",
+        "filename": "simp-testing/samples/simp4test/simp_conf.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 1005361
+      },
+      "writtenOn": "2016-11-02T17:09:16Z",
+      "side": 1,
+      "message": "should we put at least 192.168.102.7 in here to enable logging?",
+      "revId": "4297c1c581b74918cc4ea8ef542a7b0c315605f2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_9c14e8e9",
+        "filename": "simp-testing/samples/simp4test/simp_conf.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 1005361
+      },
+      "writtenOn": "2016-11-02T17:09:16Z",
+      "side": 1,
+      "message": "this should probably be filled as well, though it probably won\u0027t be needed for testing on one system",
+      "revId": "4297c1c581b74918cc4ea8ef542a7b0c315605f2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_7cd0042c",
+        "filename": "simp-testing/samples/simp4test/vars.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1005361
+      },
+      "writtenOn": "2016-11-02T17:09:16Z",
+      "side": 1,
+      "message": "can we make this pretty?\n\nyou can pipe it through python -m json.tool",
+      "revId": "4297c1c581b74918cc4ea8ef542a7b0c315605f2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_3cb15c02",
+        "filename": "simp-testing/simp.json.template",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1005361
+      },
+      "writtenOn": "2016-11-02T17:09:16Z",
+      "side": 1,
+      "message": "why would you need to wait for a length of time after installing successfully?",
+      "range": {
+        "startLine": 66,
+        "startChar": 8,
+        "endLine": 66,
+        "endChar": 31
+      },
+      "revId": "4297c1c581b74918cc4ea8ef542a7b0c315605f2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_1cad789b",
+        "filename": "simp-testing/simp.json.template",
+        "patchSetId": 1
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 1005361
+      },
+      "writtenOn": "2016-11-02T17:09:16Z",
+      "side": 1,
+      "message": "for future reference, I think we should uninstall epel-release after getting what we need out of the repo. If left there, it persists through exported vagrant boxes.",
+      "range": {
+        "startLine": 99,
+        "startChar": 18,
+        "endLine": 99,
+        "endChar": 47
+      },
+      "revId": "4297c1c581b74918cc4ea8ef542a7b0c315605f2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_7c85a408",
+        "filename": "simp-testing/simp.json.template",
+        "patchSetId": 1
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 1005361
+      },
+      "writtenOn": "2016-11-02T17:09:16Z",
+      "side": 1,
+      "message": "these are packages that I liked to have in the vagrant boxes, don\u0027t have to be included anymore, and probably should be removed",
+      "range": {
+        "startLine": 100,
+        "startChar": 61,
+        "endLine": 100,
+        "endChar": 75
+      },
+      "revId": "4297c1c581b74918cc4ea8ef542a7b0c315605f2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_1c845809",
+        "filename": "simp-testing/simp.json.template",
+        "patchSetId": 1
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 1005361
+      },
+      "writtenOn": "2016-11-02T17:09:16Z",
+      "side": 1,
+      "message": "should these be user configurable?",
+      "range": {
+        "startLine": 116,
+        "startChar": 14,
+        "endLine": 116,
+        "endChar": 40
+      },
+      "revId": "4297c1c581b74918cc4ea8ef542a7b0c315605f2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_7c8c842e",
+        "filename": "simp-testing/simp.json.template",
+        "patchSetId": 1
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 1005361
+      },
+      "writtenOn": "2016-11-02T17:09:16Z",
+      "side": 1,
+      "message": "tabs should be converted to spaces",
+      "range": {
+        "startLine": 149,
+        "startChar": 0,
+        "endLine": 149,
+        "endChar": 1
+      },
+      "revId": "4297c1c581b74918cc4ea8ef542a7b0c315605f2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_dcf2709b",
+        "filename": "simp-testing/simp.json.template",
+        "patchSetId": 1
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 1005361
+      },
+      "writtenOn": "2016-11-02T17:09:16Z",
+      "side": 1,
+      "message": "is this needed?",
+      "range": {
+        "startLine": 204,
+        "startChar": 0,
+        "endLine": 209,
+        "endChar": 3
+      },
+      "revId": "4297c1c581b74918cc4ea8ef542a7b0c315605f2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
