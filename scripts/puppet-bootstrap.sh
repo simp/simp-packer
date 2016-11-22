@@ -68,6 +68,27 @@ node default {
 }
 EOF
 
+cat << EOF > /etc/puppet/environments/simp/hieradata/hosts/server01.simp.test.yaml
+---
+classes:
+  - 'site::server'
+EOF
+
+cat << EOF > /etc/puppet/environments/simp/modules/site/manifests/server.pp
+class 'site::server' {
+  \$interfaces_array = split($::interfaces, ',')
+
+  if member(\$interfaces_array, 'enp0s8') {
+    network::add_eth { 'enp0s8':
+      bootproto => 'none',
+      ipaddr    => '192.168.33.10',
+      netmask   => '255.255.255.0',
+      onboot    => 'yes',
+    }
+  }
+}
+EOF
+
 cat << EOF > /etc/puppet/environments/simp/hieradata/hostgroups/clients.yaml
 ---
 classes:
