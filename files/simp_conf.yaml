@@ -1,0 +1,248 @@
+#========================================================================
+# simp config answers
+#
+# Generated for simp scenario on 2017-03-27 16:09:52
+# using simp-cli version 3.0.0
+#------------------------------------------------------------------------
+# You can use these answers to quickly configure subsequent
+# simp installations by running the command:
+#
+#   simp config -A /PATH/TO/THIS/FILE
+#
+# simp config will prompt for any missing items.
+#
+# NOTE: All YAML keys that begin with 'cli::' are used
+# by simp config, internally, and are not Puppet hieradata.
+#========================================================================
+---
+# === cli::is_ldap_server ===
+# Whether the SIMP server will also be the LDAP server.
+#
+cli::is_ldap_server: true
+
+# === cli::network::dhcp ===
+# Whether to use DHCP to set up your network ("static" or "dhcp").
+cli::network::dhcp: dhcp
+
+# === cli::network::gateway ===
+# The default gateway.
+cli::network::gateway: 172.31.0.1
+
+# === cli::network::hostname ===
+# The FQDN of the system.
+cli::network::hostname: ip-172-31-11-170.us-west-2.compute.internal
+
+# === cli::network::interface ===
+# The network interface to use to connect to the network.
+cli::network::interface: eth0
+
+# === cli::network::ipaddress ===
+# The IP address of the system.
+cli::network::ipaddress: 172.31.11.170
+
+# === cli::network::netmask ===
+# The netmask of the system.
+cli::network::netmask: 255.255.240.0
+
+# === cli::network::set_up_nic ===
+# Whether to activate this NIC now.
+cli::network::set_up_nic: true
+
+# === cli::set_grub_password ===
+# Whether to set the GRUB password on this system.
+cli::set_grub_password: true
+
+# === cli::set_production_to_simp ===
+# Whether to set default Puppet environment to 'simp'.
+#
+# Links the 'production' environment to 'simp', after backing up the
+# existing production environment.
+cli::set_production_to_simp: true
+
+# === cli::simp::scenario ===
+# SIMP scenario
+#
+# 'simp'      = Settings for a full SIMP system. Both the SIMP server
+#               (this host) and all clients will be running with
+#               all security features enabled.
+# 'simp_lite' = Settings for a SIMP system in which some security features
+#               are disabled for SIMP clients.  The SIMP server will
+#               be running with all security features enabled.
+# 'poss'      = Settings for a SIMP system in which all security features
+#               for the SIMP clients are disabled.  The SIMP server will
+#               be running with all security features enabled.
+#
+cli::simp::scenario: simp
+
+# === grub::password ===
+# The password to access GRUB.
+#
+# The value entered is used to set the GRUB password and to generate a hash
+# stored in grub::password.
+grub::password: grub.pbkdf2.sha512.10000.110AB416410B4D00AA7EAA0FE292D0495AF9694A88DD4D31B916CD06B3D5BC5E475ACA0CA58A70E54162529CD5C6B2EBFF312F7F75AEE7B9624A91F178991509.B8DD14D400DFD07332BBE1BDDFC6724135F24BF8EAE09020349FC1A443857542F600043A460BC9FE73AA214BE95666B78FFBE19FFCCBCE08A66A225D9D5631E6
+
+# === puppetdb::master::config::puppetdb_port ===
+# The PuppetDB server port number.
+puppetdb::master::config::puppetdb_port: 8139
+
+# === puppetdb::master::config::puppetdb_server ===
+# The DNS name or IP of the PuppetDB server.
+puppetdb::master::config::puppetdb_server: "%{hiera('simp_options::puppet::server')}"
+
+# === simp::runlevel ===
+# The default system runlevel (1-5).
+simp::runlevel: 3
+
+# === simp::yum::enable_os_repos ===
+# Whether to enable remote system (OS) YUM repositories
+simp::yum::enable_os_repos: true
+
+# === simp::yum::enable_simp_repos ===
+# Whether to enable remote SIMP YUM repositories
+simp::yum::enable_simp_repos: true
+
+# === simp::yum::os_update_url ===
+# Full URL to a YUM repo for Operating System packages
+simp::yum::os_update_url: http://mirror.centos.org/centos/7/os/x86_64/
+
+# === simp::yum::servers ===
+# The YUM server(s) for OS and SIMP packages.
+simp::yum::servers:
+- localhost
+
+# === simp::yum::simp_update_url ===
+# Full URL to a YUM repo for SIMP packages
+simp::yum::simp_update_url: https://packagecloud.io/simp-project/6_X/el/7/x86_64
+
+# === simp_openldap::server::conf::rootpw ===
+# The LDAP Root password hash.
+#
+# When set via 'simp config', it is generated from the password
+# entered on the command line.
+simp_openldap::server::conf::rootpw: "{SSHA}r3yGJnU0SE/up0EjAU1+VGDlSkPkUhZk"
+
+# === simp_options::dns::search ===
+# The DNS domain search string.
+#
+# Remember to put these in the appropriate order for your environment!
+simp_options::dns::search:
+- us-west-2.compute.internal
+
+# === simp_options::dns::servers ===
+# A list of DNS servers for the managed hosts.
+#
+# If the first entry of this list is set to '127.0.0.1', then
+# all clients will configure themselves as caching DNS servers
+# pointing to the other entries in the list.
+#
+# If you have a system that's including the 'named' class and
+# is *not* in this list, then you'll need to set a variable at
+# the top of that node entry called $named_server to 'true'.
+# This will get around the convenience logic that was put in
+# place to handle the caching entries and will not attempt to
+# convert your system to a caching DNS server. You'll know
+# that you have this situation if you end up with a duplicate
+# definition for File['/etc/named.conf'].
+simp_options::dns::servers:
+- 172.31.0.2
+
+# === simp_options::fips ===
+# Prepare system to use FIPS mode.
+#
+# simp_options::fips enforces strict compliance with FIPS-140-2.  All core SIMP modules
+# can support this configuration. Enabling simp_options::fips here will enable
+# FIPS on this puppet environment.
+#
+# IMPORTANT:
+# (1) Be sure you know the security tradeoffs of FIPS-140-2 compliance.
+#     FIPS mode disables the use of MD5 and may require weaker ciphers or key
+#     lengths than your security policies allow.
+# (2) If the system is currently in FIPS mode and you set this option to false,
+#     the system will still work.  The reverse is not necessarily true.  See
+#     SIMP documentation for instructions on how to safely convert a non-FIPS
+#     system to a FIPS system.
+#
+simp_options::fips: false
+
+# === simp_options::ldap ===
+# Whether to use LDAP on this system.
+#
+# If you disable this, modules will not attempt to use LDAP where possible.
+simp_options::ldap: true
+
+# === simp_options::ldap::base_dn ===
+# The Base Distinguished Name of the LDAP server.
+simp_options::ldap::base_dn: dc=us-west-2,dc=compute,dc=internal
+
+# === simp_options::ldap::bind_hash ===
+# The salted LDAP Bind password hash.
+simp_options::ldap::bind_hash: "{SSHA}jTZYKkVwUOy7SzzDggC+qd9WQGSR/qaW"
+
+# === simp_options::ldap::bind_pw ===
+# The LDAP Bind password.
+simp_options::ldap::bind_pw: G8PwlQGzE6Fjnd0tu%*kmaSLJaODSsR3
+
+# === simp_options::ldap::sync_hash ===
+#
+simp_options::ldap::sync_hash: "{SSHA}NhT2wJ1SoA2mOXu5avwIvC4ZnMf5pkP5"
+
+# === simp_options::ldap::sync_pw ===
+# The LDAP Sync password.
+simp_options::ldap::sync_pw: oTQ&bd9MuOu.pZoPW-y2BUm6PQNr#z%F
+
+# === simp_options::ntpd::servers ===
+# Your network's NTP time servers.
+# A consistent time source is critical to your systems' security.
+# DO NOT run multiple production systems using individual hardware clocks!
+# For many networks, the default gateway (172.31.0.1) provides an NTP server.
+simp_options::ntpd::servers:
+- 0.north-america.pool.ntp.org
+
+# === simp_options::puppet::ca ===
+# The Puppet Certificate Authority.
+simp_options::puppet::ca: ip-172-31-11-170.us-west-2.compute.internal
+
+# === simp_options::puppet::ca_port ===
+# The port on which the Puppet Certificate Authority will listen
+# (8141 by default).
+simp_options::puppet::ca_port: 8141
+
+# === simp_options::puppet::server ===
+# The Hostname or FQDN of the Puppet server.
+simp_options::puppet::server: ip-172-31-11-170.us-west-2.compute.internal
+
+# === simp_options::sssd ===
+# Whether to use SSSD.
+simp_options::sssd: true
+
+# === simp_options::syslog::failover_log_servers ===
+# Failover log server(s) in case your log servers(s) fail.
+simp_options::syslog::failover_log_servers: []
+
+# === simp_options::syslog::log_servers ===
+# The log server(s) to receive forwarded logs.
+#
+# No log forwarding is enabled when this list is empty.  Only use hostnames
+# here if at all possible.
+simp_options::syslog::log_servers:
+- localhost
+
+# === simp_options::trusted_nets ===
+# A list of subnets to permit, in CIDR notation.
+#
+# If you need this to be more (or less) restrictive for a given class,
+# you can override it in Hiera.
+simp_options::trusted_nets:
+- 172.31.0.0/20
+
+# === sssd::domains ===
+# A list of domains for SSSD to use.
+#
+# * When `simp_options::ldap` is true, this field should include `LDAP`.
+# * When `simp_options::ldap` is false, this field must be a valid
+#   domain ('Local' and/or a custom domain) or the sssd service will
+#   fail to start.
+#
+sssd::domains:
+- LDAP
+

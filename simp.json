@@ -1,0 +1,99 @@
+{
+    "__": " Sooper dooper brand-new SIMP Packer manifest                      ",
+    "__": "                                                                   ",
+    "__": " USAGE:                                                            ",
+    "__": "   `~/bin/packer build -var-file=vars.json simp.json`              ",
+    "__": "                                                                   ",
+    "__": " NOTES:                                                            ",
+    "__": "   - The first `<wait10>`s are killing time until SSH can connect  ",
+
+  "builders": [
+    {
+      "type": "virtualbox-iso",
+      "guest_os_type": "RedHat_64",
+      "iso_url":       "{{user `iso_url`}}",
+      "iso_checksum":    "{{user `iso_checksum`}}",
+      "iso_checksum_type": "{{user `iso_checksum_type`}}",
+      "disk_size": "{{user `disk_size`}}",
+      "http_directory": "./",
+      "vboxmanage": [
+        ["modifyvm", "{{.Name}}", "--memory", "{{user `memory_amt`}}"],
+        ["modifyvm", "{{.Name}}", "--cpus", "{{user `cpu_count`}}"]
+      ],
+
+      "format": "ova",
+
+      "ssh_username": "packer",
+      "ssh_password": "UserPassword",
+      "ssh_wait_timeout": "600s",
+
+      "ssh_host_port_min": 2222,
+      "ssh_host_port_max": 2222,
+
+      "boot_wait": "10s",
+      "boot_command": [
+ 
+        "<wait>",
+        "vmlinuz inst.ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ks.cfg initrd=initrd.img fips=0",
+        "<enter><wait>"
+       ],
+      "shutdown_command": "echo 'packer' | sudo -S shutdown -P now"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "remote_path": "/var/local/packer/update.sh",
+      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
+      "inline": [
+        "yum update -y",
+        "yum install -y gcc make kernel-headers kernel-devel tree htop ncdu dkms"
+      ]
+    },
+    {
+      "type": "shell",
+      "remote_path": "/var/local/packer/firewall-setup.sh",
+      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
+      "inline": [
+        "systemctl stop firewalld",
+        "systemctl disable firewalld"
+      ]
+    },
+    {
+      "type": "shell",
+      "remote_path": "/var/local/packer/cloud-init.sh",
+      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
+      "inline": [
+        "yum install -y cloud-init"
+      ]
+    },
+    {
+      "type": "shell",
+      "remote_path": "/var/local/packer/set-packer-ssh-stuff.sh",
+      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
+      "inline": [
+        "mkdir /var/local/packer/.ssh",
+        "chown packer:packer /var/local/packer/.ssh",
+        "chmod 750 /var/local/packer/.ssh",
+        "touch /var/local/packer/.ssh/authorized_keys",
+        "chown packer:packer /var/local/packer/.ssh/authorized_keys",
+        "chmod 640 /var/local/packer/.ssh/authorized_keys",
+        "echo {{user `ssh_pub_key`}} >> /var/local/packer/.ssh/authorized_keys",
+
+        "echo 'AllowUsers packer' >> /etc/ssh/sshd_config",
+        "chcon -R -t ssh_home_t /var/local/packer/.ssh/"
+      ]
+    },
+    {
+      "type": "file",
+      "source": "files/simp_conf.yaml",
+      "destination": "/var/local/packer/simp_conf.yaml"
+    },
+    {
+      "type": "file",
+      "source": "files/install_simp.sh",
+      "destination": "/var/local/packer/install_simp.sh"
+    }
+  ],
+  "post-processors": []
+}

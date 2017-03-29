@@ -1,0 +1,13 @@
+{
+    "box_distro_release": "SIMP-6.0.X-CentOS-7-DVD-1511",
+    "box_simp_release": "6.0.X",
+    "disk_size": "50000",
+    "fips_enabled": "0",
+    "iso_checksum": "6d40aaa45818b857232c56a820138bea16bbb949d4211d7819022f95a19176b2",
+    "iso_checksum_type": "sha256",
+    "iso_url": "./SIMP-6.0.0-RC1-Powered-By-CentOS-7.0-x86_64.iso",
+    "memory_amt": "3072",
+    "cpu_count": "2",
+    "output_directory": "./OUTPUT",
+    "ssh_pub_key": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDlYl8kz3ud2pgXN/GpawvXY0uRagExolJdAIo3Oct4IPf4+SP3hkHZUSsat+BrdCze9nt5Fe/KCA3OW27S2/cIbInf7efF+Ph+hzbuvJKvFFgUDA4QNJpv6/JGt5DXyTS9FHoy1ewF5jv8jJP9sv/bBN8m8SU/sla+IGsw4YxRKrp4YF1JMM9zWWn3vjF4G3r8tx6RFnEXPwCVjhvUSEQJlzNpyxVorW0p3NsxT9dQLsWIiVZWAxMh7rYxvaZxWKgM0cyia48J/MWptSNxauuZ7Xl4nUUAmoxWMCwlG49d8RR24r+3Qjeee4F9eHlIwTM4GmfZudgToAM3wHwDl+/B packer"
+}
