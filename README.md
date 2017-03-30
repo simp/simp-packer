@@ -65,10 +65,15 @@ PACKER_LOG=1 PACKER_LOG_PATH=packerlog.txt PACKER_CACHE_DIR=$PWD/tmp  ~/bin/pack
 ssh -i <path to private key> packer@<EC2 instance address>
 ```
 
-7\. Run the `install_simp.sh` script found in `/var/local/packer`. After it completes, you should delete the packer user and log in again using the `aws_user` user, and the private key specified when you created the EC2 instance. 
+7\. Run the `install_simp.sh` script found in `/var/local/packer`. After it completes, choose a new password for the `aws_user` that was created during installation. You should delete the packer user and log in again using the `aws_user` user, and the private key specified when you created the EC2 instance. 
+
+### NOTES:
+1\. Both the packer user and the aws_user can access root by default by running the `sudo su root` command. Because of the configuration of /etc/sudoers, other means of switching to the root user are not supported. Feel free to change this any way you like using Puppet after installation is complete. 
+2\. The install script sets svckill's mode to `warning`, which prevents it from disabling several services that are necessary to integrate well with AWS. If you enable svckill after installation, you need to add exceptions for these services so that they are not disabled. You probably want to make sure any client nodes that are classified by your SIMP server do the same. 
 
 
 ### TODO
 - [ ] modularize `simp.json` sections
 - [ ] Add support for other output types, move amazon specific steps (cloud init) into a cloud-specific section
 - [ ] Allow user to specify new private key for the packer user after upload to AWS. 
+- [ ] Integrate new SIMP scenario functionality from: https://simp-project.atlassian.net/browse/SIMP-2911
