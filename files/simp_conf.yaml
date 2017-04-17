@@ -1,8 +1,8 @@
 #========================================================================
 # simp config answers
 #
-# Generated for simp scenario on 2017-03-27 16:09:52
-# using simp-cli version 3.0.0
+# Generated for simp scenario on 2017-04-11 17:45:59
+# using simp-cli version 4.0.0
 #------------------------------------------------------------------------
 # You can use these answers to quickly configure subsequent
 # simp installations by running the command:
@@ -30,7 +30,7 @@ cli::network::gateway: 172.31.0.1
 
 # === cli::network::hostname ===
 # The FQDN of the system.
-cli::network::hostname: ip-172-31-11-170.us-west-2.compute.internal
+cli::network::hostname: PLACEHOLDER_HOSTNAME
 
 # === cli::network::interface ===
 # The network interface to use to connect to the network.
@@ -38,7 +38,7 @@ cli::network::interface: eth0
 
 # === cli::network::ipaddress ===
 # The IP address of the system.
-cli::network::ipaddress: 172.31.11.170
+cli::network::ipaddress: PLACEHOLDER_IP
 
 # === cli::network::netmask ===
 # The netmask of the system.
@@ -50,7 +50,7 @@ cli::network::set_up_nic: true
 
 # === cli::set_grub_password ===
 # Whether to set the GRUB password on this system.
-cli::set_grub_password: true
+cli::set_grub_password: false
 
 # === cli::set_production_to_simp ===
 # Whether to set default Puppet environment to 'simp'.
@@ -60,7 +60,7 @@ cli::set_grub_password: true
 cli::set_production_to_simp: true
 
 # === cli::simp::scenario ===
-# SIMP scenario
+# The SIMP scenario.
 #
 # 'simp'      = Settings for a full SIMP system. Both the SIMP server
 #               (this host) and all clients will be running with
@@ -74,12 +74,15 @@ cli::set_production_to_simp: true
 #
 cli::simp::scenario: simp
 
-# === grub::password ===
-# The password to access GRUB.
+# === cli::use_internet_simp_yum_repos ===
+# Whether to configure SIMP nodes to use internet SIMP and
+# SIMP dependency YUM repositories.
 #
-# The value entered is used to set the GRUB password and to generate a hash
-# stored in grub::password.
-grub::password: grub.pbkdf2.sha512.10000.110AB416410B4D00AA7EAA0FE292D0495AF9694A88DD4D31B916CD06B3D5BC5E475ACA0CA58A70E54162529CD5C6B2EBFF312F7F75AEE7B9624A91F178991509.B8DD14D400DFD07332BBE1BDDFC6724135F24BF8EAE09020349FC1A443857542F600043A460BC9FE73AA214BE95666B78FFBE19FFCCBCE08A66A225D9D5631E6
+# When this option is enabled, Puppet-managed, YUM repository
+# configurations will be created for both the SIMP server and
+# SIMP clients. These configurations will point to official
+# SIMP repositories.
+cli::use_internet_simp_yum_repos: true
 
 # === puppetdb::master::config::puppetdb_port ===
 # The PuppetDB server port number.
@@ -93,40 +96,27 @@ puppetdb::master::config::puppetdb_server: "%{hiera('simp_options::puppet::serve
 # The default system runlevel (1-5).
 simp::runlevel: 3
 
-# === simp::yum::enable_os_repos ===
-# Whether to enable remote system (OS) YUM repositories
-simp::yum::enable_os_repos: true
-
-# === simp::yum::enable_simp_repos ===
-# Whether to enable remote SIMP YUM repositories
-simp::yum::enable_simp_repos: true
-
-# === simp::yum::os_update_url ===
-# Full URL to a YUM repo for Operating System packages
-simp::yum::os_update_url: http://mirror.centos.org/centos/7/os/x86_64/
-
-# === simp::yum::servers ===
-# The YUM server(s) for OS and SIMP packages.
-simp::yum::servers:
-- localhost
-
-# === simp::yum::simp_update_url ===
-# Full URL to a YUM repo for SIMP packages
-simp::yum::simp_update_url: https://packagecloud.io/simp-project/6_X/el/7/x86_64
+# === simp::server::allow_simp_user ===
+# Whether to allow local 'simp' user su and ssh privileges.
+#
+# When SIMP is installed from ISO, a local user 'simp' is created to
+# prevent server lockout. This capability should only be enabled
+# when this user has been created.
+simp::server::allow_simp_user: false
 
 # === simp_openldap::server::conf::rootpw ===
 # The LDAP Root password hash.
 #
 # When set via 'simp config', it is generated from the password
 # entered on the command line.
-simp_openldap::server::conf::rootpw: "{SSHA}r3yGJnU0SE/up0EjAU1+VGDlSkPkUhZk"
+simp_openldap::server::conf::rootpw: "{SSHA}JwapRn0UCGbGSGRf1A3KGJRNeFnf+Jgo"
 
 # === simp_options::dns::search ===
 # The DNS domain search string.
 #
 # Remember to put these in the appropriate order for your environment!
 simp_options::dns::search:
-- us-west-2.compute.internal
+- PLACEHOLDER_DNS
 
 # === simp_options::dns::servers ===
 # A list of DNS servers for the managed hosts.
@@ -164,43 +154,37 @@ simp_options::dns::servers:
 #
 simp_options::fips: false
 
-# === simp_options::ldap ===
-# Whether to use LDAP on this system.
-#
-# If you disable this, modules will not attempt to use LDAP where possible.
-simp_options::ldap: true
-
 # === simp_options::ldap::base_dn ===
 # The Base Distinguished Name of the LDAP server.
-simp_options::ldap::base_dn: dc=us-west-2,dc=compute,dc=internal
+simp_options::ldap::base_dn: dc=PLACEHOLDER_LDAP,dc=compute,dc=internal
 
 # === simp_options::ldap::bind_hash ===
 # The salted LDAP Bind password hash.
-simp_options::ldap::bind_hash: "{SSHA}jTZYKkVwUOy7SzzDggC+qd9WQGSR/qaW"
+simp_options::ldap::bind_hash: "{SSHA}li4YH7NMS+Q8Ocggl6m1Oj1gU2fQ6YZO"
 
 # === simp_options::ldap::bind_pw ===
 # The LDAP Bind password.
-simp_options::ldap::bind_pw: G8PwlQGzE6Fjnd0tu%*kmaSLJaODSsR3
+simp_options::ldap::bind_pw: tjjcXMXH0B#DUKaGo33IRtV%bbXN-71h
 
 # === simp_options::ldap::sync_hash ===
 #
-simp_options::ldap::sync_hash: "{SSHA}NhT2wJ1SoA2mOXu5avwIvC4ZnMf5pkP5"
+simp_options::ldap::sync_hash: "{SSHA}lG6KPu+LGrV1t82wLwNl73qBWQvB68M3"
 
 # === simp_options::ldap::sync_pw ===
 # The LDAP Sync password.
-simp_options::ldap::sync_pw: oTQ&bd9MuOu.pZoPW-y2BUm6PQNr#z%F
+simp_options::ldap::sync_pw: ITjNyFbj4Pgq+RSdXY#YbjVi8dDw6nlf
 
 # === simp_options::ntpd::servers ===
 # Your network's NTP time servers.
 # A consistent time source is critical to your systems' security.
 # DO NOT run multiple production systems using individual hardware clocks!
-# For many networks, the default gateway (172.31.0.1) provides an NTP server.
+# For many networks, the default gateway (172.31.16.1) provides an NTP server.
 simp_options::ntpd::servers:
 - 0.north-america.pool.ntp.org
 
 # === simp_options::puppet::ca ===
 # The Puppet Certificate Authority.
-simp_options::puppet::ca: ip-172-31-11-170.us-west-2.compute.internal
+simp_options::puppet::ca: PLACEHOLDER_HOSTNAME
 
 # === simp_options::puppet::ca_port ===
 # The port on which the Puppet Certificate Authority will listen
@@ -209,11 +193,7 @@ simp_options::puppet::ca_port: 8141
 
 # === simp_options::puppet::server ===
 # The Hostname or FQDN of the Puppet server.
-simp_options::puppet::server: ip-172-31-11-170.us-west-2.compute.internal
-
-# === simp_options::sssd ===
-# Whether to use SSSD.
-simp_options::sssd: true
+simp_options::puppet::server: PLACEHOLDER_HOSTNAME
 
 # === simp_options::syslog::failover_log_servers ===
 # Failover log server(s) in case your log servers(s) fail.
@@ -246,3 +226,18 @@ simp_options::trusted_nets:
 sssd::domains:
 - LDAP
 
+# === svckill::mode ===
+# Strategy svckill should use when it encounters undeclared services.
+#
+# 'enforcing' = Shut down and disable all services not listed in your
+#               manifests or the exclusion file
+# 'warning'   = Only report what undeclared services should be shut
+#               down and disabled, without actually making the changes
+#               to the system
+#
+# NOTICE: svckill is the mechanism that SIMP uses to comply with the
+# requirement that no unauthorized services are running on your system.
+# Is it HIGHLY recommended that you set this to 'enforcing'. Please be
+# aware that, if you do this, svckill will stop ALL services that are
+# not referenced in your Puppet configuration.
+svckill::mode: warning

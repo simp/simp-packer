@@ -93,6 +93,11 @@
       "type": "file",
       "source": "files/install_simp.sh",
       "destination": "/var/local/packer/install_simp.sh"
+    },
+    {
+      "type": "file",
+      "source": "files/remove_packer_user.sh",
+      "destination": "/var/local/packer/remove_packer_user.sh"
     }
   ],
   "post-processors": []
