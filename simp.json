@@ -25,7 +25,7 @@
 
       "ssh_username": "packer",
       "ssh_password": "UserPassword",
-      "ssh_wait_timeout": "600s",
+      "ssh_wait_timeout": "900s",
 
       "ssh_host_port_min": 2222,
       "ssh_host_port_max": 2222,
