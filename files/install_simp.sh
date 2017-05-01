@@ -1,26 +1,25 @@
-# this is a shell script that does the following:
+#!/bin/bash
+
+# This shell script does the following:
 #
-# 1: get the HOSTNAME (and other data) from cloudinit
-# 
-# 2: update the simp-config answers file with the new HOSTNAME, etc
-# 
-# 3: run simp-config with the new answers file
+# 1: Tet the HOSTNAME (and other data) from cloud-init
 #
-# 4: update node classification appropriately
+# 2: Update the simp-config answers file with the new HOSTNAME, etc
+#
+# 3: Run simp-config with the new answers file
+#
+# 4: Update node classification appropriately
 #   4.1: add cloudinit and amazon services to the list of services for svckill to not kill
 #   4.2: allow ssh from machines outside the current trusted_nets
-#   4.3: create user-specified new user, get pub key from cloud init, add it to sudoers and pam   
+#   4.3: create user-specified new user, get pub key from cloud init, add it to sudoers and pam
 #
 # 5: run simp bootstrap and wait for it to complete
-#
-#
-#
-# 1: get the hostname from the cloud data:
 
+
+# 1: get the hostname from the cloud data:
 DATA_FILE="/var/lib/cloud/instance/obj.pkl"
 
-# Trim the extra S'...' off the hostname 
-
+# Trim the extra S'...' off the hostname
 HOSTNAME=$(grep -m 1 "S'ip-" "$DATA_FILE")
 HOSTNAME="${HOSTNAME//S\'}"
 HOSTNAME="${HOSTNAME//\'}"
@@ -55,21 +54,21 @@ sed -i "s/PLACEHOLDER_IP/$IP_ADDRESS/g" simp_conf.yaml
 
 echo "Done replacing hostname etc in simp_conf, running simp config"
 
-# run simp config
+# run `simp config`
 simp config -A simp_conf.yaml
 
 echo "simp config complete"
 
-# 4: update host hiera configuration with new stuff
+# 4: Update host hiera configuration with new stuff
 # Get path to file:
 FQDN_YAML_FILE="/etc/puppetlabs/code/environments/simp/hieradata/hosts/$HOSTNAME.yaml"
 
 echo "$FQDN_YAML_FILE"
 
 echo "adding hieradata"
-echo "svckill::mode: 'warning'" >> $FQDN_YAML_FILE
-echo "ssh::server::conf::trusted_nets:" >> $FQDN_YAML_FILE
-echo "  - 'ALL'" >> $FQDN_YAML_FILE
+echo "svckill::mode: 'warning'" >> "$FQDN_YAML_FILE"
+echo "ssh::server::conf::trusted_nets:" >> "$FQDN_YAML_FILE"
+echo "  - 'ALL'" >> "$FQDN_YAML_FILE"
 
 # default password hash for the ec2 user, ideally you'll never log into the user with the password sooooo
 pass_hash='$6$5SnplwrFxmHy4j/v$WgcZV1.W6/wQq1SJh/gnV7E5Tr1iIuJgdCFmhdlzHnCdWR927Q/Q4eKZXtFAVOY7eNRb3e30ezM5xbmP8G7t50'
@@ -87,7 +86,7 @@ touch /etc/ssh/local_keys/ec2-user
 chmod 644 /etc/ssh/local_keys/ec2-user
 
 # get the ssh key from the cloud data
-# Trim the extra S'...' off the hostname 
+# Trim the extra S'...' off the hostname
 
 SSH_KEY=$(grep -m 1 "S'ssh-rsa" "$DATA_FILE")
 echo "$SSH_KEY"
@@ -124,6 +123,5 @@ EOT
 # remove the bootstrap lock that has been put in place by simp config
 rm -f /root/.simp/simp_bootstrap_start_lock
 
-# run simp bootstrap 
+# run simp bootstrap
 simp bootstrap
-
