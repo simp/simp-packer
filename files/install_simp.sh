@@ -70,32 +70,6 @@ echo "svckill::mode: 'warning'" >> "$FQDN_YAML_FILE"
 echo "ssh::server::conf::trusted_nets:" >> "$FQDN_YAML_FILE"
 echo "  - 'ALL'" >> "$FQDN_YAML_FILE"
 
-# default password hash for the ec2 user, ideally you'll never log into the user with the password sooooo
-pass_hash='$6$5SnplwrFxmHy4j/v$WgcZV1.W6/wQq1SJh/gnV7E5Tr1iIuJgdCFmhdlzHnCdWR927Q/Q4eKZXtFAVOY7eNRb3e30ezM5xbmP8G7t50'
-
-# add the aws_user
-groupadd -g 1800 ec2-user
-useradd -d /var/local/ec2-user -g ec2-user -m -p $pass_hash -s /bin/bash -u 1800 -K PASS_MAX_DAYS=90 -K PASS_MIN_DAYS=1 -K PASS_WARN_AGE=7 ec2-user
-usermod -aG wheel ec2-user
-chage -d 0 ec2-user
-echo 'AllowUsers ec2-user' >> /etc/ssh/sshd_config
-
-# add the aws_user's ssh key
-mkdir /etc/ssh/local_keys
-touch /etc/ssh/local_keys/ec2-user
-chmod 644 /etc/ssh/local_keys/ec2-user
-
-# get the ssh key from the cloud data
-# Trim the extra S'...' off the hostname
-
-SSH_KEY=$(grep -m 1 "S'ssh-rsa" "$DATA_FILE")
-echo "$SSH_KEY"
-SSH_KEY="${SSH_KEY//S\'}"
-SSH_KEY="${SSH_KEY//\'}"
-echo "$SSH_KEY"
-
-# copy public key for user over to new place
-echo "$SSH_KEY" >> /etc/ssh/local_keys/ec2-user
 
 # 4: update site.pp with new stuff:
 # get path to file:
