@@ -12,6 +12,8 @@
 
 ### Overview
 
+This repository is a work in progress
+
 [Packer](https://packer.io) configuration to build an OVA directly from a fresh [SIMP](https://github.com/NationalSecurityAgency/SIMP) ISO. The OVA that is generated here is intended to be uploaded to Amazon Web Services as an [AMI](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html)
 
 ### Setup
