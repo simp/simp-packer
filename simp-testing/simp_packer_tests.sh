@@ -22,27 +22,24 @@ function cleanup () {
 
 #This routine will pull variables from the simp_conf file and and set them up as
 #environment variables in packer.profile so you only have to set the variables once.
-#It also sets some profile variables that used by the scripts or in packer
+#It also sets some profile variables that are used by the scripts or in packer
 # that the user shouldn't change.
 #
 function parse_confile () {
   conffile=$1
-  grep -q "SIMP_PACKER_fips" $working_dir/packer.profile
-  returncode=$?
-  if [[ $returncode -ne 0 ]]; then
-  if [[ `grep "SIMP_PACKER_fips" $working_dir/packer.profile` -ne 0 ]]; then
+  grep --quiet SIMP_PACKER_fips ${working_dir}/packer.profile
+  if [[ $? -ne 0 ]]; then
     myvalue=""
-    get_value_lower "^use_fips:" $conffile
+    get_value_lower "simp_options::fips:" $conffile
     case $myvalue in
     "false" )
        SIMP_PACKER_fips='fips=0'
        ;;
     *)
       SIMP_PACKER_fips='fips=1'
-      ;;
-  esac
-  echo >> $working_dir/packer.profile "export SIMP_PACKER_fips=$SIMP_PACKER_fips"
- fi
+       ;;
+    esac
+  fi
 
   myvalue=""
   get_value_lower "^\"network::interface\":" $conffile
@@ -91,6 +88,9 @@ if [[ ! -f $testdir/vars.json ]]; then
   cleanup -1
 fi
 parse_confile $working_dir/files/simp_conf.yaml
+
+echo "Source $working_dir packer.profile"
+
 source $working_dir/packer.profile
 
 # Debug should be removed
@@ -117,8 +117,8 @@ done
 sed -e '/^##/ d' < $basedir/simp.json.template > $working_dir/simp.json
 
 cd $working_dir
-#packer build --debug -var-file=$testdir/vars.json $working_dir/simp.json
-packer build -var-file=$testdir/vars.json $working_dir/simp.json >& $logfile
+#/bin/packer build --debug -var-file=$testdir/vars.json $working_dir/simp.json
+/bin/packer build -var-file=$testdir/vars.json $working_dir/simp.json >& $logfile
 if [[ $? -ne 0 ]]; then
   mv $logfile ${logfile}.errors
   cleanup -1

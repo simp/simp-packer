@@ -14,20 +14,20 @@
   "__": "     to changed behavior.                                          ",
   "variables" :
     {
-      "simp_prompt": "{{env `SIMP_PACKER_simp_prompt`}}",
       "fips": "{{env `SIMP_PACKER_fips`}}",
       "disk_encrypt": "{{env `SIMP_PACKER_disk_encrypt`}}",
       "simp_conf_file": "{{env `SIMP_PACKER_simp_conf_file`}}",
       "big_sleep": "{{env `SIMP_PACKER_big_sleep`}}",
       "host_only_network_name": "{{env `SIMP_PACKER_host_only_network_name`}}",
       "root_password": "{{env `SIMP_PACKER_root_password`}}",
-      "vagrant_password": "{{env `SIMP_PACKER_vagrant_password`}}"
+      "vagrant_password": "{{env `SIMP_PACKER_vagrant_password`}}",
+      "nat_if": "{{env `SIMP_PACKER_nat_network_if`}}"
     },
   "builders": [
     {
       "type": "virtualbox-iso",
       "communicator":"ssh",
-      "ssh_pty": "true",
+      "ssh_pty": "false",
       "guest_os_type": "RedHat_64",
       "iso_url":       "{{user `iso_url`}}",
       "iso_checksum":    "{{user `iso_checksum`}}",
@@ -42,7 +42,7 @@
         ["modifyvm", "{{.Name}}", "--accelerate3d", "off"]
       ],
       "boot_command": [
-        "{{user `simp_prompt`}} {{user `disk_encrypt`}} {{user `fips`}}","<enter>",
+        "simp {{user `disk_encrypt`}} {{user `fips`}}","<enter>",
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
@@ -54,30 +54,42 @@
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
-        "<wait10><wait10><wait10><wait10><wait10><wait10>",
-        "<wait10><wait10><wait10><wait10>",
         "<wait10><wait10><wait10><wait10>",
         "{{user `big_sleep`}}",
         "simp<enter>UserPassword<enter>",
         "<wait><wait>",
         "UserPassword<enter>",
         "<wait><wait>",
-        "{{user `new_password`}}<enter>",
         "<wait><wait>",
         "{{user `new_password`}}<enter>",
         "<wait><wait>",
-        "sudo su -<enter>",
         "<wait><wait>",
         "{{user `new_password`}}<enter>",
         "<wait><wait>",
-        "echo 'simp ALL=(ALL) NOPASSWD:ALL'  >> /etc/sudoers<enter>",
         "<wait><wait>",
         "exit<enter>",
+        "<wait10>",
+        "root<enter>RootPassword<enter>",
+        "<wait><wait>",
+        "<wait><wait>",
+        "RootPassword<enter>",
+        "<wait><wait>",
+        "<wait><wait>",
+        "{{user `new_password`}}<enter>",
+        "<wait><wait>",
+        "<wait><wait>",
+        "{{user `new_password`}}<enter>",
+        "<wait><wait>",
+        "<wait><wait>",
+        "echo 'simp ALL=(ALL) NOPASSWD:ALL'  >> /etc/sudoers<enter>",
+        "sed -ie '/Defaults *requiretty/d' /etc/sudoers<enter>",
+        "sed -ie 's/ONBOOT=no/ONBOOT=yes/g' /etc/sysconfig/network-scripts/ifcfg-{{user `nat_if`}}<enter>",
+        "ifup {{user `nat_if`}}<enter>",
         "exit<enter>"
        ],
       "ssh_username": "simp",
       "ssh_password": "{{user `new_password`}}",
-      "shutdown_command": "sudo -S shutdown -P now"
+      "shutdown_command": "sudo -S shutdown -H now"
     }
   ],
   "provisioners": [
@@ -88,13 +100,21 @@
       "remote_path": "/var/local/simp/inline-fips.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
       "inline" : [
-        "if [[ {{user `fips`}} == 'fips=0' ]]; then",
+        "if [[ {{user `fips`}} == '0' ]]; then",
           "if [[ `cat /proc/sys/crypto/fips_enabled` != 0 ]]; then",
-           "echo 'Fips is not set correctly in start up'",
+           "echo 'Fips is not set correctly in start up'\n",
+           "echo 'Fips set to\n'",
+           "cat /proc/sys/crypto/fips_enabled",
+           "echo '\n'",
+           "echo 'expecting 0'",
            "exit 2; fi",
         "else",
            "if [[ `cat /proc/sys/crypto/fips_enabled` != 1 ]]; then",
-           "echo 'Fips is not set correctly in start up'",
+           "echo 'Fips is not set correctly in start up'\n",
+           "echo 'Fips set to: '",
+           "cat /proc/sys/crypto/fips_enabled",
+           "echo '\n'",
+           "echo 'expecting 1'",
            "exit 2; fi",
         "fi"
       ]
@@ -151,7 +171,7 @@
       "remote_path": "/var/local/simp/inline-simp-bootstrap.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -E bash '{{.Path}}'",
       "inline" : [
-        "simp bootstrap"
+        "simp bootstrap --remove_ssldir --no-track"
        ]
     },
     {
