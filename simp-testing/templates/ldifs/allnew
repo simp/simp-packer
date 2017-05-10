@@ -1,0 +1,142 @@
+dn: cn=admin1,ou=Group,LDAPDOMAIN
+objectClass: posixGroup
+objectClass: top
+cn: admin1
+gidNumber: 1000
+description: "Admin One group"
+
+dn: uid=admin1,ou=People,LDAPDOMAIN
+uid: admin1
+cn: admin1
+givenName: admin
+sn: one
+mail: admin1@onyxpoint.com
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: top
+objectClass: shadowAccount
+objectClass: ldapPublicKey
+shadowMax: 180
+shadowMin: 1
+shadowWarning: 7
+shadowLastChange: 10701
+sshPublicKey: <some SSH public key>
+loginShell: /bin/bash
+uidNumber: 1000
+gidNumber: 1000
+homeDirectory: /home/admin1
+userPassword: {SSHA}C1xPxt0TOL7FYx6FRIgH3PkudDhtaUcR
+pwdReset: FALSE
+
+dn: cn=admin2,ou=Group,LDAPDOMAIN
+objectClass: posixGroup
+objectClass: top
+cn: admin2
+gidNumber: 1002
+description: "Admin Two group"
+
+dn: uid=admin2,ou=People,LDAPDOMAIN
+uid: admin2
+cn: admin2
+givenName: Admin
+sn: Two
+mail: admin2@onyxpoint.com
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: top
+objectClass: shadowAccount
+objectClass: ldapPublicKey
+shadowMax: 180
+shadowMin: 1
+shadowWarning: 7
+shadowLastChange: 10701
+sshPublicKey: <some SSH public key>
+loginShell: /bin/bash
+uidNumber: 1003
+gidNumber: 1002
+homeDirectory: /home/admin2
+userPassword: {SSHA}C1xPxt0TOL7FYx6FRIgH3PkudDhtaUcR
+pwdReset: FALSE
+
+dn: cn=NotAllowed,ou=Group,LDAPDOMAIN
+objectClass: posixGroup
+objectClass: top
+cn: NotAllowed
+gidNumber: 9999
+description: "Users not allowed to log in group"
+
+dn: uid=baduser,ou=People,LDAPDOMAIN
+uid: baduser
+cn: baduser
+givenName: Bad
+sn: User
+mail: baduser@onyxpoint.com
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: top
+objectClass: shadowAccount
+objectClass: ldapPublicKey
+shadowMax: 180
+shadowMin: 1
+shadowWarning: 7
+shadowLastChange: 10701
+sshPublicKey: <some SSH public key>
+loginShell: /bin/bash
+uidNumber: 9001
+gidNumber: 9999
+homeDirectory: /home/baduser
+userPassword: {SSHA}C1xPxt0TOL7FYx6FRIgH3PkudDhtaUcR
+pwdReset: FALSE
+
+dn: cn=Test Group,ou=Group,LDAPDOMAIN
+objectClass: posixGroup
+objectClass: top
+cn: testgroup
+gidNumber: 1001
+description: "Test Group group"
+
+dn: uid=user1,ou=People,LDAPDOMAIN
+uid: user1
+cn: user1
+givenName: User
+sn: One
+mail: user1@onyxpoint.com
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: top
+objectClass: shadowAccount
+objectClass: ldapPublicKey
+shadowMax: 180
+shadowMin: 1
+shadowWarning: 7
+shadowLastChange: 10701
+sshPublicKey: <some SSH public key>
+loginShell: /bin/bash
+uidNumber: 1002
+gidNumber: 1001
+homeDirectory: /home/user1
+userPassword: {SSHA}C1xPxt0TOL7FYx6FRIgH3PkudDhtaUcR
+pwdReset: FALSE
+
+dn: uid=user2,ou=People,LDAPDOMAIN
+uid: user2
+cn: user2
+givenName: User
+sn: Two
+mail: user2@onyxpoint.com
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: top
+objectClass: shadowAccount
+objectClass: ldapPublicKey
+shadowMax: 180
+shadowMin: 1
+shadowWarning: 7
+shadowLastChange: 10701
+sshPublicKey: <some SSH public key>
+loginShell: /bin/bash
+uidNumber: 1001
+gidNumber: 1001
+homeDirectory: /home/user2
+userPassword: {SSHA}C1xPxt0TOL7FYx6FRIgH3PkudDhtaUcR
+pwdReset: FALSE

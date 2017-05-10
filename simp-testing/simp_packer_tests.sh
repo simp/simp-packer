@@ -16,8 +16,6 @@ function cleanup () {
 
   exit $exitcode
 
-    cd $testdir
-    rm -rf $working_dir
 }
 
 #This routine will pull variables from the simp_conf file and and set them up as
@@ -93,10 +91,6 @@ echo "Source $working_dir packer.profile"
 
 source $working_dir/packer.profile
 
-# Debug should be removed
-printenv | grep SIMP
-sleep 10
-
 cat << EOF > $working_dir/sed.script
   s/SIMP_PACKER_nat_network_if/$SIMP_PACKER_nat_network_if/g
   s/SIMP_PACKER_nat_network_name/$SIMP_PACKER_nat_network_name/g
@@ -117,7 +111,7 @@ done
 sed -e '/^##/ d' < $basedir/simp.json.template > $working_dir/simp.json
 
 cd $working_dir
-#/bin/packer build --debug -var-file=$testdir/vars.json $working_dir/simp.json
+#/bin/packer build --debug -var-file=$testdir/vars.json $working_dir/simp.json &> $logfile
 /bin/packer build -var-file=$testdir/vars.json $working_dir/simp.json >& $logfile
 if [[ $? -ne 0 ]]; then
   mv $logfile ${logfile}.errors

@@ -1,12 +1,13 @@
 #! /bin/sh
 mydate=`date +%y%m%d%H%M%S`
+export SIMP_PACKER_vm_description="Packer-SIMP6-CentOS7-FIPS"
 #If you do not want packer to log then comment out the PACKER_LOG variable.
 #It should be used for debug only.
 #export PACKER_LOG=1
 export PACKER_LOG_PATH="/tmp/packerlog.log.${mydate}"
 # simp_prompt should be "simp"
 # export SIMP_PACKER_simp_prompt="simp"
-export SIMP_PACKER_fips="0"
+export SIMP_PACKER_fips="fips=0"
 # Should be either "simp_disk_crypt" or "simp_crypt_disk" or ""
 export SIMP_PACKER_disk_encrypt=""
 #The network interface for the host only will be pulled from the simp_conf.yaml file

@@ -1,8 +1,6 @@
 #!/usr/bin/sh
 #
 #  Functions used by simp-packer during testing.
-
-function get_value_lower() {
 # This searchs a configuration file for a value when the 
 # name and value in the configuration file are seperated by 
 # blank space.

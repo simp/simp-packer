@@ -15,19 +15,5 @@ fi
 
 echo "SELINUX Configuration: $myvalue and System: $se_value values agree"
 
-# Checking out if the disks are encrypted ... if it was chosen.
-/bin/lsblk --output FSTYPE,TYPE,NAME | grep "^crypto_LUKS"
-return_crypt=$?
-
-case $SIMP_PACKER_disk_crypt in
-"simp_disk_crypt"|"simp_crypt_disk")
-   if [[ $return_crypt -ne 0 ]]; then
-      echo "No encrypted disk was found on the system."
-      echo "`/bin/lsblk`"
-      exit -2
-   fi
-   ;;
-*) ;;
-esac
 echo "Exiting $0"
 exit 0

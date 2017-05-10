@@ -21,7 +21,8 @@
       "host_only_network_name": "{{env `SIMP_PACKER_host_only_network_name`}}",
       "root_password": "{{env `SIMP_PACKER_root_password`}}",
       "vagrant_password": "{{env `SIMP_PACKER_vagrant_password`}}",
-      "nat_if": "{{env `SIMP_PACKER_nat_network_if`}}"
+      "nat_if": "{{env `SIMP_PACKER_nat_network_if`}}",
+      "vm_description": "{{env `SIMP_PACKER_vm_description`}}"
     },
   "builders": [
     {
@@ -33,6 +34,13 @@
       "iso_checksum":    "{{user `iso_checksum`}}",
       "iso_checksum_type": "{{user `iso_checksum_type`}}",
       "disk_size": "50000",
+      "headless": "true",
+      "vm_name": "{{user `vm_description`}}",
+      "skip_export": "false",
+      "output_directory": "/var/jmg/packer-output/{{user `vm_description`}}",
+      "export_opts": [
+        "--description", "{{user `vm_description`}}"
+        ],
       "vboxmanage": [
         ["modifyvm", "{{.Name}}", "--memory", "4096"],
         ["modifyvm", "{{.Name}}", "--nic1", "nat"],
@@ -43,6 +51,8 @@
       ],
       "boot_command": [
         "simp {{user `disk_encrypt`}} {{user `fips`}}","<enter>",
+        "<wait10><wait10><wait10><wait10><wait10><wait10>",
+        "<wait10><wait10><wait10><wait10><wait10><wait10>",
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
@@ -94,30 +104,28 @@
   ],
   "provisioners": [
     {
+## Copy scripts from the host to the virtual machine for use later on
+      "type": "file",
+      "source": "scripts",
+      "destination": "/var/local/simp/"
+    },
+    {
+## Copy files from the host to the virtual machine for use later on
+      "type": "file",
+      "source": "files",
+      "destination": "/var/local/simp/"
+    },
+    {
 ## TEST:  Check if it booted into fips or not according to the
 ## fips variable set in the boot command.
       "type": "shell",
-      "remote_path": "/var/local/simp/inline-fips.sh",
-      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
-      "inline" : [
-        "if [[ {{user `fips`}} == '0' ]]; then",
-          "if [[ `cat /proc/sys/crypto/fips_enabled` != 0 ]]; then",
-           "echo 'Fips is not set correctly in start up'\n",
-           "echo 'Fips set to\n'",
-           "cat /proc/sys/crypto/fips_enabled",
-           "echo '\n'",
-           "echo 'expecting 0'",
-           "exit 2; fi",
-        "else",
-           "if [[ `cat /proc/sys/crypto/fips_enabled` != 1 ]]; then",
-           "echo 'Fips is not set correctly in start up'\n",
-           "echo 'Fips set to: '",
-           "cat /proc/sys/crypto/fips_enabled",
-           "echo '\n'",
-           "echo 'expecting 1'",
-           "exit 2; fi",
-        "fi"
-      ]
+      "remote_path": "/var/local/simp/scripts/check_settings_at_boot.sh",
+      "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
+      "environment_vars" : [
+        "SIMP_PACKER_fips={{user `fips`}}",
+        "SIMP_PACKER_disk_encrypt={{user `disk_encrypt`}}"
+      ],
+      "script" : "scripts/check_settings_at_boot.sh"
     },
     {
 ## Set up the vagrant and root passwords
@@ -133,18 +141,6 @@
         "#puppet apply -e 'include site::vagrant'",
         "chmod g+rX -R /home/vagrant"
       ]
-    },
-    {
-## Copy files from the host to the virtual machine for use later on
-      "type": "file",
-      "source": "files",
-      "destination": "/var/local/simp/"
-    },
-    {
-## Copy scripts from the host to the virtual machine for use later on
-      "type": "file",
-      "source": "scripts",
-      "destination": "/var/local/simp/"
     },
     {
 ## Now we run simp using the simp conf yaml file specified in the shell.
@@ -197,17 +193,16 @@
       ]
     },
     {
-## NOTE:  This is the only script not run using sudo so variable passing works.
+## Check settings after bootstrap.
       "type": "shell",
-      "remote_path": "/var/local/simp/scripts/simp-pupmod_test_checksettings.sh",
+      "remote_path": "/var/local/simp/scripts/check_settings_after_bootstrap.sh",
       "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
       "environment_vars" : [
         "SIMP_PACKER_simp_conf_file={{user `simp_conf_file`}}",
         "SIMP_PACKER_simp_prompt={{user `simp_prompt`}}",
         "SIMP_PACKER_disk_encrypt={{user `disk_encrypt`}}"
       ],
-      "script" : "scripts/simp-pupmod_test_checksettings.sh"
+      "script" : "scripts/check_settings_after_bootstrap.sh"
     }
   ]
 }
-
