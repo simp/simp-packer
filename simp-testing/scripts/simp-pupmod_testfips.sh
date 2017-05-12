@@ -3,12 +3,13 @@
 #  First check if the fips mode set in the configuration file is the same as the one
 #  set in the hiera file.
 #  Then check if the system mode is set the same as the hiera file.
+packerdir="/var/local/simp"
 export PATH=$PATH:/opt/puppetlabs/bin
-source /var/local/simp/scripts/functions.sh
+source $packerdir/scripts/functions.sh
 pupenvdir=`puppet config print | grep ^environmentpath | cut -f3 -d" "`
-simp_default="${pupenvdir}/simp/hieradata/simp_def.yaml"
+simp_default="${pupenvdir}/simp/hieradata/simp_config.yaml"
 
-simp_conf=$SIMP_PACKER_simp_conf
+simp_conf=$packerdir/files/simp_conf_updated.yaml
 
 fipsmode=`grep ^use_fips $simp_default | cut -f2 -d: | sed -e 's/^ *//g;s/ *$//g'| sort -u`
 sc_fipsmode=`grep ^use_fips $simp_conf | cut -f2 -d: | sed -e 's/^ *//g;s/ *$//g'| sort -u`

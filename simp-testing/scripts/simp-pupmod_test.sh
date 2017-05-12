@@ -4,11 +4,11 @@
 #  or what is set in the conf file
 
 # We want to make sure the puppet server is up after the reboot
+packerdir="/var/local/simp"
 export PATH=$PATH:/opt/puppetlabs/bin
-source /var/local/simp/scripts/functions.sh
+source $packerdir/scripts/functions.sh
 
-
-myyaml=/var/local/simp/files/simp_conf_update.yaml
+myyaml=$packerdir/files/simp_conf_updated.yaml
 puppetconf=`puppet config print | grep "^config =" | cut -f3 -d" "`
 
 ## Get the values set in the /etc/puppet.conf file for the ports

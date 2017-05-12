@@ -1,0 +1,8 @@
+21   IN PTR   server21.<%= $domain %>.
+22   IN PTR   server22.<%= $domain %>.
+23   IN PTR   server23.<%= $domain %>.
+24   IN PTR   server24.<%= $domain %>.
+31   IN PTR   ws31.<%= $domain %>.
+32   IN PTR   ws32.<%= $domain %>.
+33   IN PTR   ws33.<%= $domain %>.
+34   IN PTR   ws34.<%= $domain %>.

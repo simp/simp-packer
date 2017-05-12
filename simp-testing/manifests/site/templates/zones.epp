@@ -1,0 +1,10 @@
+zone "<%= $domain %>" IN {
+        type master;
+        file "forward/<%= $domain %>.db";
+};
+
+zone "<%= $rev_ip %>.in-addr.arpa" IN {
+        type master;
+        file "reverse/<%= $rev_ip %>.db";
+};
+

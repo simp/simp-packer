@@ -1,0 +1,9 @@
+$TTL    86400
+@                         IN SOA  <%= $domain %>.   <%= $fqdn_dnsserver %>. (
+                                        <%= $date %>
+                                        3H              ; refresh
+                                        15M             ; retry
+                                        1W              ; expiry
+                                        1D )            ; minimum
+                           IN NS           <%= $fqdn_dnsserver %>.
+

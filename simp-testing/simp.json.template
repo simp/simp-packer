@@ -14,15 +14,15 @@
   "__": "     to changed behavior.                                          ",
   "variables" :
     {
-      "fips": "{{env `SIMP_PACKER_fips`}}",
-      "disk_encrypt": "{{env `SIMP_PACKER_disk_encrypt`}}",
-      "simp_conf_file": "{{env `SIMP_PACKER_simp_conf_file`}}",
+      "fips": "FIPS",
+      "domain": "DOMAIN",
+      "network": "HOST_ONLY_NETWORK",
+      "disk_encrypt": "DISK_CRYPT",
       "big_sleep": "{{env `SIMP_PACKER_big_sleep`}}",
-      "host_only_network_name": "{{env `SIMP_PACKER_host_only_network_name`}}",
-      "root_password": "{{env `SIMP_PACKER_root_password`}}",
-      "vagrant_password": "{{env `SIMP_PACKER_vagrant_password`}}",
-      "nat_if": "{{env `SIMP_PACKER_nat_network_if`}}",
-      "vm_description": "{{env `SIMP_PACKER_vm_description`}}"
+      "host_only_network_name": "HOST_VBOX_NETWORK_NAME",
+      "vagrant_password": "vagrant",
+      "nat_if": "NAT_INTERFACE",
+      "vm_description": "VM_DESCRIPTION"
     },
   "builders": [
     {
@@ -128,19 +128,30 @@
       "script" : "scripts/check_settings_at_boot.sh"
     },
     {
-## Set up the vagrant and root passwords
+## Set up the vagrant password
       "type": "shell",
       "remote_path": "/var/local/simp/inline-vagrant-users.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
       "inline" : [
         "sed -i 's/enforce_for_root//' /etc/pam.d/system-auth /etc/pam.d/*",
         "useradd vagrant",
+        "ip addr",
         "echo {{user `vagrant_password`}} | passwd vagrant --stdin",
-        "echo {{user `root_password`}} | passwd root --stdin",
         "echo 'vagrant ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers",
         "#puppet apply -e 'include site::vagrant'",
         "chmod g+rX -R /home/vagrant"
       ]
+    },
+    {
+      "type": "shell",
+      "remote_path": "/var/local/simp/scripts/config/simp_config.rb",
+      "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
+      "environment_vars" : [
+        "SIMP_PACKER_fips={{user `fips`}}",
+        "SIMP_PACKER_network={{user `network`}}",
+        "SIMP_PACKER_domain={{user `domain`}}"
+      ],
+      "script" : "scripts/config/simp_config.rb"
     },
     {
 ## Now we run simp using the simp conf yaml file specified in the shell.

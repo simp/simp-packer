@@ -1,0 +1,8 @@
+server21.<%= $domain %>.   IN A   <%= $fwdaddr %>.21
+server22.<%= $domain %>.   IN A   <%= $fwdaddr %>.22
+server23.<%= $domain %>.   IN A   <%= $fwdaddr %>.23
+server24.<%= $domain %>.   IN A   <%= $fwdaddr %>.24
+ws31.<%= $domain %>.   IN A   <%= $fwdaddr %>.31
+ws32.<%= $domain %>.   IN A   <%= $fwdaddr %>.32
+ws33.<%= $domain %>.   IN A   <%= $fwdaddr %>.33
+ws34.<%= $domain %>.   IN A   <%= $fwdaddr %>.34
