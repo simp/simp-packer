@@ -64,7 +64,11 @@ for dir in "files" "manifests" "scripts"; do
 done
 
 cd $working_dir
+# Update the json file with packer.yaml settings and copy to working dir
 $basedir/simp_json.rb $basedir/simp.json.template $testdir/packer.yaml
+# Update config files with packer.yaml setting and copy to working dir
+$basedir/simp_config.rb $working_dir $testdir
+#If you use debug you must set header to true or you won't see the debug.
 #/bin/packer build --debug -var-file=$testdir/vars.json $working_dir/simp.json &> $logfile
 /bin/packer build -var-file=$testdir/vars.json $working_dir/simp.json >& $logfile
 if [[ $? -ne 0 ]]; then

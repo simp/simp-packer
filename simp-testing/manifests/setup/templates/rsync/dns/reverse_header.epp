@@ -1,0 +1,9 @@
+$TTL    86400
+@                         IN SOA  <%= $simpsetup::dns::domain %>.   <%= $simpsetup::dns::fqdn_dnsserver %>. (
+                                        <%= $simpsetup::dns::date %>
+                                        3H              ; refresh
+                                        15M             ; retry
+                                        1W              ; expiry
+                                        1D )            ; minimum
+                           IN NS           <%= $simpsetup::dns::fqdn_dnsserver %>.
+

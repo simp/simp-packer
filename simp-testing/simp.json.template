@@ -22,6 +22,7 @@
       "host_only_network_name": "HOST_VBOX_NETWORK_NAME",
       "vagrant_password": "vagrant",
       "nat_if": "NAT_INTERFACE",
+      "simp_conf_file": "/var/local/simp/files/simp_conf.yaml",
       "vm_description": "VM_DESCRIPTION"
     },
   "builders": [
@@ -91,6 +92,8 @@
         "{{user `new_password`}}<enter>",
         "<wait><wait>",
         "<wait><wait>",
+# Bring up the NAT network
+# TODO:  Is there a way I can just figure the nat_if out without setting a variable.
         "echo 'simp ALL=(ALL) NOPASSWD:ALL'  >> /etc/sudoers<enter>",
         "sed -ie '/Defaults *requiretty/d' /etc/sudoers<enter>",
         "sed -ie 's/ONBOOT=no/ONBOOT=yes/g' /etc/sysconfig/network-scripts/ifcfg-{{user `nat_if`}}<enter>",
@@ -129,6 +132,8 @@
     },
     {
 ## Set up the vagrant password
+# TODO:  Not sure I need this because of one of the scripts that sets up a puppet
+# manifest to do this. And you don't need vagrant until you build the vagrant box.
       "type": "shell",
       "remote_path": "/var/local/simp/inline-vagrant-users.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
@@ -141,17 +146,6 @@
         "#puppet apply -e 'include site::vagrant'",
         "chmod g+rX -R /home/vagrant"
       ]
-    },
-    {
-      "type": "shell",
-      "remote_path": "/var/local/simp/scripts/config/simp_config.rb",
-      "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
-      "environment_vars" : [
-        "SIMP_PACKER_fips={{user `fips`}}",
-        "SIMP_PACKER_network={{user `network`}}",
-        "SIMP_PACKER_domain={{user `domain`}}"
-      ],
-      "script" : "scripts/config/simp_config.rb"
     },
     {
 ## Now we run simp using the simp conf yaml file specified in the shell.
@@ -209,9 +203,7 @@
       "remote_path": "/var/local/simp/scripts/check_settings_after_bootstrap.sh",
       "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
       "environment_vars" : [
-        "SIMP_PACKER_simp_conf_file={{user `simp_conf_file`}}",
-        "SIMP_PACKER_simp_prompt={{user `simp_prompt`}}",
-        "SIMP_PACKER_disk_encrypt={{user `disk_encrypt`}}"
+        "SIMP_PACKER_simp_conf_file={{user `simp_conf_file`}}"
       ],
       "script" : "scripts/check_settings_after_bootstrap.sh"
     }

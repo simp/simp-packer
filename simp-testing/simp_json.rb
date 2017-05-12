@@ -1,6 +1,6 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 def getsettings(settings_file)
-  if File.file?(settings_file) 
+  if File.file?(settings_file)
     settings = YAML.load_file(settings_file)
   else
      raise "Settings yaml file does not exist or is not a file."
@@ -8,9 +8,11 @@ def getsettings(settings_file)
 end
 
 def getjson(json_file)
-  if File.file?(json_file) 
+  if File.file?(json_file)
     f = File.open(json_file,'r')
     json = String.new
+    #remove all the comments I put in the json file
+    # so I could remember why I did stuff
     f.each {|line|
       unless  line[0] == '#'
         json = json + line
@@ -29,8 +31,8 @@ require 'yaml'
 json_tmp=ARGV[0]
 setting_yaml=ARGV[1]
 
-settings = getsettings setting_yaml 
-json = getjson json_tmp 
+settings = getsettings setting_yaml
+json = getjson json_tmp
 
 json.gsub!(/^#*$/,'')
 
@@ -38,8 +40,7 @@ settings.each { |key, value|
   json.gsub!(key,value)
 }
 
-File.open('simp.json','w') do |h| 
+File.open('simp.json','w') { |h|
      h.write json
      h.close
-end
-
+}

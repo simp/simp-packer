@@ -1,4 +1,4 @@
-dn: cn=users,ou=Group,LDAPDOMAIN
+dn: cn=users,ou=Group,LDAPBASEDN
 changeType: modify
 add: memberUid
 memberUid: admin1
@@ -6,7 +6,7 @@ memberUid: admin2
 memberUid: user1
 memberUid: user2
 
-dn: cn=administrators,ou=Group,LDAPDOMAIN
+dn: cn=administrators,ou=Group,LDAPBASEDN
 changeType: modify
 add: memberUid
 memberUid: admin1
