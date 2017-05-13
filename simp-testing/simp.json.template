@@ -35,10 +35,10 @@
       "iso_checksum":    "{{user `iso_checksum`}}",
       "iso_checksum_type": "{{user `iso_checksum_type`}}",
       "disk_size": "50000",
-      "headless": "true",
+      "headless": "false",
       "vm_name": "{{user `vm_description`}}",
-      "skip_export": "false",
-      "output_directory": "/var/jmg/packer-output/{{user `vm_description`}}",
+#      "skip_export": "false",
+      "output_directory": "../OUTPUT/{{user `vm_description`}}",
       "export_opts": [
         "--description", "{{user `vm_description`}}"
         ],
@@ -130,23 +130,23 @@
       ],
       "script" : "scripts/check_settings_at_boot.sh"
     },
-    {
+#    {
 ## Set up the vagrant password
 # TODO:  Not sure I need this because of one of the scripts that sets up a puppet
 # manifest to do this. And you don't need vagrant until you build the vagrant box.
-      "type": "shell",
-      "remote_path": "/var/local/simp/inline-vagrant-users.sh",
-      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
-      "inline" : [
-        "sed -i 's/enforce_for_root//' /etc/pam.d/system-auth /etc/pam.d/*",
-        "useradd vagrant",
-        "ip addr",
-        "echo {{user `vagrant_password`}} | passwd vagrant --stdin",
-        "echo 'vagrant ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers",
-        "#puppet apply -e 'include site::vagrant'",
-        "chmod g+rX -R /home/vagrant"
-      ]
-    },
+#      "type": "shell",
+#      "remote_path": "/var/local/simp/inline-vagrant-users.sh",
+#      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
+#      "inline" : [
+#        "sed -i 's/enforce_for_root//' /etc/pam.d/system-auth /etc/pam.d/*",
+#        "useradd vagrant",
+#        "ip addr",
+#        "echo {{user `vagrant_password`}} | passwd vagrant --stdin",
+#        "echo 'vagrant ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers",
+#        "#puppet apply -e 'include site::vagrant'",
+#        "chmod g+rX -R /home/vagrant"
+#      ]
+#    },
     {
 ## Now we run simp using the simp conf yaml file specified in the shell.
 ## It should complete successfully.
@@ -157,23 +157,21 @@
          "simp config -a {{user `simp_conf_file`}}"
        ]
     },
-    {
+#    {
 ## Load manifest that will keep the vagrant user and will set up simp
 ## user so it can continue to use sudo and ssh into the server when
 ## puppet is running and simp has locked the system down.
-      "type": "shell",
-      "remote_path": "/var/local/simp/puppet-usersetup.sh",
-      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
-      "script": "scripts/puppet-usersetup.sh"
-    },
+#      "type": "shell",
+#      "remote_path": "/var/local/simp/puppet-usersetup.sh",
+#      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
+#      "script": "scripts/puppet-usersetup.sh"
+#    },
     {
 ## Now run bootstrap.  It should complete successfully and reboot.
       "type": "shell",
-      "remote_path": "/var/local/simp/inline-simp-bootstrap.sh",
+      "remote_path": "/var/local/simp/scripts/simp-bootstrap.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -E bash '{{.Path}}'",
-      "inline" : [
-        "simp bootstrap --remove_ssldir --no-track"
-       ]
+      "script" : "scripts/simp-bootstrap.sh"
     },
     {
 ## Reboot the system.

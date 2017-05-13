@@ -23,13 +23,14 @@ simpconfig = YAML.load_file("#{testdir}/simp_conf.yaml")
 #TODO:  Update the cli::network::interface to determine what is is from
 #ip addr or something similiar so this will work for CentOS 6
 simpconfig['cli::network::interface'] = "enp0s8"
-simpconfig['cli::network::ipaddress'] = network + ".7"
 simpconfig['cli::network::netmask'] = "255.255.255.0"
 simpconfig['cli::network::gateway'] = network + ".1"
 simpconfig['simp_options::dns::servers'] = network + ".7"
+simpconfig['cli::network::ipaddress'] = network + ".7"
 simpconfig['simp_options::dns::search'] = [ domain ]
 simpconfig['simp_options::trusted_nets']= network + ".0/24"
 simpconfig['simp_options::puppet::server'] = "puppet" + "." + domain
+simpconfig['cli::network::hostname'] = simpconfig['simp_options::puppet::server']
 simpconfig['simp_options::puppet::ca'] = simpconfig['simp_options::puppet::server']
 simpconfig['simp_options::ldap::base_dn'] = "dc=" + domain.split(".").join(",dc=")
 simpconfig['simp_options::fips'] = fips.eql? "fips=0"
