@@ -24,7 +24,7 @@
       "format": "ova",
 
       "ssh_username": "packer",
-      "ssh_password": "UserPassword",
+      "ssh_password": "packer",
       "ssh_wait_timeout": "900s",
 
       "ssh_host_port_min": 2222,
@@ -32,7 +32,6 @@
 
       "boot_wait": "10s",
       "boot_command": [
- 
         "<wait>",
         "vmlinuz inst.ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ks.cfg initrd=initrd.img fips=0",
         "<enter><wait>"
