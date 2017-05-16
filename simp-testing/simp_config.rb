@@ -5,6 +5,24 @@
 #to the packer.yaml settings and move them to the working directory.
 #The working directory is what is copied to simp server.
 #
+def encrypt_openldap_hash( string, salt=nil )
+   require 'digest/sha1'
+   require 'base64'
+
+   # Ruby 1.8.7 hack to do Random.new.bytes(4):
+   salt   = salt || (x = ''; 4.times{ x += ((rand * 255).floor.chr ) }; x)
+   digest = Digest::SHA1.digest( string + salt )
+
+   # NOTE: Digest::SHA1.digest in Ruby 1.9+ returns a String encoding in
+   #       ASCII-8BIT, whereas all other Strings in play are UTF-8
+   if RUBY_VERSION.split('.')[0..1].join('.').to_f > 1.8
+     digest = digest.force_encoding( 'UTF-8' )
+     salt   = salt.force_encoding( 'UTF-8' )
+   end
+
+   "{SSHA}"+Base64.encode64( digest + salt ).chomp
+end
+
 require 'yaml'
 
 workingdir = ARGV[0]
@@ -44,15 +62,15 @@ end
 # While we are at it we will update the ldif files with the basedn
 # and copy them to the working directory
 #  TODO might want to move this to the simp server
-Dir.mkdir("#{workingdir}/ldifs")
-Dir.foreach("#{basedir}/ldifs") do |file|
-  if File.file?(file)
-    ldiffile = File.open(file,'rb')
+Dir.mkdir("#{workingdir}/files/ldifs")
+Dir.foreach("#{basedir}/files/ldifs") do |file|
+  if ! File.directory?("#{basedir}/files/ldifs/#{file}")
+    ldiffile = File.open("#{basedir}/files/ldifs/#{file}",'rb')
     contents = ldiffile.read
     ldiffile.close
     contents.gsub!("LDAPBASEDN",simpconfig['simp_options::ldap::base_dn'])
     fname = File.basename("#{file}")
-    File.open("#{workingdir}/ldifs/#{fname}",'w') do |h|
+    File.open("#{workingdir}/files/ldifs/#{fname}",'w') do |h|
       h.write(contents)
       h.close
     end

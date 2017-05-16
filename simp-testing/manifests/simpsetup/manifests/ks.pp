@@ -1,9 +1,9 @@
-class simpsetup::ks (
-  Boolean    $fips  = $simpsetup::fips
-) {
+class simpsetup::ks {
 
+  fips = $facts['fips_enabled']
   linuxdist = $facts['os']['name']
   ksdir = '/var/www/ks'
+  ksip = $facts['networking']['ip']
 
   file { "${ksdir}/pupclient_x86_64.cfg":
     owner   => 'root',

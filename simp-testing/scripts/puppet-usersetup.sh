@@ -7,16 +7,16 @@ export PATH="$PATH:/opt/puppetlabs/bin"
 
 pupenvdir=`puppet config print | grep ^environmentpath | cut -f3 -d" "`
 
+echo "The puppet environment directory is: $pupenvdir"
+
 if [ ! -d ${pupenvdir}/simp/modules/site/manifests ]; then
    mkdir -p ${pupenvdir}/simp/modules/site/manifests
-   chown puppet:root ${pupenvdir}/simp/modules/site/manifests
-   chmod 750 ${pupenvdir}/simp/modules/site/manifests
 fi
 
 cat << EOF > ${pupenvdir}/simp/modules/site/manifests/vagrant.pp
 # site-specific configuration
 #
-# in this instance, it is just some treaks to make sure simp in vagrant runs well
+# in this instance, it is just some tweaks to make sure simp in vagrant runs well
 class site::vagrant {
   pam::access::manage { 'vagrant':
     permission => '+',
@@ -64,4 +64,10 @@ ssh::server::conf::authorizedkeysfile: ".ssh/authorized_keys"
 simplib::resolv::option_rotate: false
 EOF
 
+chown root:puppet ${pupenvdir}/simp/hieradata/default.yaml
+chmod g+rX ${pupenvdir}/simp/hieradata/default.yaml
+chown -R root:puppet ${pupenvdir}/simp/modules/site
+chmod -R g+rX ${pupenvdir}/simp/modules/site/manifests
+
+puppet apply --modulepath=/opt/puppetlabs/code/environments/production/simp/modules -e "include site::vagrant"
 

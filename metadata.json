@@ -1,0 +1,43 @@
+{
+  "name": "simp-packer",
+  "version": "1.0.0",
+  "author": "SIMP Team",
+  "summary": "Module for creating vagrant boxes for training and testing",
+  "license": "Apache-2.0",
+  "source": "https://github.com/simp/simp-packer",
+  "project_page": "https://github.com/simp/simp-packer",
+  "issues_url": "https://simp-project.atlassian.net",
+  "data_provider": "hiera",
+  "tags": [
+    "simp",
+    "profiles"
+  ],
+  "dependencies": [
+    {
+      "name": "puppetlabs/concat",
+      "version_requirement": ">= 2.2.0 < 3.0.0"
+    },
+  ],
+  "requirements": [
+    {
+      "name": "puppet",
+      "version_requirement": ">= 4.8.2 < 5.0.0"
+    }
+  ],
+  "operatingsystem_support": [
+    {
+      "operatingsystem": "CentOS",
+      "operatingsystemrelease": [
+        "6",
+        "7"
+      ]
+    },
+    {
+      "operatingsystem": "RedHat",
+      "operatingsystemrelease": [
+        "6",
+        "7"
+      ]
+    }
+  ]
+}

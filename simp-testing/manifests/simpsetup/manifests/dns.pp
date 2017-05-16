@@ -3,13 +3,12 @@ class simpsetup::dns
    String              $dnsserver = $simpsetup::dnsserver,
    String              $ipaddress = $simpsetup::ipaddress,
    String              $relver = $simpsetup::relver,
-   Simplib::Netlist    $trusted_nets = $simpsetup::trusted_nets
+   String              $allowed_nets = $simpsetup::allowed_nets
 {
 
   $revaddr = (($ipaddress.split("."))[0,3].reverse).join(".")
   $fwdaddr = ($ipaddress.split("."))[0,3].join(".")
   $dns_rsync_dir = "/var/simp/environments/simp/rsync/CentOS/${relver}/bind_dns/default/named"
-  $allowed_nets = nets2cidr($trusted_nets)
 
   file { "${dns_rsync_dir}/etc/zones/${domain}":
      owner   => "root",
@@ -26,7 +25,7 @@ class simpsetup::dns
   }
 
   concat { "dns-forward":
-    ensure  => $ensure,
+    ensure  => true,
     path    => "${dns_rsync_dir}/var/named/forward/${domain}.db",
     owner   => 'root',
     group   => 'named',
@@ -35,7 +34,7 @@ class simpsetup::dns
   }
 
   concat { "dns-reverse":
-    ensure  => $ensure,
+    ensure  => true,
     path    => "${dns_rsync_dir}/var/named/reverse/${revaddr}.db",
     owner   => 'root',
     group   => 'named',

@@ -29,13 +29,13 @@
     {
       "type": "virtualbox-iso",
       "communicator":"ssh",
-      "ssh_pty": "false",
+      "ssh_pty": "true",
       "guest_os_type": "RedHat_64",
       "iso_url":       "{{user `iso_url`}}",
       "iso_checksum":    "{{user `iso_checksum`}}",
       "iso_checksum_type": "{{user `iso_checksum_type`}}",
       "disk_size": "50000",
-      "headless": "false",
+      "headless": "true",
       "vm_name": "{{user `vm_description`}}",
 #      "skip_export": "false",
       "output_directory": "../OUTPUT/{{user `vm_description`}}",
@@ -157,17 +157,9 @@
          "simp config -a {{user `simp_conf_file`}}"
        ]
     },
-#    {
-## Load manifest that will keep the vagrant user and will set up simp
-## user so it can continue to use sudo and ssh into the server when
-## puppet is running and simp has locked the system down.
-#      "type": "shell",
-#      "remote_path": "/var/local/simp/puppet-usersetup.sh",
-#      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
-#      "script": "scripts/puppet-usersetup.sh"
-#    },
     {
-## Now run bootstrap.  It should complete successfully and reboot.
+## Now run bootstrap. This script also setup up manifest to simp user can sudo
+## so other packer scripts can use sudo. 
       "type": "shell",
       "remote_path": "/var/local/simp/scripts/simp-bootstrap.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -E bash '{{.Path}}'",
@@ -184,16 +176,14 @@
        ]
     },
     {
+## Check settings after bootstrap.
       "type": "shell",
-      "remote_path": "/var/local/simp/runtests.sh",
-      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -E bash '{{.Path}}'",
-      "inline" : [
-	       "chmod +x /var/local/simp/scripts/simp*.sh",
-         "/var/local/simp/scripts/simp-pupmod_testfips.sh",
-         "echo simp-pupmod_testfips complete",
-         "/var/local/simp/scripts/simp-pupmod_test.sh",
-         "echo simp-pupmod_test complete"
-      ]
+      "remote_path": "/var/local/simp/scripts/simp-pupmod_testfips.sh",
+      "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
+      "environment_vars" : [
+        "SIMP_PACKER_simp_conf_file={{user `simp_conf_file`}}"
+      ],
+      "script" : "scripts/simp-pupmod_testfips.sh"
     },
     {
 ## Check settings after bootstrap.
@@ -204,6 +194,16 @@
         "SIMP_PACKER_simp_conf_file={{user `simp_conf_file`}}"
       ],
       "script" : "scripts/check_settings_after_bootstrap.sh"
+    },
+    {
+## Check settings after bootstrap, puppet needs to be up and running for this.
+      "type": "shell",
+      "remote_path": "/var/local/simp/scripts/simp-pupmod_test.sh",
+      "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
+      "environment_vars" : [
+        "SIMP_PACKER_simp_conf_file={{user `simp_conf_file`}}"
+      ],
+      "script" : "scripts/simp-pupmod_test.sh"
     }
   ]
 }

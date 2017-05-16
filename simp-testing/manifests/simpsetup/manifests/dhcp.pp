@@ -1,9 +1,10 @@
 class simpsetup::dhcp {
 
   $rsync_dir = "/var/simp/environments/simp/rsync/CentOS/Global/dhcp"
+  $fwdaddr = ($ipaddress.split("."))[0,3].join(".")
 
   concat { "rsync-dhcpd.conf":
-    ensure  => $ensure,
+    ensure  => true,
     path    => "${rsync_dir}/dhcpd.conf",
     owner   => 'root',
     group   => 'dhcpd',

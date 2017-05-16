@@ -22,8 +22,8 @@ function cleanup () {
 # Test dir should be the directory where the test files exist.  It
 # should be writable. The working directory will be created under here.
 # The working directory will be removed when finished so don't put output there.
-
-basedir=`pwd`
+basedir=$(dirname "$0")
+basename=$(basename "$0")
 testdir=$1
 
 if [[ ! -d $testdir ]]; then
@@ -31,14 +31,11 @@ if [[ ! -d $testdir ]]; then
   exit -1
 fi
 
-working_dir="${testdir}/`basename $0`.working.`date +%y%m%d%H%M%S`"
+working_dir="${testdir}/${basename}.working.`date +%y%m%d%H%M%S`"
 logfile=${testdir}/`date +%y%m%d%H%M%S`.`basename $0`.log
 if [[ -d $working_dir ]]; then
    rm -f ./$working_dir
 fi
-
-mkdir -p $working_dir/files
-cd $working_dir
 
 if [[ ! -f $testdir/packer.yaml ]]; then
   echo "$testdir/packer.yaml not found"
@@ -48,8 +45,6 @@ fi
 if [[ ! -f $testdir/simp_conf.yaml ]]; then
   echo "$testdir/simp_conf.yaml  not found"
   cleanup -1
-else
-  cp $testdir/simp_conf.yaml $working_dir/files/simp_conf.yaml
 fi
 
 if [[ ! -f $testdir/vars.json ]]; then
@@ -59,7 +54,7 @@ fi
 
 for dir in "files" "manifests" "scripts"; do
    if [[ -d $basedir/$dir ]]; then
-     cp -Rp $basedir/$dir $working_dir/$dir
+     cp -Rp $basedir/$dir $working_dir/
   fi
 done
 

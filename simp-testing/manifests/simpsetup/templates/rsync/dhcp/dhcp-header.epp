@@ -4,7 +4,7 @@ ddns-update-style interim;
 
 class "pxeclients" {
   match if substring(option vendor-class-identifier, 0, 9) = "PXEClient";
-  next-server         <%= $simpsetup::dhcp::ksserver %>;
+  next-server         <%= $simpsetup::dhcp::ksip %>;
   filename        "linux-install/pxelinux.0";
 }
 
