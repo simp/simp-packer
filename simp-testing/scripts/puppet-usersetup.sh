@@ -5,7 +5,8 @@
 #  incase it is Puppet 4.0
 export PATH="$PATH:/opt/puppetlabs/bin"
 
-pupenvdir=`puppet config print | grep ^environmentpath | cut -f3 -d" "`
+pupenvdir=`puppet config print environmentpath`
+pupenvmodpath=`puppet config print modulepath`
 
 echo "The puppet environment directory is: $pupenvdir"
 
@@ -69,5 +70,5 @@ chmod g+rX ${pupenvdir}/simp/hieradata/default.yaml
 chown -R root:puppet ${pupenvdir}/simp/modules/site
 chmod -R g+rX ${pupenvdir}/simp/modules/site/manifests
 
-puppet apply --modulepath=/opt/puppetlabs/code/environments/production/simp/modules -e "include site::vagrant"
+puppet apply --modulepath=${pupenvmodpath} -e "include site::vagrant"
 

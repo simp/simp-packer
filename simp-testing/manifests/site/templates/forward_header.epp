@@ -1,9 +1,0 @@
-$TTL    86400
-<%= $domain %>.            IN SOA  <%= $fqdn_dnsserver %>. hostmaster.<%= $domain %>. (
-                                        <%= $date %>
-                                        3H              ; refresh
-                                        15M             ; retry
-                                        1W              ; expiry
-                                        1D )            ; minimum
-                           IN NS           <%= $fqdn_dnsserver %>.
-

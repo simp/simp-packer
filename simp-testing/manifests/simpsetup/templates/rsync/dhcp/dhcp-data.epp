@@ -1,10 +1,10 @@
-<% $simpsetup::servers.each |number| { %>
+<% $simpsetup::servers.each |$number| { %>
   host server<%= $number %>.<%= $simpsetup::dhcp::domain %> {
     hardware ethernet <%= $simpsetup::dhcp::macprefix %>.<%= $number %>;
     fixed-address <%= $simpsetup::dhcp::fwdaddr %>.<%= $number %>;
   }
 <% } %>
-<% $simpsetup::clients.each |number| { %>
+<% $simpsetup::clients.each |$number| { %>
   host ws<%= $number %>.<%= $simpsetup::dhcp::domain %> {
     hardware ethernet <%= $simpsetup::dhcp::macprefix %>.<%= $number %>;
     fixed-address <%= $simpsetup::dhcp::fwdaddr %>.<%= $number %>;

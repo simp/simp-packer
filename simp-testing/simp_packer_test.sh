@@ -4,13 +4,13 @@ source ./scripts/functions.sh
 function cleanup () {
   exitcode=${1:0}
 
-  cd $testdir
+  cd $TESTDIR
 
-  case $SIMP_PACKER_save_working_dir in
+  case $SIMP_PACKER_save_WORKINGDIR in
   "yes" )
       ;;
    *)
-      rm -rf $working_dir
+      rm -rf $WORKINGDIR
       ;;
    esac
 
@@ -22,50 +22,53 @@ function cleanup () {
 # Test dir should be the directory where the test files exist.  It
 # should be writable. The working directory will be created under here.
 # The working directory will be removed when finished so don't put output there.
-basedir=$(dirname "$0")
-basename=$(basename "$0")
-testdir=$1
+SCRIPT=$(readlink -f $0)
+# Absolute path this script is in. /home/user/bin
+BASEDIR=`dirname $SCRIPT`
+TESTDIR=$1
+DATE=`date +%y%m%d%H%M%S`
 
-if [[ ! -d $testdir ]]; then
-  echo "$testdir not found"
+if [[ ! -d $TESTDIR ]]; then
+  echo "$TESTDIR not found"
   exit -1
 fi
 
-working_dir="${testdir}/${basename}.working.`date +%y%m%d%H%M%S`"
-logfile=${testdir}/`date +%y%m%d%H%M%S`.`basename $0`.log
-if [[ -d $working_dir ]]; then
-   rm -f ./$working_dir
+WORKINGDIR="${TESTDIR}/working.${DATE}"
+logfile=${TESTDIR}/${DATE}.`basename $0`.log
+if [[ -d $WORKINGDIR ]]; then
+   rm -rf ./$WORKINGDIR
 fi
+mkdir $WORKINGDIR
 
-if [[ ! -f $testdir/packer.yaml ]]; then
-  echo "$testdir/packer.yaml not found"
+if [[ ! -f $TESTDIR/packer.yaml ]]; then
+  echo "${TESTDIR}/packer.yaml not found"
   cleanup -1
 fi
 
-if [[ ! -f $testdir/simp_conf.yaml ]]; then
-  echo "$testdir/simp_conf.yaml  not found"
+if [[ ! -f $TESTDIR/simp_conf.yaml ]]; then
+  echo "${TESTDIR}/simp_conf.yaml  not found"
   cleanup -1
 fi
 
-if [[ ! -f $testdir/vars.json ]]; then
-  echo "$testdir/vars.json Not found"
+if [[ ! -f $TESTDIR/vars.json ]]; then
+  echo "${TESTDIR}/vars.json Not found"
   cleanup -1
 fi
 
 for dir in "files" "manifests" "scripts"; do
-   if [[ -d $basedir/$dir ]]; then
-     cp -Rp $basedir/$dir $working_dir/
+   if [[ -d $BASEDIR/$dir ]]; then
+     cp -Rp $BASEDIR/$dir $WORKINGDIR/
   fi
 done
 
-cd $working_dir
-# Update the json file with packer.yaml settings and copy to working dir
-$basedir/simp_json.rb $basedir/simp.json.template $testdir/packer.yaml
+cd $WORKINGDIR
+# Update the json file with packer.yaml settings and copy to test directory
+$BASEDIR/simp_json.rb $BASEDIR/simp.json.template $TESTDIR/packer.yaml
 # Update config files with packer.yaml setting and copy to working dir
-$basedir/simp_config.rb $working_dir $testdir
+$BASEDIR/simp_config.rb $WORKINGDIR $TESTDIR
 #If you use debug you must set header to true or you won't see the debug.
-#/bin/packer build --debug -var-file=$testdir/vars.json $working_dir/simp.json &> $logfile
-/bin/packer build -var-file=$testdir/vars.json $working_dir/simp.json >& $logfile
+#/bin/packer build --debug -var-file=$TESTDIR/vars.json $WORKINGDIR/simp.json &> $logfile
+/bin/packer build -var-file=$TESTDIR/vars.json $WORKINGDIR/simp.json >& $logfile
 if [[ $? -ne 0 ]]; then
   mv $logfile ${logfile}.errors
   cleanup -1

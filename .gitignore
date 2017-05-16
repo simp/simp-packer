@@ -10,3 +10,4 @@
 packer_cache
 # mergetool
 *.orig
+dist
