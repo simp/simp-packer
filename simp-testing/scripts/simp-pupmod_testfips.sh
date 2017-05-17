@@ -1,18 +1,20 @@
 #!/usr/bin/sh
 #
+# TODO might want to change this to a ruby script since we are reading in yaml files.
 #  First check if the fips mode set in the configuration file is the same as the one
 #  set in the hiera file.
 #  Then check if the system mode is set the same as the hiera file.
 packerdir="/var/local/simp"
 export PATH=$PATH:/opt/puppetlabs/bin
 source $packerdir/scripts/functions.sh
-pupenvdir=`puppet config print | grep ^environmentpath | cut -f3 -d" "`
-simp_default="${pupenvdir}/simp/hieradata/simp_config.yaml"
+pupenvdir=`puppet config print environmentpath`
+simp_default="${pupenvdir}/simp/hieradata/simp_config_settings.yaml"
 
-simp_conf=$packerdir/files/simp_conf_updated.yaml
+simp_conf=$SIMP_PACKER_simp_conf_file
 
-fipsmode=`grep ^use_fips $simp_default | cut -f2 -d: | sed -e 's/^ *//g;s/ *$//g'| sort -u`
-sc_fipsmode=`grep ^use_fips $simp_conf | cut -f2 -d: | sed -e 's/^ *//g;s/ *$//g'| sort -u`
+fipsmode=`grep ^simp_options::fips: $simp_default | cut -f2 -d' '`
+sc_fipsmode=`grep ^simp_options::fips: $simp_conf | cut -f2 -d' '`
+#sc_fipsmode=`grep ^use_fips $simp_conf | cut -f2 -d: | sed -e 's/^ *//g;s/ *$//g'| sort -u`
 
 if [[ $fipsmode -ne $sc_fipsmode ]]; then
   echo "The fips mode in the config file: $sc_fipsmode does not equal the one in simp_def hiera: $fipsmode."
@@ -41,7 +43,7 @@ case $fipsmode in
   fi
   ;;
 * )
-  echo "Error use_fips in simp_def should be true or false."
+  echo "Error simp_options::fips: in simp_def should be true or false."
   echo "It is set to ${fipsmode}"
   exit -1
   ;;

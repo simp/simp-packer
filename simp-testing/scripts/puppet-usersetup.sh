@@ -1,12 +1,10 @@
 #!/bin/sh
-
 #  Because this script is used before the reboot the path is not
 #  set for simp user so I add this to the end
 #  incase it is Puppet 4.0
 export PATH="$PATH:/opt/puppetlabs/bin"
 
 pupenvdir=`puppet config print environmentpath`
-pupenvmodpath=`puppet config print modulepath`
 
 echo "The puppet environment directory is: $pupenvdir"
 
@@ -19,23 +17,21 @@ cat << EOF > ${pupenvdir}/simp/modules/site/manifests/vagrant.pp
 #
 # in this instance, it is just some tweaks to make sure simp in vagrant runs well
 class site::vagrant {
-  pam::access::manage { 'vagrant':
+  pam::access::rule { 'vagrant':
     permission => '+',
-    users      => '(vagrant)',
+    users      => ['(vagrant)'],
     origins    => ['ALL'],
   }
   sudo::user_specification { 'vagrant_sudosh':
-    user_list => 'vagrant',
-    host_list => 'ALL',
-    runas     => 'ALL',
-    cmnd      => '/usr/bin/sudosh',
+    user_list => ['vagrant'],
+    host_list => ['ALL'],
+    cmnd      => ['/usr/bin/sudosh'],
     passwd    => false,
   }
   sudo::user_specification { 'simp_sudosh':
-    user_list => 'simp',
-    host_list => 'ALL',
-    runas     => 'ALL',
-    cmnd      => 'ALL',
+    user_list => ['simp'],
+    host_list => ['ALL'],
+    cmnd      => ['ALL'],
     passwd    => false,
   }
   sudo::default_entry { 'simp_default_notty':
@@ -43,11 +39,10 @@ class site::vagrant {
     target => 'simp',
     def_type => 'user'
   }
-
   sudo::user_specification { 'vagrant_ssh':
-    user_list => 'vagrant',
+    user_list => ['vagrant'],
     passwd    => false,
-    cmnd      => 'ALL'
+    cmnd      => ['ALL']
   }
   service { 'vboxadd': }
   service { 'vboxadd-service': }
@@ -70,5 +65,5 @@ chmod g+rX ${pupenvdir}/simp/hieradata/default.yaml
 chown -R root:puppet ${pupenvdir}/simp/modules/site
 chmod -R g+rX ${pupenvdir}/simp/modules/site/manifests
 
-puppet apply --modulepath=${pupenvmodpath} -e "include site::vagrant"
+puppet apply -e "include site::vagrant"
 

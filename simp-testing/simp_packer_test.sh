@@ -33,6 +33,8 @@ if [[ ! -d $TESTDIR ]]; then
   exit -1
 fi
 
+
+
 WORKINGDIR="${TESTDIR}/working.${DATE}"
 logfile=${TESTDIR}/${DATE}.`basename $0`.log
 if [[ -d $WORKINGDIR ]]; then
@@ -67,7 +69,7 @@ $BASEDIR/simp_json.rb $BASEDIR/simp.json.template $TESTDIR/packer.yaml
 # Update config files with packer.yaml setting and copy to working dir
 $BASEDIR/simp_config.rb $WORKINGDIR $TESTDIR
 #If you use debug you must set header to true or you won't see the debug.
-#/bin/packer build --debug -var-file=$TESTDIR/vars.json $WORKINGDIR/simp.json &> $logfile
+#PACKER_LOG=1 PACKER_LOGPATH=/tmp/packer.log.$DATE /bin/packer build -var-file=$TESTDIR/vars.json $WORKINGDIR/simp.json >& $logfile
 /bin/packer build -var-file=$TESTDIR/vars.json $WORKINGDIR/simp.json >& $logfile
 if [[ $? -ne 0 ]]; then
   mv $logfile ${logfile}.errors

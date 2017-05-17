@@ -47,6 +47,7 @@
         ["modifyvm", "{{.Name}}", "--nic1", "nat"],
         ["modifyvm", "{{.Name}}", "--nic2", "hostonly"],
         ["modifyvm", "{{.Name}}", "--hostonlyadapter2", "{{user `host_only_network_name`}}"],
+        ["modifyvm", "{{.Name}}", "--macaddress2", "MACADDRESS"],
         ["modifyvm", "{{.Name}}", "--cpus", "2"],
         ["modifyvm", "{{.Name}}", "--accelerate3d", "off"]
       ],
@@ -102,7 +103,7 @@
        ],
       "ssh_username": "simp",
       "ssh_password": "{{user `new_password`}}",
-      "shutdown_command": "sudo -S shutdown -H now"
+      "shutdown_command": "echo {{user `new_password`}} | sudo -S shutdown -H now"
     }
   ],
   "provisioners": [
@@ -159,7 +160,7 @@
     },
     {
 ## Now run bootstrap. This script also setup up manifest to simp user can sudo
-## so other packer scripts can use sudo. 
+## so other packer scripts can use sudo.
       "type": "shell",
       "remote_path": "/var/local/simp/scripts/simp-bootstrap.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -E bash '{{.Path}}'",
@@ -170,40 +171,63 @@
       "type": "shell",
       "remote_path": "/var/local/simp/inline-simp-reboot.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -E bash '{{.Path}}'",
+      "expect_disconnect": true,
+      "skip_clean": true,
       "inline" : [
          "echo 'rebooting now'",
-         "shutdown -r now"
+         "/usr/sbin/shutdown -r now"
        ]
     },
-    {
+#   {
 ## Check settings after bootstrap.
-      "type": "shell",
-      "remote_path": "/var/local/simp/scripts/simp-pupmod_testfips.sh",
-      "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
-      "environment_vars" : [
-        "SIMP_PACKER_simp_conf_file={{user `simp_conf_file`}}"
-      ],
-      "script" : "scripts/simp-pupmod_testfips.sh"
-    },
-    {
+#      "type": "shell",
+#      "remote_path": "/var/local/simp/scripts/simp-pupmod_testfips.sh",
+#      "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
+#      "pause_before": "40s",
+#      "environment_vars" : [
+#        "SIMP_PACKER_simp_conf_file={{user `simp_conf_file`}}"
+#      ],
+#      "script" : "scripts/simp-pupmod_testfips.sh"
+#    },
+#    {
 ## Check settings after bootstrap.
-      "type": "shell",
-      "remote_path": "/var/local/simp/scripts/check_settings_after_bootstrap.sh",
-      "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
-      "environment_vars" : [
-        "SIMP_PACKER_simp_conf_file={{user `simp_conf_file`}}"
-      ],
-      "script" : "scripts/check_settings_after_bootstrap.sh"
-    },
-    {
+#  To Do, this is outdated.  Need to write new script for checking things
+#  Pushing ahead for getting vagrant boxes.
+#      "type": "shell",
+#      "remote_path": "/var/local/simp/scripts/check_settings_after_bootstrap.sh",
+#      "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
+#      "environment_vars" : [
+#        "SIMP_PACKER_simp_conf_file={{user `simp_conf_file`}}"
+#      ],
+#      "script" : "scripts/check_settings_after_bootstrap.sh"
+#    },
+#    {
 ## Check settings after bootstrap, puppet needs to be up and running for this.
+#      "type": "shell",
+#      "remote_path": "/var/local/simp/scripts/simp-pupmod_test.sh",
+#      "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
+#      "environment_vars" : [
+#        "SIMP_PACKER_simp_conf_file={{user `simp_conf_file`}}"
+#      ],
+#      "script" : "scripts/simp-pupmod_test.sh"
+#    }
+    {
+## Just putting a wait in before the vagrant creation so it will reboot totaly
       "type": "shell",
-      "remote_path": "/var/local/simp/scripts/simp-pupmod_test.sh",
+      "remote_path": "/var/local/simp/inline-simp-reboot.sh",
       "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
-      "environment_vars" : [
-        "SIMP_PACKER_simp_conf_file={{user `simp_conf_file`}}"
-      ],
-      "script" : "scripts/simp-pupmod_test.sh"
+      "pause_before": "140s",
+      "expect_disconnect": true,
+      "skip_clean": true,
+      "inline" : [
+         "echo 'done'"
+       ]
+    }
+  ],
+  "post-processors": [
+    {
+      "type": "vagrant",
+      "output": "/var/jmg/vagrant/{{user `vm_description`}}"
     }
   ]
 }

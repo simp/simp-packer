@@ -12,9 +12,9 @@ myyaml=$packerdir/files/simp_conf_updated.yaml
 puppetconf=`puppet config print | grep "^config =" | cut -f3 -d" "`
 
 ## Get the values set in the /etc/puppet.conf file for the ports
-master_port=`grep masterport $puppetconf | cut -f2 -d= | sed -e 's/^ *//g;s/ *$//g' | sort -u`
+master_port=`puppet config print masterport`
 echo "Master Port from ${puppetconf} is:  ${master_port}"
-caport=`grep ca_port ${puppetconf} | cut -f2 -d= | sed -e 's/^ *//g;s/ *$//g' | sort -u`
+caport=`puppet config print ca_port`
 echo "CA port from ${puppetconf} is:  $caport"
 
 sleep 100

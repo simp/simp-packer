@@ -4,7 +4,7 @@ source /var/local/simp/scripts/functions.sh
 
 ## Get the selinux setting
 #
-get_value_lower "^\"selinux::ensure\":" $SIMP_PACKER_simp_conf_file
+get_value_lower "^\"cli::simp::scenario:\":" $SIMP_PACKER_simp_conf_file
 
 se_value=`/sbin/getenforce | tr '[:upper:]' '[:lower:]'`
 

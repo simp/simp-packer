@@ -11,9 +11,9 @@ class simpsetup::dns(
   $dns_rsync_dir = "/var/simp/environments/simp/rsync/CentOS/${relver}/bind_dns/default/named"
 
   file { "${dns_rsync_dir}/etc/zones/${domain}":
-    owner   => "root",
-    group   => "named",
-    mode    => "0640",
+    owner   => 'root',
+    group   => 'named',
+    mode    => '0640',
     content => template('simpsetup/rsync/dns/zones.epp')
   }
 
