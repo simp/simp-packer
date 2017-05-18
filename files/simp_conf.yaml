@@ -18,7 +18,7 @@
 # === cli::is_ldap_server ===
 # Whether the SIMP server will also be the LDAP server.
 #
-cli::is_ldap_server: true
+cli::is_ldap_server: 
 
 # === cli::network::dhcp ===
 # Whether to use DHCP to set up your network ("static" or "dhcp").
@@ -50,14 +50,14 @@ cli::network::set_up_nic: true
 
 # === cli::set_grub_password ===
 # Whether to set the GRUB password on this system.
-cli::set_grub_password: false
+cli::set_grub_password:
 
 # === cli::set_production_to_simp ===
 # Whether to set default Puppet environment to 'simp'.
 #
 # Links the 'production' environment to 'simp', after backing up the
 # existing production environment.
-cli::set_production_to_simp: true
+cli::set_production_to_simp:
 
 # === cli::simp::scenario ===
 # The SIMP scenario.
@@ -72,7 +72,7 @@ cli::set_production_to_simp: true
 #               for the SIMP clients are disabled.  The SIMP server will
 #               be running with all security features enabled.
 #
-cli::simp::scenario: simp
+cli::simp::scenario: 
 
 # === cli::use_internet_simp_yum_repos ===
 # Whether to configure SIMP nodes to use internet SIMP and
@@ -82,7 +82,7 @@ cli::simp::scenario: simp
 # configurations will be created for both the SIMP server and
 # SIMP clients. These configurations will point to official
 # SIMP repositories.
-cli::use_internet_simp_yum_repos: true
+cli::use_internet_simp_yum_repos:
 
 # === puppetdb::master::config::puppetdb_port ===
 # The PuppetDB server port number.
@@ -102,14 +102,14 @@ simp::runlevel: 3
 # When SIMP is installed from ISO, a local user 'simp' is created to
 # prevent server lockout. This capability should only be enabled
 # when this user has been created.
-simp::server::allow_simp_user: false
+simp::server::allow_simp_user:
 
 # === simp_openldap::server::conf::rootpw ===
 # The LDAP Root password hash.
 #
 # When set via 'simp config', it is generated from the password
 # entered on the command line.
-simp_openldap::server::conf::rootpw: "{SSHA}JwapRn0UCGbGSGRf1A3KGJRNeFnf+Jgo"
+simp_openldap::server::conf::rootpw:
 
 # === simp_options::dns::search ===
 # The DNS domain search string.
@@ -134,7 +134,6 @@ simp_options::dns::search:
 # that you have this situation if you end up with a duplicate
 # definition for File['/etc/named.conf'].
 simp_options::dns::servers:
-- 172.31.0.2
 
 # === simp_options::fips ===
 # Prepare system to use FIPS mode.
@@ -160,19 +159,19 @@ simp_options::ldap::base_dn: dc=PLACEHOLDER_LDAP,dc=compute,dc=internal
 
 # === simp_options::ldap::bind_hash ===
 # The salted LDAP Bind password hash.
-simp_options::ldap::bind_hash: "{SSHA}li4YH7NMS+Q8Ocggl6m1Oj1gU2fQ6YZO"
+simp_options::ldap::bind_hash: 
 
 # === simp_options::ldap::bind_pw ===
 # The LDAP Bind password.
-simp_options::ldap::bind_pw: tjjcXMXH0B#DUKaGo33IRtV%bbXN-71h
+simp_options::ldap::bind_pw:
 
 # === simp_options::ldap::sync_hash ===
 #
-simp_options::ldap::sync_hash: "{SSHA}lG6KPu+LGrV1t82wLwNl73qBWQvB68M3"
+simp_options::ldap::sync_hash:
 
 # === simp_options::ldap::sync_pw ===
 # The LDAP Sync password.
-simp_options::ldap::sync_pw: ITjNyFbj4Pgq+RSdXY#YbjVi8dDw6nlf
+simp_options::ldap::sync_pw:
 
 # === simp_options::ntpd::servers ===
 # Your network's NTP time servers.
@@ -180,7 +179,6 @@ simp_options::ldap::sync_pw: ITjNyFbj4Pgq+RSdXY#YbjVi8dDw6nlf
 # DO NOT run multiple production systems using individual hardware clocks!
 # For many networks, the default gateway (172.31.16.1) provides an NTP server.
 simp_options::ntpd::servers:
-- 0.north-america.pool.ntp.org
 
 # === simp_options::puppet::ca ===
 # The Puppet Certificate Authority.
@@ -197,7 +195,7 @@ simp_options::puppet::server: PLACEHOLDER_HOSTNAME
 
 # === simp_options::syslog::failover_log_servers ===
 # Failover log server(s) in case your log servers(s) fail.
-simp_options::syslog::failover_log_servers: []
+simp_options::syslog::failover_log_servers:
 
 # === simp_options::syslog::log_servers ===
 # The log server(s) to receive forwarded logs.
@@ -205,7 +203,6 @@ simp_options::syslog::failover_log_servers: []
 # No log forwarding is enabled when this list is empty.  Only use hostnames
 # here if at all possible.
 simp_options::syslog::log_servers:
-- localhost
 
 # === simp_options::trusted_nets ===
 # A list of subnets to permit, in CIDR notation.
@@ -213,7 +210,6 @@ simp_options::syslog::log_servers:
 # If you need this to be more (or less) restrictive for a given class,
 # you can override it in Hiera.
 simp_options::trusted_nets:
-- 172.31.0.0/20
 
 # === sssd::domains ===
 # A list of domains for SSSD to use.
@@ -224,7 +220,6 @@ simp_options::trusted_nets:
 #   fail to start.
 #
 sssd::domains:
-- LDAP
 
 # === svckill::mode ===
 # Strategy svckill should use when it encounters undeclared services.
@@ -240,4 +235,4 @@ sssd::domains:
 # Is it HIGHLY recommended that you set this to 'enforcing'. Please be
 # aware that, if you do this, svckill will stop ALL services that are
 # not referenced in your Puppet configuration.
-svckill::mode: warning
+svckill::mode:

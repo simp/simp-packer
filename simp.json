@@ -11,8 +11,8 @@
     {
       "type": "virtualbox-iso",
       "guest_os_type": "RedHat_64",
-      "iso_url":       "{{user `iso_url`}}",
-      "iso_checksum":    "{{user `iso_checksum`}}",
+      "iso_url": "{{user `iso_url`}}",
+      "iso_checksum": "{{user `iso_checksum`}}",
       "iso_checksum_type": "{{user `iso_checksum_type`}}",
       "disk_size": "{{user `disk_size`}}",
       "http_directory": "./",
@@ -79,8 +79,44 @@
         "chmod 640 /var/local/packer/.ssh/authorized_keys",
         "echo {{user `ssh_pub_key`}} >> /var/local/packer/.ssh/authorized_keys",
 
-        "echo 'AllowUsers packer' >> /etc/ssh/sshd_config",
         "chcon -R -t ssh_home_t /var/local/packer/.ssh/"
+      ]
+    },
+    {
+      "type": "shell",
+      "remote_path": "/var/local/packer/create-ec2-conf-directory",
+      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
+      "inline": [
+        "mkdir /usr/share/simp/modules/site/simp",
+        "chown root:root /usr/share/simp/modules/site/simp"
+      ]
+    },
+    {
+      "type": "file",
+      "source": "files/ec2-init.pp",
+      "destination": "/var/local/packer/ec2-init.pp"
+    },
+    {
+      "type": "shell",
+      "remote_path": "/var/local/packer/move-ec2-init",
+      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
+      "inline": [
+        "mv /var/local/packer/ec2-init.pp /usr/share/simp/modules/site/simp/ec2-init.pp",
+        "chown -R root:root /usr/share/simp/modules/site/simp"
+      ]
+    },
+    {
+      "type": "file",
+      "source": "files/set_hieradata.sh",
+      "destination": "/var/local/packer/set_hieradata.sh"
+    },
+    {
+      "type": "shell",
+      "remote_path": "/var/local/packer/set_hieradata",
+      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
+      "inline": [
+        "chmod +x /var/local/packer/set_hieradata.sh",
+        "/var/local/packer/set_hieradata.sh"
       ]
     },
     {
@@ -89,14 +125,66 @@
       "destination": "/var/local/packer/simp_conf.yaml"
     },
     {
+      "type": "shell",
+      "remote_path": "/var/local/packer/move-simp-conf",
+      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
+      "inline": [
+        "mv -f /var/local/packer/simp_conf.yaml /usr/share/simp/simp_conf.yaml"
+      ]
+    },
+    {
       "type": "file",
-      "source": "files/install_simp.sh",
-      "destination": "/var/local/packer/install_simp.sh"
+      "source": "files/generate_answers.sh",
+      "destination": "/var/local/packer/generate_answers.sh"
+    },
+    {
+      "type": "shell",
+      "remote_path": "/var/local/packer/move-generate-answers",
+      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
+      "inline": [
+        "mv -f /var/local/packer/generate_answers.sh /usr/share/simp/generate_answers.sh"
+      ]
     },
     {
       "type": "file",
       "source": "files/remove_packer_user.sh",
       "destination": "/var/local/packer/remove_packer_user.sh"
+    },
+    {
+      "type": "shell",
+      "remote_path": "/var/local/packer/move-remove_packer_user",
+      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
+      "inline": [
+        "mv -f /var/local/packer/remove_packer_user.sh /usr/share/simp/remove_packer_user.sh"
+      ]
+    },
+    {
+      "type": "file",
+      "source": "files/cloud.cfg",
+      "destination": "/var/local/packer/cloud.cfg"
+    },
+    {
+      "type": "shell",
+      "remote_path": "/var/local/packer/move-cloud-cfg",
+      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
+      "inline": [
+        "mv -f /var/local/packer/cloud.cfg /etc/cloud/cloud.cfg",
+        "chown root:root /etc/cloud/cloud.cfg"
+      ]
+    },
+    {
+      "type": "file",
+      "source": "files/sshd_config",
+      "destination": "/var/local/packer/sshd_config"
+    },
+    {
+      "type": "shell",
+      "remote_path": "/var/local/packer/move-sshd_config",
+      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
+      "inline": [
+        "mv -f /var/local/packer/sshd_config /etc/ssh/sshd_config",
+        "chown root:root /etc/ssh/sshd_config"
+      ]
     }
   ],
   "post-processors": []
