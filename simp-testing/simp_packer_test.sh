@@ -64,13 +64,15 @@ for dir in "files" "manifests" "scripts"; do
 done
 
 cd $WORKINGDIR
+
+cp -R $BASEDIR/ssh $WORKINGDIR
 # Update the json file with packer.yaml settings and copy to test directory
 $BASEDIR/simp_json.rb $BASEDIR/simp.json.template $TESTDIR/packer.yaml
 # Update config files with packer.yaml setting and copy to working dir
 $BASEDIR/simp_config.rb $WORKINGDIR $TESTDIR
 #If you use debug you must set header to true or you won't see the debug.
 #PACKER_LOG=1 PACKER_LOGPATH=/tmp/packer.log.$DATE /bin/packer build -var-file=$TESTDIR/vars.json $WORKINGDIR/simp.json >& $logfile
-/bin/packer build -var-file=$TESTDIR/vars.json $WORKINGDIR/simp.json >& $logfile
+SIMP_PACKER_ssh_key="$WORKINGDIR/ssh/simpkey" /bin/packer build -var-file=$TESTDIR/vars.json $WORKINGDIR/simp.json >& $logfile
 if [[ $? -ne 0 ]]; then
   mv $logfile ${logfile}.errors
   cleanup -1

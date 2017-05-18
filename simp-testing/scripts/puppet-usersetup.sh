@@ -56,7 +56,7 @@ classes:
 
 # enable root login over ssh
 ssh::server::conf::permitrootlogin: true
-ssh::server::conf::authorizedkeysfile: ".ssh/authorized_keys"
+ssh::server::conf::authorizedkeysfile: .ssh/authorized_keys
 simplib::resolv::option_rotate: false
 EOF
 
@@ -66,4 +66,3 @@ chown -R root:puppet ${pupenvdir}/simp/modules/site
 chmod -R g+rX ${pupenvdir}/simp/modules/site/manifests
 
 puppet apply -e "include site::vagrant"
-

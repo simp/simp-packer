@@ -19,6 +19,7 @@
       "network": "HOST_ONLY_NETWORK",
       "disk_encrypt": "DISK_CRYPT",
       "big_sleep": "{{env `SIMP_PACKER_big_sleep`}}",
+      "ssh_key": "{{env `SIMP_PACKER_ssh_key`}}",
       "host_only_network_name": "HOST_VBOX_NETWORK_NAME",
       "vagrant_password": "vagrant",
       "nat_if": "NAT_INTERFACE",
@@ -102,8 +103,9 @@
         "exit<enter>"
        ],
       "ssh_username": "simp",
+#      "ssh_private_key_file": "{{user `ssh_key`}}",
       "ssh_password": "{{user `new_password`}}",
-      "shutdown_command": "echo {{user `new_password`}} | sudo -S shutdown -H now"
+      "shutdown_command": "sudo shutdown -H now"
     }
   ],
   "provisioners": [
@@ -118,6 +120,12 @@
       "type": "file",
       "source": "files",
       "destination": "/var/local/simp/"
+    },
+    {
+      "type": "shell",
+      "remote_path": "/var/local/simp/scripts/simpkeys.sh",
+      "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
+      "script" : "scripts/simpkeys.sh"
     },
     {
 ## TEST:  Check if it booted into fips or not according to the
@@ -169,14 +177,11 @@
     {
 ## Reboot the system.
       "type": "shell",
-      "remote_path": "/var/local/simp/inline-simp-reboot.sh",
+      "remote_path": "/var/local/simp/reboot.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -E bash '{{.Path}}'",
       "expect_disconnect": true,
       "skip_clean": true,
-      "inline" : [
-         "echo 'rebooting now'",
-         "/usr/sbin/shutdown -r now"
-       ]
+      "script" : "scripts/reboot.sh"
     },
 #   {
 ## Check settings after bootstrap.

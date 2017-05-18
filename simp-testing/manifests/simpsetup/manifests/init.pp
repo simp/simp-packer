@@ -13,5 +13,5 @@ class simpsetup(
   include simpsetup::dns
   include simpsetup::dhcp
   include simpsetup::ks
-
+  include simpsetup::togen
 }
