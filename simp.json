@@ -87,22 +87,22 @@
       "remote_path": "/var/local/packer/create-ec2-conf-directory",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
       "inline": [
-        "mkdir /usr/share/simp/modules/site/simp",
-        "chown root:root /usr/share/simp/modules/site/simp"
+        "mkdir /usr/share/simp/modules/site/manifests/simp",
+        "chown root:root /usr/share/simp/modules/site/manifests/simp"
       ]
     },
     {
       "type": "file",
-      "source": "files/ec2-init.pp",
-      "destination": "/var/local/packer/ec2-init.pp"
+      "source": "files/ec2_init.pp",
+      "destination": "/var/local/packer/ec2_init.pp"
     },
     {
       "type": "shell",
-      "remote_path": "/var/local/packer/move-ec2-init",
+      "remote_path": "/var/local/packer/move-ec2_init",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
       "inline": [
-        "mv /var/local/packer/ec2-init.pp /usr/share/simp/modules/site/simp/ec2-init.pp",
-        "chown -R root:root /usr/share/simp/modules/site/simp"
+        "mv /var/local/packer/ec2_init.pp /usr/share/simp/modules/site/manifests/simp/ec2_init.pp",
+        "chown -R root:root /usr/share/simp/modules/site/manifests/simp"
       ]
     },
     {
