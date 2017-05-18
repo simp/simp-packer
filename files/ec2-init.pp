@@ -17,7 +17,7 @@ class ec2-init (
     owner  => $username,
     group  => $username,
     mode   => '0600',
-    source => "/home/${username}/.ssh/authorized_keys"
+    source => "/var/local/${username}/.ssh/authorized_keys"
   }
 
   pam::access::rule { $username:
