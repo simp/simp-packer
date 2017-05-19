@@ -26,4 +26,6 @@ EOF
   echo "**********************"
   /var/local/simp/scripts/puppet-usersetup.sh
 
+#debug
+  cat /etc/secrutiy/access.conf
   exit 0

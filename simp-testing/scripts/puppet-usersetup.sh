@@ -22,6 +22,11 @@ class site::vagrant {
     users      => ['(vagrant)'],
     origins    => ['ALL'],
   }
+  pam::access::rule { 'simp':
+    permission => '+',
+    users      => ['simp'],
+    origins    => ['ALL'],
+  }
   sudo::user_specification { 'vagrant_sudosh':
     user_list => ['vagrant'],
     host_list => ['ALL'],
@@ -56,7 +61,7 @@ classes:
 
 # enable root login over ssh
 ssh::server::conf::permitrootlogin: true
-ssh::server::conf::authorizedkeysfile: .ssh/authorized_keys
+#ssh::server::conf::authorizedkeysfile: .ssh/authorized_keys
 simplib::resolv::option_rotate: false
 EOF
 

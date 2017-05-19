@@ -62,7 +62,10 @@ end
 # While we are at it we will update the ldif files with the basedn
 # and copy them to the working directory
 #  TODO might want to move this to the simp server
-Dir.mkdir("#{workingdir}/files/ldifs")
+if ! Dir.exists?("#{workingdir}/files/ldifs")
+  Dir.mkdir("#{workingdir}/files/ldifs")
+end
+
 Dir.foreach("#{basedir}/files/ldifs") do |file|
   if ! File.directory?("#{basedir}/files/ldifs/#{file}")
     ldiffile = File.open("#{basedir}/files/ldifs/#{file}",'rb')
@@ -76,7 +79,4 @@ Dir.foreach("#{basedir}/files/ldifs") do |file|
     end
   end
 end
-
-
-
 

@@ -38,7 +38,7 @@
       "disk_size": "50000",
       "headless": "true",
       "vm_name": "{{user `vm_description`}}",
-#      "skip_export": "false",
+      "skip_export": "false",
       "output_directory": "../OUTPUT/{{user `vm_description`}}",
       "export_opts": [
         "--description", "{{user `vm_description`}}"
@@ -105,28 +105,34 @@
       "ssh_username": "simp",
 #      "ssh_private_key_file": "{{user `ssh_key`}}",
       "ssh_password": "{{user `new_password`}}",
-      "shutdown_command": "sudo shutdown -H now"
+      "shutdown_command": "sudo /sbin/shutdown -P now"
     }
   ],
   "provisioners": [
     {
 ## Copy scripts from the host to the virtual machine for use later on
       "type": "file",
-      "source": "scripts",
+      "source": "./scripts",
       "destination": "/var/local/simp/"
     },
     {
 ## Copy files from the host to the virtual machine for use later on
       "type": "file",
-      "source": "files",
-      "destination": "/var/local/simp/"
+      "source": "./files",
+      "destination": "/var/local/simp/files"
     },
     {
-      "type": "shell",
-      "remote_path": "/var/local/simp/scripts/simpkeys.sh",
-      "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
-      "script" : "scripts/simpkeys.sh"
+## Copy simp keys up
+      "type": "file",
+      "source": "./ssh",
+      "destination": "/var/local/simp"
     },
+#    {
+#      "type": "shell",
+#      "remote_path": "/var/local/simp/scripts/simpkeys.sh",
+#      "execute_command": "sudo chmod +x {{.Path}}; sudo {{.Vars}} sh '{{.Path}}'",
+#      "script" : "scripts/simpkeys.sh"
+#    },
     {
 ## TEST:  Check if it booted into fips or not according to the
 ## fips variable set in the boot command.
@@ -139,23 +145,19 @@
       ],
       "script" : "scripts/check_settings_at_boot.sh"
     },
-#    {
+    {
 ## Set up the vagrant password
-# TODO:  Not sure I need this because of one of the scripts that sets up a puppet
-# manifest to do this. And you don't need vagrant until you build the vagrant box.
-#      "type": "shell",
-#      "remote_path": "/var/local/simp/inline-vagrant-users.sh",
-#      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
-#      "inline" : [
+      "type": "shell",
+      "remote_path": "/var/local/simp/inline-vagrant-users.sh",
+      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
+      "inline" : [
 #        "sed -i 's/enforce_for_root//' /etc/pam.d/system-auth /etc/pam.d/*",
-#        "useradd vagrant",
+        "useradd vagrant",
 #        "ip addr",
-#        "echo {{user `vagrant_password`}} | passwd vagrant --stdin",
-#        "echo 'vagrant ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers",
-#        "#puppet apply -e 'include site::vagrant'",
-#        "chmod g+rX -R /home/vagrant"
-#      ]
-#    },
+        "echo {{user `vagrant_password`}} | passwd vagrant --stdin",
+        "chmod g+rX -R /home/vagrant"
+      ]
+    },
     {
 ## Now we run simp using the simp conf yaml file specified in the shell.
 ## It should complete successfully.
@@ -217,11 +219,22 @@
 #      "script" : "scripts/simp-pupmod_test.sh"
 #    }
     {
-## Just putting a wait in before the vagrant creation so it will reboot totaly
-      "type": "shell",
-      "remote_path": "/var/local/simp/inline-simp-reboot.sh",
-      "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
+## Copy setup manifest
       "pause_before": "140s",
+      "type": "file",
+      "source": "manifests/simpsetup",
+      "destination": "/var/local/simp"
+    },
+    {
+      "type": "shell",
+      "remote_path": "/var/local/simp/scripts/simp_setup.sh",
+      "execute_command": "sudo chmod +x {{.Path}}; sudo {{.Vars}} sh '{{.Path}}'",
+      "script" : "scripts/simp_setup.sh"
+    },
+    {
+      "type": "shell",
+      "remote_path": "/var/local/simp/inline-simp-done.sh",
+      "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
       "expect_disconnect": true,
       "skip_clean": true,
       "inline" : [

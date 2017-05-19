@@ -21,13 +21,13 @@ class simpsetup::dhcp {
   concat::fragment { 'dhcp-header':
     target  => 'rsync-dhcpd.conf',
     order   => 0,
-    content => template('simpsetup/rsync/dhcp/dhcp-header.epp'),
+    content => epp('simpsetup/rsync/dhcp/dhcp-header.epp'),
   }
 
   concat::fragment { 'dhcp-data':
     target  => 'rsync-dhcpd.conf',
     order   => 1,
-    content => template('simpsetup/rsync/dhcp/dhcp-data.epp'),
+    content => epp('simpsetup/rsync/dhcp/dhcp-data.epp'),
   }
 
 }

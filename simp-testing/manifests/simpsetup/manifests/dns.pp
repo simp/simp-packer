@@ -14,14 +14,14 @@ class simpsetup::dns(
     owner   => 'root',
     group   => 'named',
     mode    => '0640',
-    content => template('simpsetup/rsync/dns/zones.epp')
+    content => epp('simpsetup/rsync/dns/zones.epp')
   }
 
   file { "${dns_rsync_dir}/etc/named.conf":
     owner   => 'root',
     group   => 'named',
     mode    => '0640',
-    content => template("simpsetup/rsync/dns/${relver}/named_conf.epp")
+    content => epp("simpsetup/rsync/dns/${relver}/named_conf.epp")
   }
 
   concat { 'dns-forward':
@@ -51,19 +51,19 @@ class simpsetup::dns(
   concat::fragment { 'dsn-revers-header':
     target  => 'dns-reverse',
     order   => 0,
-    content => template('simpsetup/rsyn/dns/reverse-header.epp'),
+    content => epp('simpsetup/rsyn/dns/reverse-header.epp'),
   }
 
   concat::fragment { 'dsn-forward-data':
     target  => 'dns-forward',
     order   => 1,
-    content => template('simpsetup/rsync/dns/forward-data.epp'),
+    content => epp('simpsetup/rsync/dns/forward-data.epp'),
   }
 
   concat::fragment { 'dsn-revers-data':
     target  => 'dns-reverse',
     order   => 1,
-    content => template('simpsetup/rsync/dns/reverse-data.epp'),
+    content => epp('simpsetup/rsync/dns/reverse-data.epp'),
   }
 
 }
