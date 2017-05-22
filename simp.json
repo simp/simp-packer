@@ -147,19 +147,6 @@
     },
     {
       "type": "file",
-      "source": "files/remove_packer_user.sh",
-      "destination": "/var/local/packer/remove_packer_user.sh"
-    },
-    {
-      "type": "shell",
-      "remote_path": "/var/local/packer/move-remove_packer_user",
-      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
-      "inline": [
-        "mv -f /var/local/packer/remove_packer_user.sh /usr/share/simp/remove_packer_user.sh"
-      ]
-    },
-    {
-      "type": "file",
       "source": "files/cloud.cfg",
       "destination": "/var/local/packer/cloud.cfg"
     },
@@ -191,8 +178,22 @@
       "remote_path": "/var/local/packer/remove-users",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
       "inline": [
-        "/opt/puppetlabs/bin/puppet resource user simp managehome=true ensure=absent",
-        "userdel --force --remove packer 2> /dev/null"
+        "/opt/puppetlabs/bin/puppet resource user simp managehome=true ensure=absent"
+      ]
+    },
+    {
+      "type": "file",
+      "source": "files/remove_packer_user.sh",
+      "destination": "/var/local/packer/remove_packer_user.sh"
+    },
+    {
+      "type": "shell",
+      "remote_path": "/var/local/packer/remove_packer",
+      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
+      "inline": [
+        "mv -f /var/local/packer/remove_packer_user.sh /etc/init.d/remove_packer_user.sh",
+        "chown root:root /etc/init.d/remove_packer_user.sh",
+        "chkconfig --add /etc/init.d/remove_packer_user.sh"
       ]
     }
   ],
