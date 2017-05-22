@@ -185,6 +185,15 @@
         "mv -f /var/local/packer/sshd_config /etc/ssh/sshd_config",
         "chown root:root /etc/ssh/sshd_config"
       ]
+    },
+    {
+      "type": "shell",
+      "remote_path": "/var/local/packer/remove-users",
+      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
+      "inline": [
+        "/opt/puppetlabs/bin/puppet resource user simp managehome=true ensure=absent",
+        "userdel --force --remove packer 2> /dev/null"
+      ]
     }
   ],
   "post-processors": []
