@@ -1,6 +1,8 @@
 #!/bin/sh
+#
+# chkconfig: 2345 20 80
+# description: Remove the packer user during export
 
-# After your new user is configured and you are sure that you can log in with
-# that user, run this script to delete the packer user and it's home directory.
-
-userdel -f -r -Z packer
+userdel --force --remove packer
+chkconfig --del /etc/init.d/remove_packer_user
+rm -f /etc/init.d/remove_packer_user
