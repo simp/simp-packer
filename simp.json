@@ -120,6 +120,15 @@
       ]
     },
     {
+      "type": "shell",
+      "remote_path": "/var/local/packer/remove_local_repo",
+      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
+      "inline": [
+        "rm -f /etc/yum.repos.d/simp_filesystem.repo"
+      ]
+      
+    },
+    {
       "type": "file",
       "source": "files/simp_conf.yaml",
       "destination": "/var/local/packer/simp_conf.yaml"
