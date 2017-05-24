@@ -9,7 +9,7 @@ class site::simp::ec2_init (
     owner  => $username,
     group  => $username,
     mode   => '0600',
-    source => "/var/local/${username}/.ssh/authorized_keys"
+    source => "/home/${username}/.ssh/authorized_keys"
   }
 
   pam::access::rule { $username:

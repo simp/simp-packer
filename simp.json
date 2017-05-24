@@ -107,16 +107,16 @@
     },
     {
       "type": "file",
-      "source": "files/set_hieradata.sh",
-      "destination": "/var/local/packer/set_hieradata.sh"
+      "source": "files/hieradata.yaml",
+      "destination": "/var/local/packer/hieradata.yaml"
     },
     {
       "type": "shell",
-      "remote_path": "/var/local/packer/set_hieradata",
+      "remote_path": "/var/local/packer/hieradata",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
       "inline": [
-        "chmod +x /var/local/packer/set_hieradata.sh",
-        "/var/local/packer/set_hieradata.sh"
+        "mv -f /var/local/packer/hieradata.yaml /usr/share/simp/environments/simp/hieradata/hosts/puppet.your.domain.yaml",
+        "chown root:puppet /usr/share/simp/environments/simp/hieradata/hosts/puppet.your.domain.yaml"
       ]
     },
     {
