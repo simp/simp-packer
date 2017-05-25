@@ -32,10 +32,10 @@ Note: The simp-testing folder here is from a previous version of this effort, an
 #### Simple build
 
 * Update vars.json with appropriate values. 
-** `fips_enabled` **must** be set to 0 -- AWS does not support FIPS enabled. 
-** `iso_url` indicates the path to the SIMP ISO that you intend to build from. This should be a path to a local directory on the build system. 
-** `iso_checksum` is a checksum for the ISO, of the type indicated by `iso_checksum_type`.
-** `ssh_pub_key` is a public key that is assigned to the packer user during build. If the build should fail, you will be able to log into the machine to diagnose errors with the packer user and this key.
+  - `fips_enabled` **must** be set to 0 -- AWS does not support FIPS enabled. 
+  - `iso_url` indicates the path to the SIMP ISO that you intend to build from. This should be a path to a local directory on the build system. 
+  - `iso_checksum` is a checksum for the ISO, of the type indicated by `iso_checksum_type`.
+  - `ssh_pub_key` is a public key that is assigned to the packer user during build. If the build should fail, you will be able to log into the machine to diagnose errors with the packer user and this key.
 * Start the build process with `packer build -vars-file=vars.josn simp.json`. You can pass the `-on-error=abort` flag to prevent packer from destroying the build machine in the event of a failure. 
 * Follow the steps to convert the resuling OVA into an Amazon Machine Image at [this location](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html), or move to the next section of this readme. 
 * See the simp documentation at [SIMP's ReadTheDocs](https://simp.readthedocs.io/en/master/getting_started_guide/index.html) for information on using SIMP on AWS and further steps.
