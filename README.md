@@ -30,65 +30,28 @@ Note: The simp-testing folder here is from a previous version of this effort, an
 
 #### Simple build
 
-1\. Tweak (or generate) the `vars.json` file with appropriate values. Make sure you specify a new public key for the ssh_pub_key field, and that you have the corresponding private key. This is the key that you will use to log in as the packer user after your AMI is running.
-
-2\. Validate the setup:
-
-```sh
-~/bin/packer validate -var-file=vars.json simp.json
-```
-
-3\. Run packer:
-
-_(Environment variables and executable path are examples, not suggestions)_
-
-```sh
-
-~/bin/packer build -var-file=vars.json simp.json
-
-```
-4\. Alternatively, use some of my favorite [environment variables](https://www.packer.io/docs/other/environmental-variables.html):
-```
-
-# PACKER_CACHE_DIR - keeps ginormous tmp files out of /tmp
-# PACKER_LOG       - if set with anything, write to a log file
-# PACKER_LOG_PATH  - the location of the log file
-
-PACKER_LOG=1 PACKER_LOG_PATH=packerlog.txt PACKER_CACHE_DIR=$PWD/tmp  ~/bin/packer build -var-file=vars.json simp.json
-```
-
-5\. Using the default values in `vars.json`, a successful build should drop the new VM under `./OUTPUT`.
+* Update vars.json with appropriate values. 
+** `fips_enabled` **must** be set to 0 -- AWS does not support FIPS enabled. 
+** `iso_url` indicates the path to the SIMP ISO that you intend to build from. This should be a path to a local directory on the build system. 
+** `iso_checksum` is a checksum for the ISO, of the type indicated by `iso_checksum_type`.
+** `ssh_pub_key` is a public key that is assigned to the packer user during build. If the build should fail, you will be able to log into the machine to diagnose errors with the packer user and this key.
+* Start the build process with `packer build -vars-file=vars.josn simp.json`. You can pass the `-on-error=abort` flag to prevent packer from destroying the build machine in the event of a failure. 
+* Follow the steps to convert the resuling OVA into an Amazon Machine Image at [this location](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html), or move to the next section of this readme. 
+* See the simp documentation at [SIMP's ReadTheDocs](https://simp.readthedocs.io/en/master/getting_started_guide/index.html) for information on using SIMP on AWS and further steps.
 
 #### After build is complete:
 
-1\. Download and configure the AWS CLI [here](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-set-up.html)
-
-2\. Create a storage bucket on AWS or use an existing one.
-
-3\. Upload the OVA created by the packer build to the AWS bucket.
-
-4\. Use the AMI Import tool to create an AMI from the OVA you just uploaded.
-
-5\. Boot a new EC2 instance using the AMI you've just created. Your security group rules need to allow ssh from your host machine, and need to allow the instance to reach out to yum servers for package updates. In addition, you might need to tweak them to allow SIMP / Puppet to perform certain tasks. The only way to log into the box is with a private key for the packer user, so if you're worried about this you can just open everything.
-
-6\. When you bring up the new EC2, you will be asked to specify a key pair to use. If you specify a key at this time, it will be the key that you use to log in as the aws_user AFTER simp bootstrap completes. Until then, you will need to log in with the packer user using the key you specified at the start of this process. Alternatively, you can add a key to `/etc/ssh/local_keys/%u` before deleting the packer user.
-
-6\. Log into the EC2 instance as the packer user with the key you specified before the packer build.
-```
-ssh -i <path to private key> packer@<EC2 instance address>
-```
-
-7\. Run the `install_simp.sh` script found in `/var/local/packer`. After it completes, choose a new password for the `aws_user` that was created during installation. You should delete the packer user and log in again using the `aws_user` user, and the private key specified when you created the EC2 instance.
+* Download and configure the AWS CLI [here](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-set-up.html)
+* Create an S3 storage bucket on AWS or use an existing one. See [here](http://docs.aws.amazon.com/AmazonS3/latest/dev/UsingBucket.html) for more information on using S3 storage. 
+* Upload the OVA created by the packer build to the AWS bucket. See [here](http://docs.aws.amazon.com/AmazonS3/latest/UG/UploadingObjectsintoAmazonS3.html) for upload documentation. 
+* Use the AMI Import tool to create an AMI from the OVA you just uploaded. See [here](https://aws.amazon.com/ec2/vm-import/) for information on the ec2-import service. 
+* When you bring up the new EC2, you will be asked to specify a key pair to use. If you specify a key at this time, it will be the key that you use to log in as the ec2-user. If you need to create a user other then the ec2-user before firstboot, you will need to perform additional steps in SIMP to ensure that Puppet does not remove access from the user, and should refer to the Custom Build section of this document.  
+* Log into the EC2 instance as the ec2-user with the key you specified before the packer build.
+* Switch the the root user by running `sudo su root`, and navigate to the `/usr/share/simp/` directory. 
+* Run the `generate_answers.sh` script to populate the `simp_conf.yaml` answers file in the same directory. The answers file will now contain information about your system that can be inferred from AWS. In most cases, these answers will be correct for your system, however if you have a custom configuration inside of AWS you may need to tweak the answers file accordingly. 
+* Run `simp config -A simp_conf.yaml` to finish preparing your system for the installation of SIMP. You will be prompted to provide values for all keys not covered by the `simp_conf.yaml` file. More information about simp config can be found in the [documentation](https://simp.readthedocs.io/en/master/getting_started_guide/ISO_Install/SIMP_Server_Installation.html#installing-the-simp-server)
 
 ### NOTES:
 
-1\. Both the packer user and the aws_user can access root by default by running the `sudo su root` command. Because of the configuration of /etc/sudoers, other means of switching to the root user are not supported. Feel free to change this any way you like using Puppet after installation is complete.
-
-2\. The install script sets svckill's mode to `warning`, which prevents it from disabling several services that are necessary to integrate well with AWS. If you enable svckill after installation, you need to add exceptions for these services so that they are not disabled. You probably want to make sure any client nodes that are classified by your SIMP server do the same.
 
 
-### TODO
-- [ ] modularize `simp.json` sections
-- [ ] Add support for other output types, move amazon specific steps (cloud init) into a cloud-specific section
-- [ ] Allow user to specify new private key for the packer user after upload to AWS.
-- [ ] Integrate new SIMP scenario functionality from: https://simp-project.atlassian.net/browse/SIMP-2911
