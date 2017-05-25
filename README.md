@@ -1,4 +1,4 @@
-## SIMP Packer manifests
+## SIMP Packer
 
 This readme is currently outdated. It is being updated, and will be applicable to the current build by 26 May, 2017
 
@@ -24,12 +24,11 @@ This repository is a work in progress
 Requirements:
   - [Packer](https://www.packer.io/downloads.html)
   - [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
+  - [SIMP ISO](https://simp-project.com/ISO/SIMP/)
 
 ### Usage
 
-Note: The simp-testing folder here is from a previous version of this effort, and has been included for documentation purposes. For now, it doesn't work.
-
-#### Simple build
+#### Simple Build
 
 * Update vars.json with appropriate values. 
   - `fips_enabled` **must** be set to 0 -- AWS does not support FIPS enabled. 
@@ -40,7 +39,7 @@ Note: The simp-testing folder here is from a previous version of this effort, an
 * Follow the steps to convert the resuling OVA into an Amazon Machine Image at [this location](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html), or move to the next section of this readme. 
 * See the simp documentation at [SIMP's ReadTheDocs](https://simp.readthedocs.io/en/master/getting_started_guide/index.html) for information on using SIMP on AWS and further steps.
 
-#### After build is complete:
+#### After Build is Complete:
 
 * Download and configure the AWS CLI [here](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-set-up.html)
 * Create an S3 storage bucket on AWS or use an existing one. See [here](http://docs.aws.amazon.com/AmazonS3/latest/dev/UsingBucket.html) for more information on using S3 storage. 
@@ -51,8 +50,8 @@ Note: The simp-testing folder here is from a previous version of this effort, an
 * Switch the the root user by running `sudo su root`, and navigate to the `/usr/share/simp/` directory. 
 * Run the `generate_answers.sh` script to populate the `simp_conf.yaml` answers file in the same directory. The answers file will now contain information about your system that can be inferred from AWS. In most cases, these answers will be correct for your system, however if you have a custom configuration inside of AWS you may need to tweak the answers file accordingly. 
 * Run `simp config -A simp_conf.yaml` to finish preparing your system for the installation of SIMP. You will be prompted to provide values for all keys not covered by the `simp_conf.yaml` file. More information about simp config can be found in the [documentation](https://simp.readthedocs.io/en/master/getting_started_guide/ISO_Install/SIMP_Server_Installation.html#installing-the-simp-server)
+* Run `simp bootstrap` to complete the SIMP installation and apply all Puppet changes to the system.
 
-### NOTES:
-
+#### Full List of Changes
 
 
