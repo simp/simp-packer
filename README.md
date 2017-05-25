@@ -1,7 +1,5 @@
 ## SIMP Packer
 
-This readme is currently outdated. It is being updated, and will be applicable to the current build by 26 May, 2017
-
 #### Table of Contents
 
 * [Overview](#overview)
@@ -9,13 +7,12 @@ This readme is currently outdated. It is being updated, and will be applicable t
 * [Usage](#usage)
 	* [Simple build](#simple-build)
   * [Post build](#after-build-is-complete)
-* [Notes](#notes)
-* [TODO](#todo)
-* [DONE](#done)
+* [List of Changes](#full-list-of-changes)
+* [Custom Builds](#notes-for-custom-builds)
 
 ### Overview
 
-This repository is a work in progress
+This repository is a work in progress, but it can be used to create a working SIMP master server that runs on AWS. 
 
 [Packer](https://packer.io) configuration to build an OVA directly from a fresh [SIMP](https://github.com/NationalSecurityAgency/SIMP) ISO. The OVA that is generated here is intended to be uploaded to Amazon Web Services as an [AMI](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html)
 
@@ -54,4 +51,17 @@ Requirements:
 
 #### Full List of Changes
 
+* Create the packer user, which is used by packer to run the following steps: 
+* Update packages installed on the system with `yum update -y`, install several useful packages including gcc, tree, dkms, and cloud-init.
+* Disable the system firewall to ensure that we can access the resulting AMI, simp bootstrap will enable iptables in its place. 
+* Enable ssh login with private key for the packer user -- ideally this will only be used to debug the build
+* Add a Puppet class that will be used to enable access for the ec2-user. This class is placed at `/usr/share/simp/modules/site/manifests/simp/ec2_init.pp` pre simp-config, and at `/etc/puppetlabs/code/environments/simp/modules/site/manifests/simp/ec2-init.pp` post simp-config.
+* Add hieradata to this node's host yaml file at `/usr/share/simp/environments/simp/hieradata/hosts/puppet.your.domain.yaml`. The purpose of this hieradata file is to ensure that the node is classified with the correct web yum repositories, to classify the node with the ec2-init class, and to ensure ssh is enabled from all outside networks. Simp config will move this file to `/etc/puppetlabs/code/environments/simp/hieradata/hosts/<FQDN>.yaml`
+* Remove the `simp_filesystem` yum repo from `/etc/yum.repos.d`. This is a bit of hack, which tricks simp config into thinking this AMI was not built from the ISO. This is a mandatory step if you want to use the web yum repos, which are required for simp bootstrap to proceed properly. 
+* Replace the default cloud.cfg file in `/etc/cloud/cloud.cfg`. The replacement file tells cloud-init to create the ec2-user as the default user, and to assign the SSH keys that you choose during provisioning in AWS to the ec2-user. 
+* Replace the default `sshd_config` file at `/etc/ssh/sshd_config` with one that is properly configured to allow user access to the machine. 
+* Remove the packer user and its corresponding directories. 
 
+#### Notes for Custom Builds
+
+Many of the steps listed above have been taken under many assumptions about use-cases, security, network settings, and usability. If you want to change aspects of the build process to better prepare an AMI for your use, feel free to contact us (clayton.mentzer@onyxpoint.com). If your changes are one-time changes, you should probably make them AFTER you import the official AMI rather than attempting to build them into a custom AMI. Users other than the ec2-user can be created with cloud-init at provisioning. Any user created without the appropriate Puppet configuration will be locked out of the system during bootstrap. Make sure you understand the consequences before building custom images!
