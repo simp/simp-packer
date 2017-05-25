@@ -1,6 +1,6 @@
-<% $simpsetup::dns::servers.each |$number| { %>
-<%= $number %>  IN PTR server<%= $number %>.<%= $simpsetup::dns::domain %>.
+<% $simpsetup::servers.each |$number| { %>
+<%= $number %>  IN PTR server<%= $number -%>.<%= $domain -%>.
 <% } %>
-<% $simpsetup::dns::clients.each |$number| { %>
-<%= $number %> ws<%= $number %>.<%= $simpsetup::dns::domain %>.
+<% $simpsetup::clients.each |$number| { %>
+<%= $number %> IN PTR  ws<%= $number -%>.<%= $domain -%>.
 <% } %>

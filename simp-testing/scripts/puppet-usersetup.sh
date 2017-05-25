@@ -19,7 +19,7 @@ cat << EOF > ${pupenvdir}/simp/modules/site/manifests/vagrant.pp
 class site::vagrant {
   pam::access::rule { 'vagrant':
     permission => '+',
-    users      => ['(vagrant)'],
+    users      => ['vagrant'],
     origins    => ['ALL'],
   }
   pam::access::rule { 'simp':
@@ -61,7 +61,8 @@ classes:
 
 # enable root login over ssh
 ssh::server::conf::permitrootlogin: true
-#ssh::server::conf::authorizedkeysfile: .ssh/authorized_keys
+# change the default authorized keys file to the users local dir for vagrant
+ssh::server::conf::authorizedkeysfile: .ssh/authorized_keys
 simplib::resolv::option_rotate: false
 EOF
 

@@ -4,7 +4,7 @@
   echo "**********************"
   echo "Running Simp Bootstrap"
   echo "**********************"
-
+# A cheat to allow us to ssh in as root.
   cat << EOF > /etc/puppetlabs/code/environments/simp/hieradata/default.yaml
 ---
 # enable root login over ssh
@@ -19,13 +19,11 @@ EOF
   cat /root/.simp/simp_bootstrap.log*
 
 #  Have to execute this or the next provisioning scripts
-#  won't be able to ssh and sudo because simp will 
+#  won't be able to ssh and sudo because simp will
 #  have turned off the permissions.
   echo "**********************"
   echo "Configuring simp user"
   echo "**********************"
   /var/local/simp/scripts/puppet-usersetup.sh
 
-#debug
-  cat /etc/secrutiy/access.conf
   exit 0

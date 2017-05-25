@@ -1,13 +1,8 @@
 #!/bin/bash
 #
-packerdir="/var/local/simp"
 
-cp -R $packerdir/simpsetup `puppet config print environmentpath`/simp/modules
+chown -R root:puppet /var/local/simp/manifests
+chmod -R g+rX /var/local/simp/manifests
 
-cd `puppet config print environmentpath`/simp/modules
-
-chown -R root:puppet simpsetup
-chmod -R g+rX simpsetup
-
-puppet apply -e "include simpsetup"
+puppet apply --modulepath /var/local/simp/manifests -e "include simpsetup"
 

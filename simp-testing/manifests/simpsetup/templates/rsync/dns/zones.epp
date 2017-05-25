@@ -3,8 +3,8 @@ zone "<%= $simpsetup::dns::domain %>" IN {
         file "forward/<%= $simpsetup::dns::domain %>.db";
 };
 
-zone "<%= $simpsetup::dns::rev_ip %>.in-addr.arpa" IN {
+zone "<%= $simpsetup::dns::revaddr %>.in-addr.arpa" IN {
         type master;
-        file "reverse/<%= $simpsetup::dns::rev_ip %>.db";
+        file "reverse/<%= $simpsetup::dns::revaddr %>.db";
 };
 

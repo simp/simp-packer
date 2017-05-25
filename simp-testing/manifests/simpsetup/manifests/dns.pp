@@ -6,8 +6,13 @@ class simpsetup::dns(
   String              $allowed_nets = $simpsetup::allowed_nets
 ){
 
-  $revaddr = (($ipaddress.split('.'))[0,3].reverse).join('.')
-  $fwdaddr = ($ipaddress.split('.'))[0,3].join('.')
+
+
+
+  $_ip = split($ipaddress,'\.')
+  $fwdaddr = join($_ip[0,3],'.')
+  $lastip  = $_ip[3]
+  $revaddr = join(reverse($_ip[0,3]),'.')
   $dns_rsync_dir = "/var/simp/environments/simp/rsync/CentOS/${relver}/bind_dns/default/named"
 
   file { "${dns_rsync_dir}/etc/zones/${domain}":
@@ -25,7 +30,6 @@ class simpsetup::dns(
   }
 
   concat { 'dns-forward':
-    ensure => true,
     path   => "${dns_rsync_dir}/var/named/forward/${domain}.db",
     owner  => 'root',
     group  => 'named',
@@ -34,7 +38,6 @@ class simpsetup::dns(
   }
 
   concat { 'dns-reverse':
-    ensure => true,
     path   => "${dns_rsync_dir}/var/named/reverse/${revaddr}.db",
     owner  => 'root',
     group  => 'named',
@@ -45,13 +48,13 @@ class simpsetup::dns(
   concat::fragment { 'dsn-forward-header':
     target  => 'dns-forward',
     order   => 0,
-    content => template('simpsetup/rsync/dns/forward-header.epp'),
+    content => epp('simpsetup/rsync/dns/forward-header.epp'),
   }
 
   concat::fragment { 'dsn-revers-header':
     target  => 'dns-reverse',
     order   => 0,
-    content => epp('simpsetup/rsyn/dns/reverse-header.epp'),
+    content => epp('simpsetup/rsync/dns/reverse-header.epp'),
   }
 
   concat::fragment { 'dsn-forward-data':

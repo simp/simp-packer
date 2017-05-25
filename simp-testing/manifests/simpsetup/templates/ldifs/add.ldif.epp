@@ -1,11 +1,11 @@
-dn: cn=admin1,ou=Group,LDAPBASEDN
+dn: cn=admin1,ou=Group,<%= $simpsetup::ldap::basedn -%>
 objectClass: posixGroup
 objectClass: top
 cn: admin1
 gidNumber: 1000
 description: "Admin One group"
 
-dn: uid=admin1,ou=People,LDAPBASEDN
+dn: uid=admin1,ou=People,<%= $simpsetup::ldap::basedn -%>
 uid: admin1
 cn: admin1
 givenName: admin
@@ -28,14 +28,14 @@ homeDirectory: /home/admin1
 userPassword: {SSHA}C1xPxt0TOL7FYx6FRIgH3PkudDhtaUcR
 pwdReset: FALSE
 
-dn: cn=admin2,ou=Group,LDAPBASEDN
+dn: cn=admin2,ou=Group,<%= $simpsetup::ldap::basedn -%>
 objectClass: posixGroup
 objectClass: top
 cn: admin2
 gidNumber: 1002
 description: "Admin Two group"
 
-dn: uid=admin2,ou=People,LDAPBASEDN
+dn: uid=admin2,ou=People,<%= $simpsetup::ldap::basedn -%>
 uid: admin2
 cn: admin2
 givenName: Admin
@@ -58,14 +58,14 @@ homeDirectory: /home/admin2
 userPassword: {SSHA}C1xPxt0TOL7FYx6FRIgH3PkudDhtaUcR
 pwdReset: FALSE
 
-dn: cn=NotAllowed,ou=Group,LDAPBASEDN
+dn: cn=NotAllowed,ou=Group,<%= $simpsetup::ldap::basedn -%>
 objectClass: posixGroup
 objectClass: top
 cn: NotAllowed
 gidNumber: 9999
 description: "Users not allowed to log in group"
 
-dn: uid=baduser,ou=People,LDAPBASEDN
+dn: uid=baduser,ou=People,<%= $simpsetup::ldap::basedn -%>
 uid: baduser
 cn: baduser
 givenName: Bad
@@ -88,14 +88,14 @@ homeDirectory: /home/baduser
 userPassword: {SSHA}C1xPxt0TOL7FYx6FRIgH3PkudDhtaUcR
 pwdReset: FALSE
 
-dn: cn=Test Group,ou=Group,LDAPBASEDN
+dn: cn=Test Group,ou=Group,<%= $simpsetup::ldap::basedn -%>
 objectClass: posixGroup
 objectClass: top
 cn: testgroup
 gidNumber: 1001
 description: "Test Group group"
 
-dn: uid=user1,ou=People,LDAPBASEDN
+dn: uid=user1,ou=People,<%= $simpsetup::ldap::basedn -%>
 uid: user1
 cn: user1
 givenName: User
@@ -118,7 +118,7 @@ homeDirectory: /home/user1
 userPassword: {SSHA}C1xPxt0TOL7FYx6FRIgH3PkudDhtaUcR
 pwdReset: FALSE
 
-dn: uid=user2,ou=People,LDAPBASEDN
+dn: uid=user2,ou=People,<%= $simpsetup::ldap::basedn -%>
 uid: user2
 cn: user2
 givenName: User

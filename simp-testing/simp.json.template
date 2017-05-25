@@ -24,6 +24,7 @@
       "vagrant_password": "vagrant",
       "nat_if": "NAT_INTERFACE",
       "simp_conf_file": "/var/local/simp/files/simp_conf.yaml",
+      "puppetip": "PUPPETIP",
       "vm_description": "VM_DESCRIPTION"
     },
   "builders": [
@@ -40,15 +41,16 @@
       "vm_name": "{{user `vm_description`}}",
       "skip_export": "false",
       "output_directory": "../OUTPUT/{{user `vm_description`}}",
-      "export_opts": [
-        "--description", "{{user `vm_description`}}"
-        ],
+#      "export_opts": [
+#        "--description", "{{user `vm_description`}}"
+#        ],
       "vboxmanage": [
         ["modifyvm", "{{.Name}}", "--memory", "4096"],
         ["modifyvm", "{{.Name}}", "--nic1", "nat"],
         ["modifyvm", "{{.Name}}", "--nic2", "hostonly"],
         ["modifyvm", "{{.Name}}", "--hostonlyadapter2", "{{user `host_only_network_name`}}"],
         ["modifyvm", "{{.Name}}", "--macaddress2", "MACADDRESS"],
+        ["modifyvm", "{{.Name}}", "--macaddress1", "aabbbbaa9999"],
         ["modifyvm", "{{.Name}}", "--cpus", "2"],
         ["modifyvm", "{{.Name}}", "--accelerate3d", "off"]
       ],
@@ -95,10 +97,10 @@
         "<wait><wait>",
         "<wait><wait>",
 # Bring up the NAT network
-# TODO:  Is there a way I can just figure the nat_if out without setting a variable.
         "echo 'simp ALL=(ALL) NOPASSWD:ALL'  >> /etc/sudoers<enter>",
         "sed -ie '/Defaults *requiretty/d' /etc/sudoers<enter>",
         "sed -ie 's/ONBOOT=no/ONBOOT=yes/g' /etc/sysconfig/network-scripts/ifcfg-{{user `nat_if`}}<enter>",
+        "sed -ie 's/DEFROUTE=yes/DEFROUTE=no/g' /etc/sysconfig/network-scripts/ifcfg-{{user `nat_if`}}<enter>",
         "ifup {{user `nat_if`}}<enter>",
         "exit<enter>"
        ],
@@ -109,6 +111,10 @@
     }
   ],
   "provisioners": [
+###########################################
+# Set up the users for packer and vagrant #
+# and boot strap the system               #
+###########################################
     {
 ## Copy scripts from the host to the virtual machine for use later on
       "type": "file",
@@ -120,12 +126,6 @@
       "type": "file",
       "source": "./files",
       "destination": "/var/local/simp/files"
-    },
-    {
-## Copy simp keys up
-      "type": "file",
-      "source": "./ssh",
-      "destination": "/var/local/simp"
     },
 #    {
 #      "type": "shell",
@@ -155,7 +155,10 @@
         "useradd vagrant",
 #        "ip addr",
         "echo {{user `vagrant_password`}} | passwd vagrant --stdin",
-        "chmod g+rX -R /home/vagrant"
+        "mkdir -p /home/vagrant/.ssh",
+        "cp /var/local/simp/files/authorized_keys /home/vagrant/.ssh/authorized_keys",
+        "chmod g+rX -R /home/vagrant",
+        "chown -R vagrant /home/vagrant"
       ]
     },
     {
@@ -185,6 +188,10 @@
       "skip_clean": true,
       "script" : "scripts/reboot.sh"
     },
+######################################
+#  The system should be bootstrapped #
+#  Run some tests                    #
+######################################
 #   {
 ## Check settings after bootstrap.
 #      "type": "shell",
@@ -218,18 +225,39 @@
 #      ],
 #      "script" : "scripts/simp-pupmod_test.sh"
 #    }
+#########################################################
+# More configuration of the system for the vagrant box  #
+#########################################################
     {
 ## Copy setup manifest
       "pause_before": "140s",
       "type": "file",
-      "source": "manifests/simpsetup",
+      "source": "./manifests",
       "destination": "/var/local/simp"
     },
     {
       "type": "shell",
-      "remote_path": "/var/local/simp/scripts/simp_setup.sh",
+      "remote_path": "/var/local/simp/scripts/config/simpsetup.sh",
       "execute_command": "sudo chmod +x {{.Path}}; sudo {{.Vars}} sh '{{.Path}}'",
-      "script" : "scripts/simp_setup.sh"
+      "script" : "scripts/config/simpsetup.sh"
+    },
+#    {
+#      "type": "shell",
+#      "remote_path": "/var/local/simp/inline-simpsetup.sh",
+#      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -E bash '{{.Path}}'",
+#      "inline" : [
+#         "puppet apply --modulepath=/var/local/simp/manifests -e \"class { 'simpsetup': 'domain' => {{user `domain`}}, 'ipaddress' => {{user `puppetip`}}, 'dnsserver' => {{user `puppetip`}}}\""
+#      ]
+#    },
+    {
+      "type": "shell",
+      "remote_path": "/var/local/simp/scripts/config/sitepp_edit.sh",
+      "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
+      "script" : "scripts/config/sitepp_edit.sh"
+    },
+    {
+      "type": "puppet-server",
+      "options": "--test"
     },
     {
       "type": "shell",
@@ -245,7 +273,12 @@
   "post-processors": [
     {
       "type": "vagrant",
-      "output": "/var/jmg/vagrant/{{user `vm_description`}}"
+      "output": "{{user `output_directory`}}/{{user `vm_description`}}.box",
+      "keep_input_artifact": false,
+      "compression_level": "6",
+      "only": [
+        "virtualbox-iso"
+      ]
     }
   ]
 }

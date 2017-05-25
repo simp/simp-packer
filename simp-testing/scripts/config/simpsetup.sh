@@ -9,4 +9,4 @@ cp -R $packerdir/manifests/simpsetup $puppetmodpath
 chmod -R g+rx $puppetmodpath/simpsetup
 chown -R root:puppet $puppetmodpath/simpsetup
 
-puppet apply -e "include simpsetup"
+puppet apply -e 'include simpsetup'

@@ -17,8 +17,8 @@ END
   }
 
   exec { 'generate certs from togen':
-    command => '/var/simp/environments/simp/FakeCA/gencerts_nopash.sh',
-    cwd     => '/var/simp/environments/simp/FakeCA'
+    command => '/var/simp/environments/simp/FakeCA/gencerts_nopass.sh',
+    cwd     => '/var/simp/environments/simp/FakeCA',
     require => File['/var/simp/environments/simp/FakeCA/togen']
   }
 }

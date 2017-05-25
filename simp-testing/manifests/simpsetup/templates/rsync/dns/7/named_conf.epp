@@ -77,12 +77,6 @@ zone "localdomain" IN {
   allow-update { none; };
 };
 
-zone "localdomain" IN {
-  type master;
-  file "localdomain.zone";
-  allow-update { none; };
-};
-
 zone "localhost" IN {
   type master;
   file "localhost.zone";
