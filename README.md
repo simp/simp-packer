@@ -1,5 +1,7 @@
 ## SIMP Packer manifests
 
+This readme is currently outdated. It is being updated, and will be applicable to the current build by 26 May, 2017
+
 #### Table of Contents
 
 * [Overview](#overview)
