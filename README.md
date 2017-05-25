@@ -8,6 +8,7 @@ This readme is currently outdated. It is being updated, and will be applicable t
 * [Setup](#setup)
 * [Usage](#usage)
 	* [Simple build](#simple-build)
+  * [Post build](#after-build-is-complete)
 * [Notes](#notes)
 * [TODO](#todo)
 * [DONE](#done)
