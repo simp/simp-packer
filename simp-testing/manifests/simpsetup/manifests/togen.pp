@@ -13,7 +13,7 @@ END
     owner   => 'root',
     group   => 'root',
     mode    => '0640',
-    content =>  inline_epp($togen_template)
+    content =>  epp('simpsetup/togen.epp')
   }
 
   exec { 'generate certs from togen':

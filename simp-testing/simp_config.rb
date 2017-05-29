@@ -36,7 +36,11 @@ ipnetwork = settings['HOST_ONLY_NETWORK']
 domain = settings['DOMAIN']
 fips = settings['FIPS']
 network = ipnetwork.split(".")[0,3].join(".")
-iface = settings['HOST_ONLY_INTERFACE']
+if settings.has_key?('HOST_ONLY_INTERFACE')
+    iface = settings['HOST_ONLY_INTERFACE']
+else
+    puts "HOST_ONLY_INTERFACE must be set in packer.yaml"
+end
 
 if settings.has_key?('HOST_ONLY_GATEWAY')
  simpconfig['cli::network::gateway'] = settings['HOST_ONLY_GATEWAY']
