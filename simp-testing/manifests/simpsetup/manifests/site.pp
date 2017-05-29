@@ -1,21 +1,20 @@
 class simpsetup::site (
-  String    sitedir  = '/etc/puppetlabs/simp/modules/site/manifests'
+  String    $sitedir  = '/etc/puppetlabs/simp/modules/site/manifests'
 ){
 
-  $site_man_dir = "/etc/puppetlabs/simp/modules/site/manifests']"
-  file { "${site_man_dir}/tftpboot.pp"
+  file { "${sitedir}/tftpboot.pp"
     ensure => file,
     owner  => root,
     group  => puppet,
     mode   => '0640',
-    source => 'puppet:///modules/simpsetup/site_manifests/tftpboot.pp'
+    content => template('simpsetup/site/manifests/tftpboot.pp.erb')
   }
-  file { "${site_man_dir}/workstations.pp"
+  file { "${sitedir}/workstations.pp"
     ensure => file,
     owner  => root,
     group  => puppet,
     mode   => '0640',
-    source => 'puppet:///modules/simpsetup/site_manifests/workstations.pp'
+    source => template('simpsetup/site/manifests/workstations.pp.erb')
   }
 
 }

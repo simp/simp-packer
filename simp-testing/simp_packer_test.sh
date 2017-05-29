@@ -75,7 +75,7 @@ $BASEDIR/simp_config.rb $WORKINGDIR $TESTDIR
 TMPDIR="/srv/tmp" SIMP_PACKER_ssh_key="$WORKINGDIR/ssh/simp.key" /bin/packer build -var-file=$TESTDIR/vars.json $WORKINGDIR/simp.json >& $logfile
 if [[ $? -ne 0 ]]; then
   mv $logfile ${logfile}.errors
-  cleanup -1
+#  cleanup -1
 fi
 
 cleanup 0
