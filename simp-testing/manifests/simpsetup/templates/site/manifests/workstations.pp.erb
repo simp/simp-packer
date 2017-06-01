@@ -1,6 +1,6 @@
 class site::workstations {
-  include ::gdm
-  include ::gnome
+  include 'gdm'
+  include 'gnome'
 
   Class[Gdm] -> Class[Gnome]
   # Make sure everyone can log into all nodes.

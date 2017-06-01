@@ -127,23 +127,17 @@
       "source": "./files",
       "destination": "/var/local/simp/files"
     },
-#    {
-#      "type": "shell",
-#      "remote_path": "/var/local/simp/scripts/simpkeys.sh",
-#      "execute_command": "sudo chmod +x {{.Path}}; sudo {{.Vars}} sh '{{.Path}}'",
-#      "script" : "scripts/simpkeys.sh"
-#    },
     {
 ## TEST:  Check if it booted into fips or not according to the
 ## fips variable set in the boot command.
       "type": "shell",
-      "remote_path": "/var/local/simp/scripts/check_settings_at_boot.sh",
+      "remote_path": "/var/local/simp/scripts/tests/check_settings_at_boot.sh",
       "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
       "environment_vars" : [
         "SIMP_PACKER_fips={{user `fips`}}",
         "SIMP_PACKER_disk_encrypt={{user `disk_encrypt`}}"
       ],
-      "script" : "scripts/check_settings_at_boot.sh"
+      "script" : "scripts/tests/check_settings_at_boot.sh"
     },
     {
 ## Set up the vagrant password
@@ -153,7 +147,6 @@
       "inline" : [
 #        "sed -i 's/enforce_for_root//' /etc/pam.d/system-auth /etc/pam.d/*",
         "useradd vagrant",
-#        "ip addr",
         "echo {{user `vagrant_password`}} | passwd vagrant --stdin",
         "mkdir -p /home/vagrant/.ssh",
         "cp /var/local/simp/files/authorized_keys /home/vagrant/.ssh/authorized_keys",
@@ -172,8 +165,10 @@
        ]
     },
     {
-## Now run bootstrap. This script also setup up manifest to simp user can sudo
-## so other packer scripts can use sudo.
+## Now run bootstrap.
+## This script also configures  a puppet manifest  site::vagrant that configures
+## the simp and vagrant users to be allowed to ssh and sudo as needed by packer
+## and vagrant.
       "type": "shell",
       "remote_path": "/var/local/simp/scripts/simp-bootstrap.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -E bash '{{.Path}}'",
@@ -195,35 +190,35 @@
 #   {
 ## Check settings after bootstrap.
 #      "type": "shell",
-#      "remote_path": "/var/local/simp/scripts/simp-pupmod_testfips.sh",
+#      "remote_path": "/var/local/simp/scripts/tests/simp-pupmod_testfips.sh",
 #      "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
 #      "pause_before": "40s",
 #      "environment_vars" : [
 #        "SIMP_PACKER_simp_conf_file={{user `simp_conf_file`}}"
 #      ],
-#      "script" : "scripts/simp-pupmod_testfips.sh"
+#      "script" : "scripts/tests/simp-pupmod_testfips.sh"
 #    },
 #    {
 ## Check settings after bootstrap.
 #  To Do, this is outdated.  Need to write new script for checking things
 #  Pushing ahead for getting vagrant boxes.
 #      "type": "shell",
-#      "remote_path": "/var/local/simp/scripts/check_settings_after_bootstrap.sh",
+#      "remote_path": "/var/local/simp/scripts/tests/check_settings_after_bootstrap.sh",
 #      "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
 #      "environment_vars" : [
 #        "SIMP_PACKER_simp_conf_file={{user `simp_conf_file`}}"
 #      ],
-#      "script" : "scripts/check_settings_after_bootstrap.sh"
+#      "script" : "scripts/tests/check_settings_after_bootstrap.sh"
 #    },
 #    {
 ## Check settings after bootstrap, puppet needs to be up and running for this.
 #      "type": "shell",
-#      "remote_path": "/var/local/simp/scripts/simp-pupmod_test.sh",
+#      "remote_path": "/var/local/simp/scripts/tests/simp-pupmod_test.sh",
 #      "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
 #      "environment_vars" : [
 #        "SIMP_PACKER_simp_conf_file={{user `simp_conf_file`}}"
 #      ],
-#      "script" : "scripts/simp-pupmod_test.sh"
+#      "script" : "scripts/tests/simp-pupmod_test.sh"
 #    }
 #########################################################
 # More configuration of the system for the vagrant box  #
@@ -241,23 +236,57 @@
       "execute_command": "sudo chmod +x {{.Path}}; sudo {{.Vars}} sh '{{.Path}}'",
       "script" : "scripts/config/simpsetup.sh"
     },
-#    {
-#      "type": "shell",
-#      "remote_path": "/var/local/simp/inline-simpsetup.sh",
-#      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -E bash '{{.Path}}'",
-#      "inline" : [
-#         "puppet apply --modulepath=/var/local/simp/manifests -e \"class { 'simpsetup': 'domain' => {{user `domain`}}, 'ipaddress' => {{user `puppetip`}}, 'dnsserver' => {{user `puppetip`}}}\""
-#      ]
-#    },
     {
       "type": "shell",
       "remote_path": "/var/local/simp/scripts/config/sitepp_edit.sh",
-      "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
+      "execute_command": "sudo chmod +x {{.Path}}; sudo {{.Vars}} sh '{{.Path}}'",
       "script" : "scripts/config/sitepp_edit.sh"
     },
     {
+      "type": "shell",
+      "remote_path": "/var/local/simp/scripts/config/hiera.sh",
+      "execute_command": "sudo chmod +x {{.Path}}; sudo {{.Vars}} sh '{{.Path}}'",
+      "script" : "scripts/config/hiera.sh"
+    },
+    {
       "type": "puppet-server",
+      "ignore_exit_codes": true,
       "options": "--test"
+    },
+    {
+      "type": "file",
+      "source":"/net/ISO/Distribution_ISOs/{{user `box_distro_release`}}",
+      "destination": "/var/local/simp/ISO"
+    },
+    {
+      "type": "shell",
+      "remote_path": "/var/local/simp/inline-unpackdvd.sh",
+      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
+      "inline" : [
+        "if [[ -f /net/ISO/Distribution_ISOs/{{user `box_distro_release`}}]; then",
+        "/usr/local/bin/unpack_dvd /net/ISO/Distribution_ISOs/{{user `box_distro_release`}}",
+        "fi"
+      ]
+    },
+    {
+      "type": "shell",
+      "remote_path": "/var/local/simp/scripts/config/unpackdvd.sh",
+      "execute_command": "sudo chmod +x {{.Path}}; sudo {{.Vars}} sh '{{.Path}}'",
+      "script" : "scripts/config/unpackdvd.sh"
+    },
+    {
+      "type": "shell",
+      "remote_path": "/var/local/simp/inline-vbox.sh",
+      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
+      "inline" : [
+        "yum install -q -y kernel-devel",
+        "yum install -q -y gcc",
+        "rm -f /lib/modules/`uname -r`/build ; ln -s /usr/src/kernels/`rpm -q kernel-devel --queryformat %{VERSION}-%{RELEASE}.%{ARCH}`/ /lib/modules/`uname -r`/build",
+        "mkdir /mnt/vmtools",
+        "mount /var/local/simp/VBoxGuestAdditions.iso /mnt/vmtools",
+        "sh /mnt/vmtools/VBoxLinuxAdditions.run --nox11; true",
+        "umount /mnt/vmtools; rmdir /mnt/vmtools"
+      ]
     },
     {
       "type": "shell",
@@ -275,10 +304,9 @@
       "type": "vagrant",
       "output": "{{user `output_directory`}}/{{user `vm_description`}}.box",
       "keep_input_artifact": false,
+      "include": ["./files/packer-vagrant.pem","./files/packer-vagrant.pub"],
       "compression_level": "6",
-      "only": [
-        "virtualbox-iso"
-      ]
+      "only": [ "virtualbox-iso" ]
     }
   ]
 }

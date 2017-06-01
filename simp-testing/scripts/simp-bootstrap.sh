@@ -4,16 +4,6 @@
   echo "**********************"
   echo "Running Simp Bootstrap"
   echo "**********************"
-# A cheat to allow us to ssh in as root.
-  cat << EOF > /etc/puppetlabs/code/environments/simp/hieradata/default.yaml
----
-# enable root login over ssh
-ssh::server::conf::permitrootlogin: true
-EOF
-
-  chown root:puppet /etc/puppetlabs/code/environments/simp/hieradata/default.yaml
-  chmod g+rX /etc/puppetlabs/code/environments/simp/hieradata/default.yaml
-
   simp bootstrap --remove_ssldir --no-track
 # echoing bootstrap log to the log file
   cat /root/.simp/simp_bootstrap.log*

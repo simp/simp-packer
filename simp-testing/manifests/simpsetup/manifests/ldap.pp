@@ -4,7 +4,7 @@ class simpsetup::ldap(
 ) {
 
   $_domain = split($domain, '\.')
-  $basedn = "dc=${ $_domain.join('dc=')}"
+  $basedn = "dc=${ $_domain.join(',dc=')}"
 
   file {  '/tmp/add.ldif':
     owner   => 'root',

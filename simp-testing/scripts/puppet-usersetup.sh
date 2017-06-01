@@ -17,14 +17,9 @@ cat << EOF > ${pupenvdir}/simp/modules/site/manifests/vagrant.pp
 #
 # in this instance, it is just some tweaks to make sure simp in vagrant runs well
 class site::vagrant {
-  pam::access::rule { 'vagrant':
+  pam::access::rule { 'vagrant_simp':
     permission => '+',
-    users      => ['vagrant'],
-    origins    => ['ALL'],
-  }
-  pam::access::rule { 'simp':
-    permission => '+',
-    users      => ['simp'],
+    users      => ['vagrant','simp'],
     origins    => ['ALL'],
   }
   sudo::user_specification { 'vagrant_sudosh':
@@ -33,7 +28,12 @@ class site::vagrant {
     cmnd      => ['/usr/bin/sudosh'],
     passwd    => false,
   }
-  sudo::user_specification { 'simp_sudosh':
+  sudo::user_specification { 'vagrant_ssh':
+    user_list => ['vagrant'],
+    passwd    => false,
+    cmnd      => ['ALL']
+  }
+  sudo::user_specification { 'simp_sudo':
     user_list => ['simp'],
     host_list => ['ALL'],
     cmnd      => ['ALL'],
@@ -44,10 +44,10 @@ class site::vagrant {
     target => 'simp',
     def_type => 'user'
   }
-  sudo::user_specification { 'vagrant_ssh':
-    user_list => ['vagrant'],
-    passwd    => false,
-    cmnd      => ['ALL']
+  sudo::default_entry { 'vagrant_default_notty':
+    content => ['!env_reset, !requiretty'],
+    target => 'vagrant',
+    def_type => 'user'
   }
   service { 'vboxadd': }
   service { 'vboxadd-service': }
