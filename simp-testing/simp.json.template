@@ -39,7 +39,7 @@
         ["modifyvm", "{{.Name}}", "--nic1", "nat"],
         ["modifyvm", "{{.Name}}", "--nic2", "hostonly"],
         ["modifyvm", "{{.Name}}", "--hostonlyadapter2", "{{user `host_only_network_name`}}"],
-        ["modifyvm", "{{.Name}}", "--macaddress2", "MACADDRESS"],
+        ["modifyvm", "{{.Name}}", "--macaddress2", "{{user `mac_address`}}"],
         ["modifyvm", "{{.Name}}", "--macaddress1", "auto"],
         ["modifyvm", "{{.Name}}", "--cpus", "2"],
         ["modifyvm", "{{.Name}}", "--accelerate3d", "off"]

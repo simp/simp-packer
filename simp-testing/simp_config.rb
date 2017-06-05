@@ -68,6 +68,7 @@ class Stuff
     json_hash['host_only_network_name'] = settings['HOST_ONLY_NETWORK']
     json_hash['fips'] = settings['FIPS']
     json_hash['output_directory'] = settings['OUTPUT_DIRECTORY']
+    json_hash['mac_address'] = settings['MACADDRESS']
     json_hash['big_sleep'] = settings['BIG_SLEEP']
 
     json_hash
