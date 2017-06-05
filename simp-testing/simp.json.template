@@ -14,18 +14,8 @@
   "__": "     to changed behavior.                                          ",
   "variables" :
     {
-      "fips": "FIPS",
-      "domain": "DOMAIN",
-      "network": "HOST_ONLY_NETWORK",
-      "disk_encrypt": "DISK_CRYPT",
-      "big_sleep": "{{env `SIMP_PACKER_big_sleep`}}",
-      "ssh_key": "{{env `SIMP_PACKER_ssh_key`}}",
-      "host_only_network_name": "HOST_VBOX_NETWORK_NAME",
       "vagrant_password": "vagrant",
-      "nat_if": "NAT_INTERFACE",
-      "simp_conf_file": "/var/local/simp/files/simp_conf.yaml",
-      "puppetip": "PUPPETIP",
-      "vm_description": "VM_DESCRIPTION"
+      "simp_conf_file": "/var/local/simp/files/simp_conf.yaml"
     },
   "builders": [
     {
@@ -40,9 +30,9 @@
       "headless": "true",
       "vm_name": "{{user `vm_description`}}",
       "skip_export": "false",
-      "output_directory": "../OUTPUT/{{user `vm_description`}}",
+      "output_directory": "{{user `output_directory`}}",
 #      "export_opts": [
-#        "--description", "{{user `vm_description`}}"
+#        "--description", "Created by simp-packer - {{user `vm_description`}}"
 #        ],
       "vboxmanage": [
         ["modifyvm", "{{.Name}}", "--memory", "4096"],
@@ -50,7 +40,7 @@
         ["modifyvm", "{{.Name}}", "--nic2", "hostonly"],
         ["modifyvm", "{{.Name}}", "--hostonlyadapter2", "{{user `host_only_network_name`}}"],
         ["modifyvm", "{{.Name}}", "--macaddress2", "MACADDRESS"],
-        ["modifyvm", "{{.Name}}", "--macaddress1", "aabbbbaa9999"],
+        ["modifyvm", "{{.Name}}", "--macaddress1", "auto"],
         ["modifyvm", "{{.Name}}", "--cpus", "2"],
         ["modifyvm", "{{.Name}}", "--accelerate3d", "off"]
       ],
@@ -130,6 +120,7 @@
     {
 ## TEST:  Check if it booted into fips or not according to the
 ## fips variable set in the boot command.
+## These should run as sudo or the environment vars do not work.
       "type": "shell",
       "remote_path": "/var/local/simp/scripts/tests/check_settings_at_boot.sh",
       "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
@@ -138,6 +129,12 @@
         "SIMP_PACKER_disk_encrypt={{user `disk_encrypt`}}"
       ],
       "script" : "scripts/tests/check_settings_at_boot.sh"
+    },
+    {
+      "type": "shell",
+      "remote_path": "/var/local/simp/scripts/tests/check_partitions.sh",
+      "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
+      "script" : "scripts/tests/check_partitions.sh"
     },
     {
 ## Set up the vagrant password
@@ -177,11 +174,13 @@
     {
 ## Reboot the system.
       "type": "shell",
-      "remote_path": "/var/local/simp/reboot.sh",
+      "remote_path": "/var/local/simp/reboot1.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -E bash '{{.Path}}'",
       "expect_disconnect": true,
       "skip_clean": true,
-      "script" : "scripts/reboot.sh"
+      "inline" : [
+         "/usr/sbin/reboot"
+       ]
     },
 ######################################
 #  The system should be bootstrapped #
@@ -263,7 +262,7 @@
       "remote_path": "/var/local/simp/inline-unpackdvd.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
       "inline" : [
-        "if [[ -f /net/ISO/Distribution_ISOs/{{user `box_distro_release`}}]; then",
+        "if [ -f /net/ISO/Distribution_ISOs/{{user `box_distro_release`}} ]; then",
         "/usr/local/bin/unpack_dvd /net/ISO/Distribution_ISOs/{{user `box_distro_release`}}",
         "fi"
       ]

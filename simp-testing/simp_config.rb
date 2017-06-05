@@ -5,8 +5,8 @@
 #to the packer.yaml settings and move them to the working directory.
 #The working directory is what is copied to simp server.
 #
-class VagrantFile
 
+class VagrantFile
   def initialize(dir,name,ip,mac)
     @name = name;
     @ipaddress = ip;
@@ -20,7 +20,7 @@ class VagrantFile
   end
 end
 
-class LdapPasswd
+class Stuff
   def self.encrypt_openldap_hash( string, salt=nil )
     require 'digest/sha1'
     require 'base64'
@@ -38,61 +38,97 @@ class LdapPasswd
 
     "{SSHA}"+Base64.encode64( digest + salt ).chomp
   end
+
+  def self.getjson(json_file)
+    if File.file?(json_file)
+      f = File.open(json_file,'r')
+      json = String.new
+      #remove all the comments I put in the json file
+      # so I could remember why I did stuff
+      f.each {|line|
+        unless  line[0] == '#'
+          json = json + line
+        end
+      }
+      f.close
+      json
+    else
+      raise "JSON file does not exist or is not a file."
+    end
+  end
+
+  def self.update_hash(json_hash,settings)
+    # TODO:  Clean up -This would be a simple loop if I made the variable names
+    # in the packer.conf the same as the names in the simp.json
+    json_hash['new_password'] = settings['NEW_PASSWORD']
+    json_hash['domain'] = settings['DOMAIN']
+    json_hash['disk_encrypt'] = settings['DISK_CRYPT']
+    json_hash['nat_if'] = settings['NAT_INTERFACE']
+    json_hash['vm_description'] = settings['VM_DESCRIPTION']
+    json_hash['host_only_network_name'] = settings['HOST_ONLY_NETWORK']
+    json_hash['fips'] = settings['FIPS']
+    json_hash['output_directory'] = settings['OUTPUT_DIRECTORY']
+    json_hash['big_sleep'] = settings['BIG_SLEEP']
+
+    json_hash
+  end
 end
 
 require 'yaml'
+require 'fileutils'
 
+time = Time.new
 workingdir = ARGV[0]
 testdir = ARGV[1]
 basedir = File.expand_path(File.dirname(__FILE__))
+json_tmp = basedir + "/simp.json.template"
 
-settings = YAML.load_file("#{testdir}/packer.yaml")
+def_settings = {
+      'VM_DESCRIPTION'    => 'SIMP-PACKER-BUILD',
+      'OUTPUT_DIRECTORY'         => "#{testdir}/OUTPUT",
+      'HOST_ONLY_GATEWAY' => '192.168.101.1',
+      'DOMAIN'            => 'simp.test',
+      'HOST_ONLY_NETWORK' => 'vboxnet1',
+      'HOST_ONLY_INTERFACE' => 'enp0s8',
+      'NAT_INTERFACE' => 'enp0s3',
+      'FIPS' => 'fips=0',
+      'PUPPETNAME' => 'puppet',
+      'NEW_PASSWORD' => 'P@ssw0rdP@ssw0rd',
+      'DISK_CRYPT' => '',
+      'BIG_SLEEP' => '',
+      'MACADDRESS' => 'aabbbbaa0007'
+}
+
+
+
+in_settings = YAML.load_file("#{testdir}/packer.yaml")
 simpconfig = YAML.load_file("#{testdir}/simp_conf.yaml")
 
-ipnetwork = settings['HOST_ONLY_NETWORK']
-domain = settings['DOMAIN']
-network = ipnetwork.split(".")[0,3].join(".")
-if settings.has_key?('HOST_ONLY_INTERFACE')
-    iface = settings['HOST_ONLY_INTERFACE']
-else
-    puts "HOST_ONLY_INTERFACE must be set in packer.yaml"
-end
-# Default fips to true and then check if it set in packer.yaml file
-fips = true
-if settings.has_key?('FIPS')
-    fips = settings['FIPS'].eql?('fips=0')
-end
+settings = def_settings.merge(in_settings)
+#  It barfs if the output directory is out there so I put a date time
+#  I could check and remove it????
+settings['OUTPUT_DIRECTORY'] = settings['OUTPUT_DIRECTORY'] + "/" + time.strftime("%Y%m%d%H%M")
+network = settings['HOST_ONLY_GATEWAY'].split(".")[0,3].join(".")
+puppet_fqdn = settings['PUPPETNAME'] + "." + settings['DOMAIN']
+puppet_ip = network + ".7"
+#This needs to be st in the json file so I add it here
+settings['PUPPETIP'] = puppet_ip
 
-if settings.has_key?('HOST_ONLY_GATEWAY')
- simpconfig['cli::network::gateway'] = settings['HOST_ONLY_GATEWAY']
-else
- simpconfig['cli::network::gateway'] = network + ".1"
-end
-
-if settings.has_key?('PUPPETIP')
-  simpconfig['simp_options::dns::servers'] = settings['PUPPETIP']
-  simpconfig['cli::network::ipaddress'] = settings['PUPPETIP']
-else
-  simpconfig['simp_options::dns::servers'] = network + ".7"
-  simpconfig['cli::network::ipaddress'] = network + ".7"
-end
-
-if settings.has_key?('PUPPETNAME')
-  simpconfig['simp_options::puppet::server'] = settings['PUPPETNAME']
-else
-  simpconfig['simp_options::puppet::server'] = "puppet" + "." + domain
-end
+simpconfig['cli::network::gateway'] = settings['HOST_ONLY_GATEWAY']
+simpconfig['simp_options::dns::servers'] = puppet_ip
+simpconfig['cli::network::ipaddress'] = puppet_ip
+simpconfig['simp_options::puppet::server'] = puppet_fqdn
 simpconfig['cli::network::hostname'] = simpconfig['simp_options::puppet::server']
 simpconfig['simp_options::puppet::ca'] = simpconfig['simp_options::puppet::server']
 #
 #TODO:  Update the cli::network::interface to determine what is is from
 #ip addr or something similiar so this will work for CentOS 6
-simpconfig['cli::network::interface'] = iface
+simpconfig['cli::network::interface'] = settings['HOST_ONLY_INTERFACE']
 simpconfig['cli::network::netmask'] = "255.255.255.0"
-simpconfig['simp_options::dns::search'] = [ domain ]
+simpconfig['simp_options::dns::search'] = [ settings['DOMAIN'] ]
 simpconfig['simp_options::trusted_nets']= network + ".0/24"
-simpconfig['simp_options::ldap::base_dn'] = "dc=" + domain.split(".").join(",dc=")
-simpconfig['simp_options::fips'] = fips.eql? "fips=0"
+simpconfig['simp_options::ldap::base_dn'] = "dc=" + settings['DOMAIN'].split(".").join(",dc=")
+simpconfig['simp_options::fips'] = settings['FIPS'].eql?("fips=0")
 simpconfig['simp_options::ntpd::servers'] = simpconfig['cli::network::gateway']
 
 File.open("#{workingdir}/files/simp_conf.yaml",'w') do |h|
@@ -100,11 +136,34 @@ File.open("#{workingdir}/files/simp_conf.yaml",'w') do |h|
      h.close
 end
 
+# Write out the Vagrantfile
+
 erb = VagrantFile.new(basedir,settings['VM_DESCRIPTION'],simpconfig['cli::network::ipaddress'],settings['MACADDRESS'])
 vfile_contents=erb.render
-File.open("#{workingdir}/Vagrantfile",'w') do |h|
+File.open("#{testdir}/Vagrantfile",'w') do |h|
   h.write(vfile_contents)
   h.close
 end
 
+#Get rid of the comments in the simp.json file and copy to the working directory.
+json = Stuff.getjson json_tmp
 
+File.open("#{workingdir}/simp.json",'w') { |h|
+     h.write json
+     h.close
+}
+
+# Update the vars.json file with all the settings from packer.conf
+# and copy to the working directory
+require 'json'
+
+file =  File.read("#{testdir}/vars.json")
+
+json_hash = JSON.parse(file)
+
+updated_json_hash = Stuff.update_hash(json_hash,settings)
+
+File.open("#{workingdir}/vars.json", 'w' ) do |f|
+  f.write(updated_json_hash.to_json)
+  f.close
+end

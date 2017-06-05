@@ -1,12 +1,18 @@
 ---
-DOMAIN: 'release.me'
-HOST_ONLY_NETWORK: '192.168.101.0'
-HOST_VBOX_NETWORK_NAME: 'vboxnet1'
-DISK_CRYPT: ""
-FIPS: 'fips=0'
-NAT_INTERFACE: 'eth0'
+VM_DESCRIPTION: 'SIMP6-CENTOS6-FIPS-CRYPT'
+DOMAIN: release.me
+HOST_ONLY_GATEWAY: '192.168.101.1'
+# The name of the virtualbox network
+HOST_ONLY_NETWORK: 'vboxnet1'
+# The interface used on the system for the hostonly network
+# CentOS 6 it should be 'eth1', on CentOS 7 enp0s8 works in most cases
 HOST_ONLY_INTERFACE: 'eth1'
-VM_DESCRIPTION: 'SIMP6-CENTOS6.8-NOFIPS'
-LDAPPASSWD: 'P@ssw0rdP@ssw0rd'
-PUPPETIP: 192.168.101.7
-MACADDRESS: 'aabbccaa0007'
+NAT_INTERFACE: 'eth0'
+# Wether to set up the system with fips
+# Default it fips=0 which it turn fips on.
+FIPS: 'fips=0'
+DISK_CRYPT: 'simp_disk_crypt'
+# The mac address of the host only interface.  (The nat interface mac
+# is auto generated.) DHCP uses the first 10 numbers and adds 21 - 39 to create
+# the mac addresses for the servers and workstations.
+MACADDRESS: => 'aabbbbaa0007'
