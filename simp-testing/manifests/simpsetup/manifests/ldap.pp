@@ -1,3 +1,12 @@
+#  This sets up 4 users and 2 groups in LDAP:
+#  user1 and user2 in the Users group.
+#  admin1 and admin 2 in the Admin group
+#
+# @param    $domain The domain name.
+#              It will assume the basedn is of the form
+#              dc=my,dc=domain,dc=name
+# @param    $password The password for the root user
+#              in LDAP.
 class simpsetup::ldap(
   String      $domain    = $simpsetup::domain,
   String      $password  = 'P@ssw0rdP@ssw0rd'

@@ -1,3 +1,20 @@
+#
+#  Set up DHCP in rsync
+#
+# This gets the mac address of the hostonly interface
+# (which is assumed to be the second interface because
+# the first it the nat interface used by vagrant)
+# and builds the DHCP from that info and the first
+# part of the puppetservers IP address.
+#
+# Note:  should probably param server and work station list
+#    and mac address from main module
+#
+# @param $ksip  kickstart server ip
+# @param $dnsip IP address of dns server
+# @param $domain  Domain name
+# @param $fwdaddr the first three octets of the puppetserver IP.
+#
 class simpsetup::dhcp (
   String      $ksip      = $simpsetup::ipaddress,
   String      $dnsip     = $simpsetup::ipaddress,
@@ -16,11 +33,11 @@ class simpsetup::dhcp (
 
 
   concat { 'rsync-dhcpd.conf':
-    path   => "${rsync_dir}/dhcpd.conf",
-    owner  => 'root',
-    group  => 'root',
-    mode   => '0640',
-    order  => 'numeric'
+    path  => "${rsync_dir}/dhcpd.conf",
+    owner => 'root',
+    group => 'root',
+    mode  => '0640',
+    order => 'numeric'
   }
 
   concat::fragment { 'dhcp-header':

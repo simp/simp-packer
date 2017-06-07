@@ -6,7 +6,7 @@ $rsync_path  = '/var/simp/rsync/CentOS/7'
 $copied_path = '/var/local/simp/files'
 
 if $enable_dhcp {
-  file { "$rsync_path/dhcpd/dhcpd.conf":
+  file { "${rsync_path}/dhcpd/dhcpd.conf":
     ensure => file,
     owner  => 'root',
     group  => 'root',
@@ -16,7 +16,7 @@ if $enable_dhcp {
 }
 
 if $enable_named {
-  $bind_path = "$rsync_path/bind_dns/default/named"
+  $bind_path = "${rsync_path}/bind_dns/default/named"
   File {
     ensure  => file,
     mode    => '0640',
@@ -25,17 +25,17 @@ if $enable_named {
     require => Package['bind'],
   }
   package { 'bind': ensure => latest }
-  file { "$bind_path/etc/named.conf":
-    source => "file://$copied_path/named.conf",
+  file { "{$bind_path}/etc/named.conf":
+    source => "file://${copied_path}/named.conf",
   }
-  file { "$bind_path/etc/zones/simp.test":
-    source => "file://$copied_path/simp.test",
+  file { "${bind_path}/etc/zones/simp.test":
+    source => "file://${copied_path}/simp.test",
   }
-  file { "$bind_path/var/named/forward/simp.test.db":
-    source => "file://$copied_path/simp.test.db",
+  file { "${bind_path}/var/named/forward/simp.test.db":
+    source => "file://${copied_path}/simp.test.db",
   }
-  file { "$bind_path/var/named/reverse/33.168.192.db":
-    source => "file://$copied_path/33.168.192.db",
+  file { "${bind_path}/var/named/reverse/33.168.192.db":
+    source => "file://${copied_path}/33.168.192.db",
   }
 }
 

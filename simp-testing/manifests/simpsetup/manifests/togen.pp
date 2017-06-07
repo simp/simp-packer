@@ -1,3 +1,8 @@
+#  This takes the server and client list from the simpsetup
+#  and generates certicates for them.
+#  It use the domain name from simpsetup also.
+#  It users server## and ws## for the names of the systems.
+#
 class simpsetup::togen {
 
 $togen_template = @(END)

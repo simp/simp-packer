@@ -1,3 +1,9 @@
+# This enters *.<domain>  in the autosign file so all
+# the certs get signed off automatically when new systems
+# connect
+#
+# @param $domain    The doamin name.
+#
 class simpsetup::autosign(
   String     $domain = $simpsetup::domain
 ){

@@ -1,3 +1,11 @@
+#  Sets up the dns server files in rsync based on
+#  @param $domain       The domain name
+#  @param $relver       The  OS release.  The network interfaces
+#                        are different based on the OS release
+#  @param $ipaddress    The puppetip address
+#  @param $dnsserver    The fqdn of the dns server
+#  @param $allowed_nets CIDR address of networks allowed
+#                        to query DNS.
 class simpsetup::dns(
   String              $domain = $simpsetup::domain,
   String              $dnsserver = $simpsetup::dnsserver,
@@ -5,9 +13,6 @@ class simpsetup::dns(
   String              $relver = $simpsetup::relver,
   String              $allowed_nets = $simpsetup::allowed_nets
 ){
-
-
-
 
   $_ip = split($ipaddress,'\.')
   $fwdaddr = join($_ip[0,3],'.')
@@ -30,19 +35,19 @@ class simpsetup::dns(
   }
 
   concat { 'dns-forward':
-    path   => "${dns_rsync_dir}/var/named/forward/${domain}.db",
-    owner  => 'root',
-    group  => 'named',
-    mode   => '0640',
-    order  => 'numeric',
+    path  => "${dns_rsync_dir}/var/named/forward/${domain}.db",
+    owner => 'root',
+    group => 'named',
+    mode  => '0640',
+    order => 'numeric',
   }
 
   concat { 'dns-reverse':
-    path   => "${dns_rsync_dir}/var/named/reverse/${revaddr}.db",
-    owner  => 'root',
-    group  => 'named',
-    mode   => '0640',
-    order  => 'numeric',
+    path  => "${dns_rsync_dir}/var/named/reverse/${revaddr}.db",
+    owner => 'root',
+    group => 'named',
+    mode  => '0640',
+    order => 'numeric',
   }
 
   concat::fragment { 'dsn-forward-header':
