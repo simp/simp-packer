@@ -15,7 +15,8 @@
   "variables" :
     {
       "vagrant_password": "vagrant",
-      "simp_conf_file": "/var/local/simp/files/simp_conf.yaml"
+      "simp_conf_file": "/var/local/simp/files/simp_conf.yaml",
+      "iso_dist_location": "/net/ISO/Distribution_ISOs"
     },
   "builders": [
     {
@@ -130,12 +131,12 @@
       ],
       "script" : "scripts/tests/check_settings_at_boot.sh"
     },
-    {
-      "type": "shell",
-      "remote_path": "/var/local/simp/scripts/tests/check_partitions.sh",
-      "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
-      "script" : "scripts/tests/check_partitions.sh"
-    },
+#    {
+#      "type": "shell",
+#      "remote_path": "/var/local/simp/scripts/tests/check_partitions.sh",
+#      "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
+#      "script" : "scripts/tests/check_partitions.sh"
+#    },
     {
 ## Set up the vagrant password
       "type": "shell",
@@ -179,10 +180,15 @@
       "expect_disconnect": true,
       "skip_clean": true,
       "inline" : [
-         "/usr/sbin/reboot"
+        "if [ -f /usr/sbin/reboot ]; then",
+        "/usr/sbin/reboot",
+        "else",
+        "/sbin/reboot",
+        "fi"
        ]
     },
 ######################################
+#TODO: need to update the tests for simp6.
 #  The system should be bootstrapped #
 #  Run some tests                    #
 ######################################
@@ -254,16 +260,17 @@
     },
     {
       "type": "file",
-      "source":"/net/ISO/Distribution_ISOs/{{user `box_distro_release`}}",
-      "destination": "/var/local/simp/ISO"
+      "source":"{{user `iso_dist_location`}}/{{user `box_distro_release`}}",
+      "destination": "/var/local/simp/{{user `box_distro_release`}}"
     },
     {
       "type": "shell",
       "remote_path": "/var/local/simp/inline-unpackdvd.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
       "inline" : [
-        "if [ -f /net/ISO/Distribution_ISOs/{{user `box_distro_release`}} ]; then",
-        "/usr/local/bin/unpack_dvd /net/ISO/Distribution_ISOs/{{user `box_distro_release`}}",
+        "if [ -f /var/local/simp/{{user `box_distro_release`}} ]; then",
+        "/usr/local/bin/unpack_dvd /var/local/simp/{{user `box_distro_release`}}",
+        "rm /var/local/simp/{{user `box_distro_release`}}",
         "fi"
       ]
     },
@@ -302,10 +309,9 @@
     {
       "type": "vagrant",
       "output": "{{user `output_directory`}}/{{user `vm_description`}}.box",
-      "keep_input_artifact": false,
+      "keep_input_artifact": true,
       "include": ["./files/packer-vagrant.pem","./files/packer-vagrant.pub"],
-      "compression_level": "6",
-      "only": [ "virtualbox-iso" ]
+      "compression_level": "6"
     }
   ]
 }

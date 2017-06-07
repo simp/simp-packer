@@ -7,10 +7,11 @@
 #
 
 class VagrantFile
-  def initialize(dir,name,ip,mac)
+  def initialize(dir,name,ip,mac,nw)
     @name = name;
     @ipaddress = ip;
     @mac = mac;
+    @nw = nw;
     @template = File.read("#{dir}/templates/Vagrantfile.erb")
   end
 
@@ -108,6 +109,7 @@ simpconfig = YAML.load_file("#{testdir}/simp_conf.yaml")
 settings = def_settings.merge(in_settings)
 #  It barfs if the output directory is out there so I put a date time
 #  I could check and remove it????
+top_output=settings['OUTPUT_DIRECTORY']
 settings['OUTPUT_DIRECTORY'] = settings['OUTPUT_DIRECTORY'] + "/" + time.strftime("%Y%m%d%H%M")
 network = settings['HOST_ONLY_GATEWAY'].split(".")[0,3].join(".")
 puppet_fqdn = settings['PUPPETNAME'] + "." + settings['DOMAIN']
@@ -139,9 +141,18 @@ end
 
 # Write out the Vagrantfile
 
-erb = VagrantFile.new(basedir,settings['VM_DESCRIPTION'],simpconfig['cli::network::ipaddress'],settings['MACADDRESS'])
+erb = VagrantFile.new(basedir,settings['VM_DESCRIPTION'],simpconfig['cli::network::ipaddress'],settings['MACADDRESS'],settings['HOST_ONLY_NETWORK'])
 vfile_contents=erb.render
-File.open("#{testdir}/Vagrantfile",'w') do |h|
+
+#I can't copy this to the output directory because if it exists before packer runs
+# , then packer fails
+# I don't want it included in the box because I want the user to be able to see and
+# over ride the network name, mac address so they can see what network needs to be set up
+# or change it to match their set up.
+
+FileUtils.mkdir_p(top_output)
+
+File.open("#{top_output}/Vagrantfile",'w') do |h|
   h.write(vfile_contents)
   h.close
 end
