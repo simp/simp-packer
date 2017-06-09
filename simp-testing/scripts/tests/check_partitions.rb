@@ -1,8 +1,8 @@
 #! /usr/bin/env ruby
 
 partition_list = [ '/var','/var/log','/var/log/audit', '/' ]
-x = %x(df -h)
-y = x.split("\n") 
+x = %x(df -P)
+y = x.split("\n")
 
 mount_hash = Hash.new
 y.each{|m|
@@ -11,6 +11,6 @@ y.each{|m|
 }
 
 partition_list.each { |p|
-    raise "#{p} is missing from partition list"  unless mount_hash.has_key?(p) 
+    raise "#{p} is missing from partition list"  unless mount_hash.has_key?(p)
 }
 

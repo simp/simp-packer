@@ -1,3 +1,4 @@
+# Example of nfs server module
 class site::nfs_server (
   Boolean          $kerberos     = simplib::lookup('simp_options::kerberos', { 'default_value' => false }),
   Simplib::Netlist $trusted_nets = simplib::lookup('simp_options::trusted_nets', { 'default_value' => ['127.0.0.1'] }),

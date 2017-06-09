@@ -11,7 +11,7 @@ if $enable_dhcp {
     owner  => 'root',
     group  => 'root',
     mode   => '0640',
-    source => "file://$copied_path/dhcpd.conf",
+    source => "file://${copied_path}/dhcpd.conf",
   }
 }
 
@@ -25,7 +25,7 @@ if $enable_named {
     require => Package['bind'],
   }
   package { 'bind': ensure => latest }
-  file { "{$bind_path}/etc/named.conf":
+  file { "${bind_path}/etc/named.conf":
     source => "file://${copied_path}/named.conf",
   }
   file { "${bind_path}/etc/zones/simp.test":
@@ -45,20 +45,20 @@ if $enable_ks {
     mode   => '0640',
     owner  => 'root',
     group  => 'apache',
-    source => "file://$copied_path/pupclient_x86_64.cfg",
+    source => "file://${copied_path}/pupclient_x86_64.cfg",
   }
   file { '/etc/puppet/environments/simp/modules/site/manifests/tftpboot.pp':
     ensure => file,
     mode   => '0640',
     owner  => 'root',
     group  => 'puppet',
-    source => "file://$copied_path/tftpboot.pp",
+    source => "file://${copied_path}/tftpboot.pp",
   }
   file { '/etc/puppet/autosign.conf':
     ensure => file,
     mode   => '0640',
     owner  => 'root',
     group  => 'puppet',
-    source => "file://$copied_path/autosign.conf",
+    source => "file://${copied_path}/autosign.conf",
   }
 }

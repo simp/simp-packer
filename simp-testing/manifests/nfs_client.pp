@@ -1,3 +1,4 @@
+#example of nfs_client module
 class site::nfs_client (
   Boolean $kerberos = simplib::lookup('simp_options::kerberos', { 'default_value' => false }),
 ){

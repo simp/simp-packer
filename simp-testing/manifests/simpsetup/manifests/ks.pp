@@ -5,9 +5,9 @@
 #  @param  $ksip       The ip address of the kick start server
 #  @param  $fips       Wether or not fips is enabled
 class simpsetup::ks (
-  Boolean     $fips = $facts['fips_enabled']
-  String      $linuxdist = $facts['os']['name']
-  String      $ksdir = '/var/www/ks'
+  Boolean     $fips = $facts['fips_enabled'],
+  String      $linuxdist = $facts['os']['name'],
+  String      $ksdir = '/var/www/ks',
   String      $ksip = $facts['networking']['ip']
 ){
 

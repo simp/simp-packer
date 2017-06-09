@@ -121,7 +121,7 @@
     {
 ## TEST:  Check if it booted into fips or not according to the
 ## fips variable set in the boot command.
-## These should run as sudo or the environment vars do not work.
+## These should run without sudo the environment vars do not work.
       "type": "shell",
       "remote_path": "/var/local/simp/scripts/tests/check_settings_at_boot.sh",
       "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
@@ -131,19 +131,18 @@
       ],
       "script" : "scripts/tests/check_settings_at_boot.sh"
     },
-#    {
-#      "type": "shell",
-#      "remote_path": "/var/local/simp/scripts/tests/check_partitions.sh",
-#      "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
-#      "script" : "scripts/tests/check_partitions.sh"
-#    },
+    {
+      "type": "shell",
+      "remote_path": "/var/local/simp/scripts/tests/check_partitions.sh",
+      "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
+      "script" : "scripts/tests/check_partitions.sh"
+    },
     {
 ## Set up the vagrant password
       "type": "shell",
       "remote_path": "/var/local/simp/inline-vagrant-users.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
       "inline" : [
-#        "sed -i 's/enforce_for_root//' /etc/pam.d/system-auth /etc/pam.d/*",
         "useradd vagrant",
         "echo {{user `vagrant_password`}} | passwd vagrant --stdin",
         "mkdir -p /home/vagrant/.ssh",
@@ -174,6 +173,10 @@
     },
     {
 ## Reboot the system.
+## If I use a script for this it will randomly error out saying return code is not zero.
+##  Reboot seems to be in a different place on Centos 6 and 7 and with no path
+##  it can't find it.  And passing environment variables doesn't seem to work when the 
+## execute command contains sudo even with -E.
       "type": "shell",
       "remote_path": "/var/local/simp/reboot1.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -E bash '{{.Path}}'",
@@ -192,39 +195,17 @@
 #  The system should be bootstrapped #
 #  Run some tests                    #
 ######################################
-#   {
+   {
 ## Check settings after bootstrap.
-#      "type": "shell",
-#      "remote_path": "/var/local/simp/scripts/tests/simp-pupmod_testfips.sh",
-#      "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
-#      "pause_before": "40s",
-#      "environment_vars" : [
-#        "SIMP_PACKER_simp_conf_file={{user `simp_conf_file`}}"
-#      ],
-#      "script" : "scripts/tests/simp-pupmod_testfips.sh"
-#    },
-#    {
-## Check settings after bootstrap.
-#  To Do, this is outdated.  Need to write new script for checking things
-#  Pushing ahead for getting vagrant boxes.
-#      "type": "shell",
-#      "remote_path": "/var/local/simp/scripts/tests/check_settings_after_bootstrap.sh",
-#      "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
-#      "environment_vars" : [
-#        "SIMP_PACKER_simp_conf_file={{user `simp_conf_file`}}"
-#      ],
-#      "script" : "scripts/tests/check_settings_after_bootstrap.sh"
-#    },
-#    {
-## Check settings after bootstrap, puppet needs to be up and running for this.
-#      "type": "shell",
-#      "remote_path": "/var/local/simp/scripts/tests/simp-pupmod_test.sh",
-#      "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
-#      "environment_vars" : [
-#        "SIMP_PACKER_simp_conf_file={{user `simp_conf_file`}}"
-#      ],
-#      "script" : "scripts/tests/simp-pupmod_test.sh"
-#    }
+      "type": "shell",
+      "remote_path": "/var/local/simp/scripts/tests/check_settings.sh",
+      "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
+      "pause_before": "40s",
+      "environment_vars" : [
+        "SIMP_PACKER_simp_conf_file={{user `simp_conf_file`}}"
+      ],
+      "script" : "scripts/tests/check_settings.sh"
+    },
 #########################################################
 # More configuration of the system for the vagrant box  #
 #########################################################

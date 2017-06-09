@@ -1,3 +1,4 @@
+# Sample workstation setup
 class site::workstations {
   include ::gdm
   include ::gnome
