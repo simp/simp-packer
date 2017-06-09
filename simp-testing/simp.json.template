@@ -190,25 +190,6 @@
         "fi"
        ]
     },
-######################################
-#TODO: need to update the tests for simp6.
-#  The system should be bootstrapped #
-#  Run some tests                    #
-######################################
-   {
-## Check settings after bootstrap.
-      "type": "shell",
-      "remote_path": "/var/local/simp/scripts/tests/check_settings.sh",
-      "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
-      "pause_before": "40s",
-      "environment_vars" : [
-        "SIMP_PACKER_simp_conf_file={{user `simp_conf_file`}}"
-      ],
-      "script" : "scripts/tests/check_settings.sh"
-    },
-#########################################################
-# More configuration of the system for the vagrant box  #
-#########################################################
     {
 ## Copy setup manifest
       "pause_before": "140s",
@@ -216,6 +197,16 @@
       "source": "./manifests",
       "destination": "/var/local/simp"
     },
+   {
+## Check settings after bootstrap.
+      "type": "shell",
+      "remote_path": "/var/local/simp/scripts/tests/check_settings.sh",
+      "execute_command": "sudo chmod +x {{.Path}};sudo {{.Vars}} sh '{{.Path}}'",
+      "script" : "scripts/tests/check_settings.sh"
+    },
+#########################################################
+# Tests have passed so set up simp server               #
+#########################################################
     {
       "type": "shell",
       "remote_path": "/var/local/simp/scripts/config/simpsetup.sh",
@@ -254,12 +245,6 @@
         "rm /var/local/simp/{{user `box_distro_release`}}",
         "fi"
       ]
-    },
-    {
-      "type": "shell",
-      "remote_path": "/var/local/simp/scripts/config/unpackdvd.sh",
-      "execute_command": "sudo chmod +x {{.Path}}; sudo {{.Vars}} sh '{{.Path}}'",
-      "script" : "scripts/config/unpackdvd.sh"
     },
     {
       "type": "shell",

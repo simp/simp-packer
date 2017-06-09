@@ -21,7 +21,7 @@ class VagrantFile
   end
 end
 
-class Stuff
+class Utils
   def self.encrypt_openldap_hash( string, salt=nil )
     require 'digest/sha1'
     require 'base64'
@@ -85,7 +85,7 @@ testdir = ARGV[1]
 basedir = File.expand_path(File.dirname(__FILE__))
 json_tmp = basedir + "/simp.json.template"
 
-def_settings = {
+default_settings = {
       'VM_DESCRIPTION'    => 'SIMP-PACKER-BUILD',
       'OUTPUT_DIRECTORY'         => "#{testdir}/OUTPUT",
       'HOST_ONLY_GATEWAY' => '192.168.101.1',
@@ -106,7 +106,7 @@ def_settings = {
 in_settings = YAML.load_file("#{testdir}/packer.yaml")
 simpconfig = YAML.load_file("#{testdir}/simp_conf.yaml")
 
-settings = def_settings.merge(in_settings)
+settings = default_settings.merge(in_settings)
 #  It barfs if the output directory is out there so I put a date time
 #  I could check and remove it????
 top_output=settings['OUTPUT_DIRECTORY']
@@ -158,7 +158,7 @@ File.open("#{top_output}/Vagrantfile",'w') do |h|
 end
 
 #Get rid of the comments in the simp.json file and copy to the working directory.
-json = Stuff.getjson json_tmp
+json = Utils.getjson json_tmp
 
 File.open("#{workingdir}/simp.json",'w') { |h|
      h.write json
@@ -173,9 +173,9 @@ file =  File.read("#{testdir}/vars.json")
 
 json_hash = JSON.parse(file)
 
-updated_json_hash = Stuff.update_hash(json_hash,settings)
+updated_json_hash = Utils.update_hash(json_hash,settings)
 
-File.open("#{workingdir}/vars.json", 'w' ) do |f|
-  f.write(updated_json_hash.to_json)
-  f.close
+File.open("#{workingdir}/vars.json", 'w' ) do |h|
+  h.write(updated_json_hash.to_json)
+  h.close
 end
