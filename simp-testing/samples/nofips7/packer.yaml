@@ -1,14 +1,13 @@
 ---
-DOMAIN: release.me
-#    VM_DESCRIPTION: 'SIMP6-CENTOS7-NOFIPS'
+VM_DESCRIPTION: 'SIMP6-CENTOS7-NOFIPS'
 #    'OUTPUT_DIRECTORY'         => "#{testdir}/OUTPUT/",
-#    'HOST_ONLY_GATEWAY' => '192.168.101.1',
+HOST_ONLY_GATEWAY: '192.168.101.1'
 #    'DOMAIN'            => 'simp.test',
-#    'HOST_ONLY_NETWORK' => 'vboxnet1',
+HOST_ONLY_NETWORK: 'vboxnet1'
 #    'HOST_ONLY_INTERFACE' => 'enp0s8',
 #    'NAT_INTERFACE' => 'enp0s3',
-#    'FIPS' => 'fips=0',
+FIPS: 'fips=0'
 #    'PUPPETNAME' => 'puppet',
 #    'NEW_PASSWORD' => 'P@ssw0rdP@ssw0rd',
 #    'DISK_CRYPT' => '',
-#    'MACADDRESS' => 'aabbbbaa07'
+MACADDRESS: 'aabbbbaa0007'
