@@ -15,7 +15,7 @@ fips=pfips.sysread(1)
 #Get the setting from the simp_conf.yaml files
 fips_conf=conf['simp_options::fips']
 #Get the setting from Hiera yaml file
-fips_settings=['simp_options::fips']
+fips_settings=settings['simp_options::fips']
 
 if fips_conf == fips_settings
   case fips
