@@ -20,6 +20,9 @@ Requirements:
   - [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
   - [Vagrant](https://www.vagrantup.com/downloads.html)
   - SIMP ISO created from build:auto and its json file.
+  - packer installed in or linked to /bin/packer. (There is
+    another command called packer in /usr/sbin/packer so I
+    point specifically to /bin/packer.)
 
 ### Usage
 #### Simple build
@@ -33,11 +36,12 @@ Requirements:
          look in simp_config.rb for the default settings.
 
 NOTE:  The puppet server info and fips info is all changed by the defaults or the
-packer.yaml settings.  
+packer.yaml settings.
 
 Assumptions at this time:
   - you must have the virtual box network set up before starting.  It must be class C
     and the router must be IP Address X.X.X.1
+    See the Virtual Box section at the bottom for some help.
   - The puppet server will be set up to be X.X.X.7
   - DHCP and DNS are set up to contain server21.domain.name - server29.domain.name
     and ws30.doamin.name - ws39.domain.name.
@@ -49,7 +53,7 @@ Assumptions at this time:
   - It only works for systems with LDAP set up.  It will change
     the basedn to match what you have in packer.yaml for DOMAIN or use
     the default.  It sets up user1, user2, admin1, admin2.
-  - The distribution DVD is looked for in the /net/ISO/Distribution_iso directory.
+  - The ditribution DVD is looked for in the /net/ISO/Distribution_iso directory.
     it is hard coded in simp.json.template right now.
 
 
@@ -87,6 +91,8 @@ Default output directory is <test directory>/OUTPUT.
 
 The output will be put in the output directory in a time stamped directory.  Packer fails if the output directory exists for some reason.
 
+I put a Vagrant file in the output directory that can used to bring up the vagrant box.
+I couldn't put it in the time stamp directory because... packer fails if the output directory exists and I don't have the output directory in the shell script.  (TODO... fix that.)
 
 I also didn't copy it into the vagrant box, so you could see the settings in order to make sure you have the correct network set up where ever you are running it. (or change host only network name to a network you have configured for that address.  By deault it will not change the hostname or ip address of the machine because we all know how much fun that is to update.  (I have not tested changing the host_only network name.  My machines are all set up to match the defaults (go figure)
 
@@ -94,17 +100,28 @@ I also didn't copy it into the vagrant box, so you could see the settings in ord
 
 -The vagrant password is vagrant.
 
+### Virtual Box management notes:
+
+This just gives some quick steps for checking your networks and configuring them
+
+To list your hostonly networks:
+
+   VBoxManage list hostonlyifs
+
+When you create a new hostonly network it creates them in order, so vboxnet0, then vboxnet1 ...etc
+
+To create a new network:
+   VBoxManage hostonlyif create
+(It will tell you what network it created.)
+
+To update the address of the network:
+
+   VBoxManage hostonlyif ipconfig <networkname>  --ip <network address>
+
+So to make vboxnet1 set to 192.168.101.1 (that being the router address.)
+   VBoxManage hostonlyif ipconfig vboxnet1 --ip 192.168.101.1
 
 
 ### TODO
-Problems that still need to be fixed:
-  - the vagrant shared folders are nto working which means the guest additios are not 
-    getting installed correctly (probably).  I turned it off in the Vagrant file.
-  - I have some of the tests commented out.  I need to update those.
-  - The logic for setting up the LDAPpassword doesn't work.
-  - The distribution DVD is looked for in the /net/ISO/Distribution_iso directory.
-    it is hard coded in simp.json.template right now.
-  - I put a Vagrant file in the output directory that can used to bring up the vagrant box.
-    I couldn't put it in the time stamp directory because... packer fails if the output
-    directory exists and I don't have the output directory in the shell script.
+- test if master is yum that yum is set up and working.
 

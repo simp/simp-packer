@@ -18,14 +18,14 @@ fips_conf=conf['simp_options::fips']
 fips_settings=settings['simp_options::fips']
 
 if fips_conf == fips_settings
-  case fips
-  when 0
+  case fips.to_s
+  when '0'
     if fips_conf
       raise "Error: System setting fips = #{fips} and configuration files say fips = #{fips_conf}"
     else
       puts "The system setting fips = #{fips} and configuration setting #{fips_conf} agree."
     end
-  when 1
+  when '1'
     if ! fips_conf
       raise "Error: System setting fips = #{fips} and configuration files say fips = #{fips_conf}."
     else
@@ -37,11 +37,12 @@ if fips_conf == fips_settings
   end
 else
   raise "Error: Setting in the simp_conf.yaml file for simp_cli is #{fips_conf} but the simp_config_setting.yaml file has #{fips_settings}."
+
 end
 
 selinux=%x(getenforce)
 
-if selinux != 'Enforcing'
+if selinux.chomp != 'Enforcing'
   raise "Error: Selinux should default to Enforcing is set to #{selinux}."
 end
 
@@ -50,7 +51,7 @@ end
 # SIMP configures master port for 8140.  It should be set to that not the default 8150
 masterport = %x(puppet config print masterport)
 
-if masterport != '8140'
+if masterport.chomp != '8140'
   raise "Error: Master port is not 8140 it is #{masterport}."
 end
 
@@ -59,6 +60,7 @@ end
 ca_port = %x(puppet config print ca_port)
 ca_port_setting = conf['simp_options::puppet::ca_port']
 
-if ca_port != ca_port_setting
+if ca_port.chomp != ca_port_setting.to_s
   raise "Error: The ca_port setting in simp_conf file #{ca_port_setting} does not equal puppet ca_port #{ca_port}."
 end
+

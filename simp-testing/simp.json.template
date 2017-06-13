@@ -32,9 +32,6 @@
       "vm_name": "{{user `vm_description`}}",
       "skip_export": "false",
       "output_directory": "{{user `output_directory`}}",
-#      "export_opts": [
-#        "--description", "Created by simp-packer - {{user `vm_description`}}"
-#        ],
       "vboxmanage": [
         ["modifyvm", "{{.Name}}", "--memory", "4096"],
         ["modifyvm", "{{.Name}}", "--nic1", "nat"],
@@ -131,6 +128,9 @@
       ],
       "script" : "scripts/tests/check_settings_at_boot.sh"
     },
+## TODO:  I had to wrap the ruby scripts in shell scripts because it
+## runs thm as shells.  Need to figure out the correct
+## execute_command for executing a ruby script
     {
       "type": "shell",
       "remote_path": "/var/local/simp/scripts/tests/check_partitions.sh",
@@ -175,7 +175,7 @@
 ## Reboot the system.
 ## If I use a script for this it will randomly error out saying return code is not zero.
 ##  Reboot seems to be in a different place on Centos 6 and 7 and with no path
-##  it can't find it.  And passing environment variables doesn't seem to work when the 
+##  it can't find it.  And passing environment variables doesn't seem to work when the
 ## execute command contains sudo even with -E.
       "type": "shell",
       "remote_path": "/var/local/simp/reboot1.sh",
@@ -198,6 +198,9 @@
       "destination": "/var/local/simp"
     },
    {
+## TODO:  I had to wrap the ruby scripts in shell scripts because it
+## runs them as shells.  Need to figure out the correct
+## execute_command for executing a ruby script
 ## Check settings after bootstrap.
       "type": "shell",
       "remote_path": "/var/local/simp/scripts/tests/check_settings.sh",
@@ -247,6 +250,10 @@
       ]
     },
     {
+## TODO:  The vagrant up command allows the vagrant use to log in but not mount the
+## vagrant share file.  I disable this in the VagrantFile but installing these
+## guest additions should make that work.  They might not be installing correctly
+## or there is another problem mounting the shared files.  Need to check this out.
       "type": "shell",
       "remote_path": "/var/local/simp/inline-vbox.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
