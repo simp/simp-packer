@@ -9,6 +9,7 @@ class simpsetup::ks (
   String      $linuxdist = $facts['os']['name'],
   String      $ksdir = '/var/www/ks',
   String      $ksip = $facts['networking']['ip']
+  String      $majver = $facts['os']['release']['major']
 ){
 
   file { "${ksdir}/pupclient_x86_64.cfg":

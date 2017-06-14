@@ -20,6 +20,9 @@
     },
   "builders": [
     {
+# I used virtualbox because that was what had been used in the previous incarnation of
+# simp-packer.  I did not know when I started what a pain VB is to use remotely.  I never
+# tried to use the QEMU builder.  If someone wants to try this...
       "type": "virtualbox-iso",
       "communicator":"ssh",
       "ssh_pty": "true",
@@ -105,6 +108,8 @@
 ###########################################
     {
 ## Copy scripts from the host to the virtual machine for use later on
+# TODO:  NOt sure you need to do this.  I think the scripts are copied up as they are
+# used.
       "type": "file",
       "source": "./scripts",
       "destination": "/var/local/simp/"
@@ -129,7 +134,7 @@
       "script" : "scripts/tests/check_settings_at_boot.sh"
     },
 ## TODO:  I had to wrap the ruby scripts in shell scripts because it
-## runs thm as shells.  Need to figure out the correct
+## runs them as shells.  Need to figure out the correct
 ## execute_command for executing a ruby script
     {
       "type": "shell",
@@ -193,6 +198,7 @@
        ]
     },
     {
+## Pause a little to let the system boot up all the way then
 ## Copy setup manifests
       "pause_before": "140s",
       "type": "file",
@@ -244,6 +250,7 @@
       "execute_command": "sudo chmod +x {{.Path}}; sudo {{.Vars}} sh '{{.Path}}'",
       "script" : "scripts/config/hiera.sh"
     },
+# This run of puppet server should apply any changes made in hiera and site.pp
     {
       "type": "puppet-server",
       "ignore_exit_codes": true,
@@ -296,6 +303,13 @@
     }
   ],
   "post-processors": [
+# TODO:  once we are set turn keep_input_articfact to false.  You won't need these.
+# TODO:  I copied the certs into the vagrant box but I haven't figure out to access
+# them.  Are they only available to the vagrant machine and not the host? I used
+# tasty.bacon simp to copy the keys to /etc/pki/simp_apps on the blades and hardcoded
+# it in the Vagrant file.  These are only used to connect via rdp because fips on
+# our work stations does not like the generic MD5 key include in vbox. (NOTE: there is
+# also an option to use vnc but  I didn't get that working.)
     {
       "type": "vagrant",
       "output": "{{user `output_directory`}}/{{user `vm_description`}}.box",

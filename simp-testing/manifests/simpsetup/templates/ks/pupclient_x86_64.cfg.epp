@@ -37,7 +37,7 @@ skipx
 text
 keyboard us
 lang en_US
-url --noverifyssl --url https://<%= $simpsetup::ks::ipaddress %>/yum/#LINUXDIST#/7/x86_64
+url --noverifyssl --url https://<%= $simpsetup::ks::ipaddress %>/yum/<%= $simpsetup::ks::linuxdist %>/<%= $simpsetup::ks::majver %>/x86_64
 
 %include /tmp/part-include
 

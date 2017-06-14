@@ -1,6 +1,5 @@
 #!/usr/bin/sh
 export PATH=$PATH:/opt/puppetlabs/bin
-source /var/local/simp/scripts/functions.sh
 
 # Checking out if the disks are encrypted ... if it was chosen.
 /bin/lsblk --output FSTYPE,TYPE,NAME | grep "^crypto_LUKS"
@@ -33,7 +32,7 @@ case $SIMP_PACKER_fips in
        exit -2
      fi
      ;;
-  *) 
+  *)
      if [[ $proc_fips -ne 0 ]]; then
        echo "Boot directive $SIMP_PACKER_fips, it should default to fips but /proc/sys/crypto/fips_enabled is set to $proc_fips"
        exit -2
