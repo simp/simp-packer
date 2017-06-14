@@ -2,8 +2,8 @@
 #
 #  Call ruby script to check if system setting, simp_conf.yaml and simp_config_settings.yaml
 #  all agree.
-packerdir="/var/local/simp"
 export PATH=$PATH:/opt/puppetlabs/bin
+packerdir="/var/local/simp"
 source $packerdir/scripts/functions.sh
 pupenvdir=`puppet config print environmentpath`
 simp_default="${pupenvdir}/simp/hieradata/simp_config_settings.yaml"

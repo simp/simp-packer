@@ -43,7 +43,7 @@ function get_simp_major_version() {
   local simp_major_ver
 
   if [[ ! -f /etc/simp/simp.version ]]; then
-   echo "Could not find /etc/simp/simp.version to determine verion of simp"
+   echo "Could not find /etc/simp/simp.version to determine version of simp"
    exit -1
   fi
 

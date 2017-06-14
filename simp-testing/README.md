@@ -12,7 +12,7 @@
 
 ### Overview
 
-[Packer](https://packer.io) configuration to build a [Vagrant](https://www.vagrantup.com/) box directly from a fresh [SIMP](https://github.com/NationalSecurityAgency/SIMP) ISO and run some basic tests that need a full puppet install to verify.   All versions of a SIMP ISO, 4/5/6, can be tested.
+[Packer](https://packer.io) configuration to build a [Vagrant](https://www.vagrantup.com/) box directly from a fresh [SIMP](https://github.com/NationalSecurityAgency/SIMP) ISO and run some basic tests that need a full puppet install to verify.   SIMP 6 and later ISOs can be tested.
 
 ### Setup
 
@@ -39,12 +39,12 @@ NOTE:  The puppet server info and fips info is all changed by the defaults or th
 packer.yaml settings.
 
 Assumptions at this time:
-  - you must have the virtual box network set up before starting.  It must be class C
+  - You must have the virtual box network set up before starting.  It must be class C
     and the router must be IP Address X.X.X.1
     See the Virtual Box section at the bottom for some help.
   - The puppet server will be set up to be X.X.X.7
   - DHCP and DNS are set up to contain server21.domain.name - server29.domain.name
-    and ws30.doamin.name - ws39.domain.name.
+    and ws30.domain.name - ws39.domain.name.
     The machine server21 will have IP X.X.X.21 and mac address of XXXXXXXXXX21
     and so on.
   - The default passwords for everything (users, LDAP) is P@ssw0rdP@ssw0rd.
@@ -53,12 +53,12 @@ Assumptions at this time:
   - It only works for systems with LDAP set up.  It will change
     the basedn to match what you have in packer.yaml for DOMAIN or use
     the default.  It sets up user1, user2, admin1, admin2.
-  - The ditribution DVD is looked for in the /net/ISO/Distribution_iso directory.
-    it is hard coded in simp.json.template right now.
+  - The distribution DVD is looked for in the /net/ISO/Distribution_ISOs directory.
+    It is hard coded in simp.json.template right now.
 
 
 You don't have to set anything in the packer.yaml file on CentOS 7.  For CentOS 6
-you need to change the NAT_INTErFACE and HOST_ONLY_INTERFACE to eth0 and eth1 
+you need to change the NAT_INTERFACE and HOST_ONLY_INTERFACE to eth0 and eth1 
 respectively.
 
 
@@ -85,7 +85,7 @@ it tests the following:
    in the operational environment.
 4) Checks that selinux matches the simp_conf.yaml selinux::secure setting.
 5) If simp_crypt_disk is used in the simp.conf, it verifies that the disk is encrypted.
-6) Verifies that /, /var/,/var/audit are seperate partitions.
+6) Verifies that /, /var/,/var/audit are separate partitions.
 
 Default output directory is <test directory>/OUTPUT.
 

@@ -86,21 +86,20 @@ basedir = File.expand_path(File.dirname(__FILE__))
 json_tmp = basedir + "/simp.json.template"
 
 default_settings = {
-      'VM_DESCRIPTION'    => 'SIMP-PACKER-BUILD',
-      'OUTPUT_DIRECTORY'         => "#{testdir}/OUTPUT",
-      'HOST_ONLY_GATEWAY' => '192.168.101.1',
-      'DOMAIN'            => 'simp.test',
-      'HOST_ONLY_NETWORK' => 'vboxnet1',
+      'VM_DESCRIPTION'      => 'SIMP-PACKER-BUILD',
+      'OUTPUT_DIRECTORY'    => "#{testdir}/OUTPUT",
+      'NAT_INTERFACE'       => 'enp0s3',
       'HOST_ONLY_INTERFACE' => 'enp0s8',
-      'NAT_INTERFACE' => 'enp0s3',
-      'FIPS' => 'fips=0',
-      'PUPPETNAME' => 'puppet',
-      'NEW_PASSWORD' => 'P@ssw0rdP@ssw0rd',
-      'DISK_CRYPT' => '',
-      'BIG_SLEEP' => '',
-      'MACADDRESS' => 'aabbbbaa0007'
+      'MACADDRESS'          => 'aabbbbaa0007',
+      'HOST_ONLY_GATEWAY'   => '192.168.101.1',
+      'HOST_ONLY_NETWORK'   => 'vboxnet1',
+      'DOMAIN'              => 'simp.test',
+      'PUPPETNAME'          => 'puppet',
+      'FIPS'                => 'fips=0',
+      'DISK_CRYPT'          => '',
+      'NEW_PASSWORD'        => 'P@ssw0rdP@ssw0rd',
+      'BIG_SLEEP'           => ''
 }
-
 
 
 in_settings = YAML.load_file("#{testdir}/packer.yaml")
@@ -131,7 +130,7 @@ simpconfig['cli::network::netmask'] = "255.255.255.0"
 simpconfig['simp_options::dns::search'] = [ settings['DOMAIN'] ]
 simpconfig['simp_options::trusted_nets']= network + ".0/24"
 simpconfig['simp_options::ldap::base_dn'] = "dc=" + settings['DOMAIN'].split(".").join(",dc=")
-simpconfig['simp_options::fips'] = settings['FIPS'].eql?("fips=0")
+simpconfig['simp_options::fips'] = settings['FIPS'].eql?("fips=1")
 simpconfig['simp_options::ntpd::servers'] = simpconfig['cli::network::gateway']
 
 File.open("#{workingdir}/files/simp_conf.yaml",'w') do |h|
@@ -144,10 +143,10 @@ end
 erb = VagrantFile.new(basedir,settings['VM_DESCRIPTION'],simpconfig['cli::network::ipaddress'],settings['MACADDRESS'],settings['HOST_ONLY_NETWORK'])
 vfile_contents=erb.render
 
-#I can't copy this to the output directory because if it exists before packer runs
-# , then packer fails
+# I can't copy this to the output directory because if it exists before packer runs,
+# then packer fails
 # I don't want it included in the box because I want the user to be able to see and
-# over ride the network name, mac address so they can see what network needs to be set up
+# override the network name, mac address so they can see what network needs to be set up
 # or change it to match their set up.
 
 FileUtils.mkdir_p(top_output)

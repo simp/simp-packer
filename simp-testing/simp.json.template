@@ -158,6 +158,7 @@
       "remote_path": "/var/local/simp/inline-simp-config.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -E bash '{{.Path}}'",
       "inline" : [
+         "echo 'Running simp config...'",
          "simp config -a {{user `simp_conf_file`}}"
        ]
     },
@@ -183,6 +184,7 @@
       "expect_disconnect": true,
       "skip_clean": true,
       "inline" : [
+        "echo 'Rebooting...'",
         "if [ -f /usr/sbin/reboot ]; then",
         "/usr/sbin/reboot",
         "else",
@@ -191,16 +193,30 @@
        ]
     },
     {
-## Copy setup manifest
+## Copy setup manifests
       "pause_before": "140s",
       "type": "file",
       "source": "./manifests",
       "destination": "/var/local/simp"
     },
-   {
+    {
+## Run puppet again to get closer to a clean run (take 1)
+      "type": "puppet-server",
+      "ignore_exit_codes": true,
+      "options": "--test",
+      "puppet_bin_dir": "/opt/puppetlabs/bin"
+    },
+    {
+## Run puppet again to get closer to a clean run (take 2)
+      "type": "puppet-server",
+      "ignore_exit_codes": true,
+      "options": "--test",
+      "puppet_bin_dir": "/opt/puppetlabs/bin"
+    },
 ## TODO:  I had to wrap the ruby scripts in shell scripts because it
 ## runs them as shells.  Need to figure out the correct
 ## execute_command for executing a ruby script
+    {
 ## Check settings after bootstrap.
       "type": "shell",
       "remote_path": "/var/local/simp/scripts/tests/check_settings.sh",
@@ -231,7 +247,8 @@
     {
       "type": "puppet-server",
       "ignore_exit_codes": true,
-      "options": "--test"
+      "options": "--test",
+      "puppet_bin_dir": "/opt/puppetlabs/bin"
     },
     {
       "type": "file",

@@ -1,5 +1,5 @@
 #!/bin/bash
-
+export PATH=$PATH:/opt/puppetlabs/bin
 codedir=`puppet config print environmentpath`
 pupenv=`puppet config print environment`
 puppetsitepp="${codedir}/${pupenv}/manifests/site.pp"

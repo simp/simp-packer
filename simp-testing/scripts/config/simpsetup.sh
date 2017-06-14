@@ -1,5 +1,6 @@
 #!/bin/bash
 # TODO, just make this a module and install it.
+export PATH=$PATH:/opt/puppetlabs/bin
 packerdir="/var/local/simp"
 codedir=`puppet config print environmentpath`
 pupenv=`puppet config print environment`

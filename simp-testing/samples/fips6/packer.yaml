@@ -1,13 +1,13 @@
 ---
-VM_DESCRIPTION: 'SIMP6-CENTOS69-FIPS'
-#    'OUTPUT_DIRECTORY'         => "#{testdir}/OUTPUT/",
+VM_DESCRIPTION: 'SIMP6-CENTOS68-FIPS'
+#    'OUTPUT_DIRECTORY':  "#{testdir}/OUTPUT/",
 HOST_ONLY_GATEWAY: '192.168.102.1'
-#    'DOMAIN'            => 'simp.test',
+#    'DOMAIN': 'simp.test',
 HOST_ONLY_NETWORK: 'vboxnet1'
 HOST_ONLY_INTERFACE: 'eth1'
 NAT_INTERFACE: 'eth0'
 FIPS: 'fips=1'
-#    'PUPPETNAME' => 'puppet',
-#    'NEW_PASSWORD' => 'P@ssw0rdP@ssw0rd',
-#    'DISK_CRYPT' => '',
+#    'PUPPETNAME': 'puppet',
+#    'NEW_PASSWORD': 'P@ssw0rdP@ssw0rd',
+#    'DISK_CRYPT': '',
 MACADDRESS: 'aabbccaa0007'
