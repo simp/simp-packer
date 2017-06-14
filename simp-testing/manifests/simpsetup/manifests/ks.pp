@@ -8,7 +8,7 @@ class simpsetup::ks (
   Boolean     $fips = $facts['fips_enabled'],
   String      $linuxdist = $facts['os']['name'],
   String      $ksdir = '/var/www/ks',
-  String      $ksip = $facts['networking']['ip']
+  String      $ksip = $facts['networking']['ip'],
   String      $majver = $facts['os']['release']['major']
 ){
 

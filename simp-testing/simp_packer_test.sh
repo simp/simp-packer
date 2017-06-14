@@ -27,7 +27,6 @@
 #  packer.yaml file to reference a VirtualBox network I have already setup.
 #
 #
-source ./scripts/functions.sh
 
 function cleanup () {
   exitcode=${1:0}
