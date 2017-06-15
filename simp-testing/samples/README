@@ -107,4 +107,6 @@ DISK_CRYPT: ''
 # slower than than the environment used to develop this packer
 # build & test capability. Should be a sequence of '<wait10>'
 # strings (10 second wait commands allowed by packer).
-'BIG_SLEEP': '<wait10><wait10><wait10>'
+#NOTE: you need to use double quotes around the <wait10>.  Packer will
+# fail with keyboard input error if you use single quotes.
+'BIG_SLEEP': "<wait10><wait10><wait10>"

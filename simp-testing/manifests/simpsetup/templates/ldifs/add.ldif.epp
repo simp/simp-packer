@@ -140,3 +140,34 @@ gidNumber: 1001
 homeDirectory: /home/user2
 userPassword: {SSHA}C1xPxt0TOL7FYx6FRIgH3PkudDhtaUcR
 pwdReset: FALSE
+
+dn: cn=security,ou=Group,<%= $simpsetup::ldap::basedn %>
+objectClass: posixGroup
+objectClass: top
+cn: security
+gidNumber: 7700
+description: "The group used for  auditors in simp"
+
+dn: uid=auditor1,ou=People,<%= $simpsetup::ldap::basedn %>
+uid: auditor1
+cn: auditor1
+givenName: Auditor
+sn: one
+mail: auditor1@onyxpoint.com
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: top
+objectClass: shadowAccount
+objectClass: ldapPublicKey
+shadowMax: 180
+shadowMin: 1
+shadowWarning: 7
+shadowLastChange: 10701
+sshPublicKey: <some SSH public key>
+loginShell: /bin/bash
+uidNumber: 1700
+gidNumber: 7700
+homeDirectory: /home/auditor1
+userPassword: {SSHA}C1xPxt0TOL7FYx6FRIgH3PkudDhtaUcR
+pwdReset: FALSE
+
