@@ -117,7 +117,7 @@ puppet_ip = network + ".7"
 settings['PUPPETIP'] = puppet_ip
 
 simpconfig['cli::network::gateway'] = settings['HOST_ONLY_GATEWAY']
-simpconfig['simp_options::dns::servers'] = puppet_ip
+simpconfig['simp_options::dns::servers'] = [ puppet_ip ]
 simpconfig['cli::network::ipaddress'] = puppet_ip
 simpconfig['simp_options::puppet::server'] = puppet_fqdn
 simpconfig['cli::network::hostname'] = simpconfig['simp_options::puppet::server']
@@ -131,7 +131,7 @@ simpconfig['simp_options::dns::search'] = [ settings['DOMAIN'] ]
 simpconfig['simp_options::trusted_nets']= network + ".0/24"
 simpconfig['simp_options::ldap::base_dn'] = "dc=" + settings['DOMAIN'].split(".").join(",dc=")
 simpconfig['simp_options::fips'] = settings['FIPS'].eql?("fips=1")
-simpconfig['simp_options::ntpd::servers'] = simpconfig['cli::network::gateway']
+simpconfig['simp_options::ntpd::servers'] = [ simpconfig['cli::network::gateway'] ]
 
 File.open("#{workingdir}/files/simp_conf.yaml",'w') do |h|
      h.write simpconfig.to_yaml

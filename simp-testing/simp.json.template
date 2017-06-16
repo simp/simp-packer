@@ -21,9 +21,9 @@
     },
   "builders": [
     {
-# I used virtualbox because that was what had been used in the previous incarnation of
-# simp-packer.  I did not know when I started what a pain VB is to use remotely.  I never
-# tried to use the QEMU builder.  If someone wants to try this...
+## I used virtualbox because that was what had been used in the previous incarnation of
+## simp-packer.  I did not know when I started what a pain VB is to use remotely.  I never
+## tried to use the QEMU builder.  If someone wants to try this...
       "type": "virtualbox-iso",
       "communicator":"ssh",
       "ssh_pty": "true",
@@ -197,7 +197,7 @@
     {
 ## Pause a little to let the system boot up all the way then
 ## Copy setup manifests
-      "pause_before": "140s",
+      "pause_before": "300s",
       "type": "file",
       "source": "./manifests",
       "destination": "/var/local/simp"
@@ -282,7 +282,7 @@
         "yum install -q -y gcc",
         "rm -f /lib/modules/`uname -r`/build ; ln -s /usr/src/kernels/`rpm -q kernel-devel --queryformat %{VERSION}-%{RELEASE}.%{ARCH}`/ /lib/modules/`uname -r`/build",
         "mkdir /mnt/vmtools",
-        "mount /var/local/simp/VBoxGuestAdditions.iso /mnt/vmtools",
+        "mount -o loop -t iso9660 /var/local/simp/VBoxGuestAdditions.iso /mnt/vmtools",
         "sh /mnt/vmtools/VBoxLinuxAdditions.run --nox11; true",
         "umount /mnt/vmtools; rmdir /mnt/vmtools"
       ]
