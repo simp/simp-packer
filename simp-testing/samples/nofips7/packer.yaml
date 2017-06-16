@@ -3,7 +3,6 @@ VM_DESCRIPTION: 'SIMP6-CENTOS7-NOFIPS'
 #    'OUTPUT_DIRECTORY': "#{testdir}/OUTPUT/",
 HOST_ONLY_GATEWAY: '192.168.101.1'
 #    'DOMAIN': 'simp.test',
-HOST_ONLY_NETWORK: 'vboxnet1'
 #    'HOST_ONLY_INTERFACE': 'enp0s8',
 #    'NAT_INTERFACE': 'enp0s3',
 FIPS: 'fips=0'

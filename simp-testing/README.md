@@ -20,6 +20,8 @@ Requirements:
   - [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
   - [Vagrant](https://www.vagrantup.com/downloads.html)
   - SIMP ISO created from build:auto and its json file.
+    These contain the json variables that point to the iso,
+    the iso checksum and the name of the distribution iso.
   - packer installed in or linked to /bin/packer. (There is
     another command called packer in /usr/sbin/packer so I
     point specifically to /bin/packer.)
@@ -35,13 +37,10 @@ Requirements:
       packer.yaml:  You have to have this file but it will default everything.
          look in simp_config.rb for the default settings.
 
-NOTE:  The puppet server info and fips info is all changed by the defaults or the
-packer.yaml settings.
+NOTE:  The puppet server info and fips info in the simp_conf.yaml file is all
+changed by the defaults or the packer.yaml settings.
 
 Assumptions at this time:
-  - You must have the virtual box network set up before starting.  It must be class C
-    and the router must be IP Address X.X.X.1
-    See the Virtual Box section at the bottom for some help.
   - The puppet server will be set up to be X.X.X.7
   - DHCP and DNS are set up to contain server21.domain.name - server29.domain.name
     and ws30.domain.name - ws39.domain.name.
@@ -67,10 +66,9 @@ respectively.
 
 Packer use TMPDIR variable for it temporary directory and it needs something like twice the space of the virtual machine so /tmp won't work.  
 
-It will run and create a working diretory under the test directory where all the scripts,manifests and files are kept.  This is deleted at the end.
-A time stamed log file is created in the top level of the test directory and all the output from packer is copied here.  If the packer build fails, this is renamed from <date>.log to <date>.log.errors. 
+It will run and create a working directory under the test directory where all the scripts,manifests and files are kept.  This is deleted at the end.
+A time stamped log file is created in the top level of the test directory and all the output from packer is copied here.  If the packer build fails, this is renamed from <date>.log to <date>.log.errors. 
 
-3\. I don't have all the test working at this time.
 
 packer installs the iso, then packer uses the simp.json file to step it through
 configuring simp according to the simp_conf.yaml and running simp bootstrap.
@@ -89,12 +87,24 @@ it tests the following:
 
 Default output directory is <test directory>/OUTPUT.
 
+Once all the tests have run and passed, it will configure the simp server.
+-sets up dns and kickstart server
+-togen certificates for all the servers and clients
+-adds users into LDAP
+-sets up autosign to be *.<doamin name>
+-configures site.pp to use a host grout workstations for clients that start with ws*
+
+- I have sopied over some manifests like workstation.pp and nfs.pp but they have not been tested and are not configured at this time.
+
+
 The output will be put in the output directory in a time stamped directory.  Packer fails if the output directory exists for some reason.
 
-I put a Vagrant file in the output directory that can used to bring up the vagrant box.
-I couldn't put it in the time stamp directory because... packer fails if the output directory exists and I don't have the output directory in the shell script.  (TODO... fix that.)
-
-I also didn't copy it into the vagrant box, so you could see the settings in order to make sure you have the correct network set up where ever you are running it. (or change host only network name to a network you have configured for that address.  By deault it will not change the hostname or ip address of the machine because we all know how much fun that is to update.  (I have not tested changing the host_only network name.  My machines are all set up to match the defaults (go figure)
+I put a Vagrant file in the output directory that can be used to bring up the vagrant box.
+I couldn't put it in the time stamp directory because packer fails if the output directory exists and I don't have the output directory in 
+the shell script.  (TODO... fix that.) I also didn't copy it into the vagrant box so you could see the settings in order to make sure you
+have the correct network set up where ever you are running it. (or change host only network name to a network you have configured for that
+address.  By deault it will not change the hostname or ip address of the machine because we all know how much fun that is to update.  
+(I have not tested changing the host_only network name.  My machines are all set up to match the defaults. )
 
 -note I am thinking of putting the data in the name of the box because if you have used the box already with that name, it copies it local and doesn't update it even if check fo rupdates is true.
 
@@ -121,7 +131,15 @@ To update the address of the network:
 So to make vboxnet1 set to 192.168.101.1 (that being the router address.)
    VBoxManage hostonlyif ipconfig vboxnet1 --ip 192.168.101.1
 
-
 ### TODO
 - test if master is yum that yum is set up and working.
+- check if puppet is actually running on the port you specified. (netstat or ss) 
+- add one last puppet run in at the end and check that it returns 0 (dns and all that should
+  be set up and nothing chould change at that point.)
+- add an Environment variable in to allow it to create the box even if tests fails.  
+- Kickstart a server and client to go with the box.
+- Move the Vagrant file into the Output directory.
+- Change the packer.yaml settings to match the names used in the simp.json file to make 
+  things more consistent
+- The distribution iso is assumed to be in /net/ISO/Distribution__ISOs.  Make that configurable.
 
