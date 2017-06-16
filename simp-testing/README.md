@@ -28,7 +28,8 @@ Requirements:
 
 ### Usage
 #### Simple build
-1\. To define a test, create a test directory and include the following three files:
+1\. To define a test, create a test directory and include the following three files
+ (There is more information on these three files in the samples directory.):
       vars.json:  The json file from the SIMP ISO.  If you have moved the iso
            make sure it points to the location of the SIMP ISO you want to test.
       simp_conf.yaml:  A simp_conf.yaml file with the setup you want to test.  These
@@ -57,56 +58,68 @@ Assumptions at this time:
 
 
 You don't have to set anything in the packer.yaml file on CentOS 7.  For CentOS 6
-you need to change the NAT_INTERFACE and HOST_ONLY_INTERFACE to eth0 and eth1 
+you need to change the NAT_INTERFACE and HOST_ONLY_INTERFACE to eth0 and eth1
 respectively.
 
 
 2\. Run the test: Run the script:
      TMPDIR=<some directory with lots of space> simp-packer_test.sh <full path to test directory from #1>
 
-Packer use TMPDIR variable for it temporary directory and it needs something like twice the space of the virtual machine so /tmp won't work.  
+Packer use TMPDIR variable for it temporary directory and it needs something
+like twice the space of the virtual machine so /tmp won't work.
 
-It will run and create a working directory under the test directory where all the scripts,manifests and files are kept.  This is deleted at the end.
-A time stamped log file is created in the top level of the test directory and all the output from packer is copied here.  If the packer build fails, this is renamed from <date>.log to <date>.log.errors. 
+It will run and create a working directory under the test directory where all the scripts,manifests and files are kept.
+This is deleted at the end.  I did this so I could keep working and updating the files without having to worry about
+messing with what was running.
 
+A time stamped log file is created in the top level of the test directory and all the output from packer is copied here.
+If the packer build fails, this is renamed from <date>.log to <date>.log.errors.
 
+3\.  An overview of what it does
 packer installs the iso, then packer uses the simp.json file to step it through
 configuring simp according to the simp_conf.yaml and running simp bootstrap.
 This is done in the build section and the start of the provisioning section.
 
-Once the setup is complete, the tests are run.  These are the final sections in the
-provisioning section of the simp.json.template.  Currently
+Once the setup is complete, more tests are run.
 it tests the following:
 1) That the build of the puppet server is successful.
 2) Puppet server is up and running and listening on the ports configured in simp_conf.yaml
 3) It verifies that FIPS is setting match across the simp_conf.yaml, the simp_def.yaml and
    in the operational environment.
-4) Checks that selinux matches the simp_conf.yaml selinux::secure setting.
+4) Checks that selinux is set to enforcing (the default for simp.)
 5) If simp_crypt_disk is used in the simp.conf, it verifies that the disk is encrypted.
 6) Verifies that /, /var/,/var/audit are separate partitions.
+7) Checks that the port in puppet conf file matches the port in simp_conf.yaml
+
 
 Default output directory is <test directory>/OUTPUT.
 
 Once all the tests have run and passed, it will configure the simp server.
 -sets up dns and kickstart server
 -togen certificates for all the servers and clients
--adds users into LDAP
--sets up autosign to be *.<doamin name>
--configures site.pp to use a host grout workstations for clients that start with ws*
+-adds users and groups into LDAP
+-sets up autosign to be *.<domain name> so kickstarted systems will get
+ their puppet cert autosigned.
+-configures site.pp to use a hostgroup, workstations, for clients that start with ws*
 
-- I have sopied over some manifests like workstation.pp and nfs.pp but they have not been tested and are not configured at this time.
+- I have copied over some manifests like workstation.pp and nfs.pp but they have not
+  been tested and are not configured at this time.
 
 
-The output will be put in the output directory in a time stamped directory.  Packer fails if the output directory exists for some reason.
+The output will be put in the output directory in a time stamped directory.
+Packer fails if the output directory exists for some reason.
 
 I put a Vagrant file in the output directory that can be used to bring up the vagrant box.
-I couldn't put it in the time stamp directory because packer fails if the output directory exists and I don't have the output directory in 
-the shell script.  (TODO... fix that.) I also didn't copy it into the vagrant box so you could see the settings in order to make sure you
-have the correct network set up where ever you are running it. (or change host only network name to a network you have configured for that
-address.  By deault it will not change the hostname or ip address of the machine because we all know how much fun that is to update.  
-(I have not tested changing the host_only network name.  My machines are all set up to match the defaults. )
+I couldn't put it in the time stamp directory because packer fails if the output directory
+exists and I don't have the output directory in the shell script.  (TODO... fix that.)
+I also didn't copy it into the vagrant box so you could see the settings in order to make sure you
+have the correct network set up when you run it using vagrant.
+The vagrant file does not configure the machine to use the ip address, I have that disabled.  You can turn it
+on, but changing the IP Address will mess up the puppet server.  Also we set up the network using puppet
+in simp config and we want to see what it does, not what vagrant does.
 
--note I am thinking of putting the data in the name of the box because if you have used the box already with that name, it copies it local and doesn't update it even if check fo rupdates is true.
+I also turned of the vagrant file sharing but that was just because it wasn't working at first.
+I think that is fixed now.
 
 -The vagrant password is vagrant.
 
@@ -132,14 +145,21 @@ So to make vboxnet1 set to 192.168.101.1 (that being the router address.)
    VBoxManage hostonlyif ipconfig vboxnet1 --ip 192.168.101.1
 
 ### TODO
+Tests to add:
 - test if master is yum that yum is set up and working.
-- check if puppet is actually running on the port you specified. (netstat or ss) 
+- check if puppet is actually running on the port you specified. (netstat or ss)
 - add one last puppet run in at the end and check that it returns 0 (dns and all that should
   be set up and nothing chould change at that point.)
-- add an Environment variable in to allow it to create the box even if tests fails.  
+Features to add:
+- add an Environment variable in to allow it to create the box even if tests fails.
 - Kickstart a server and client to go with the box.
-- Move the Vagrant file into the Output directory.
-- Change the packer.yaml settings to match the names used in the simp.json file to make 
-  things more consistent
 - The distribution iso is assumed to be in /net/ISO/Distribution__ISOs.  Make that configurable.
+- validate input from packer.yaml and don't fail if it does not exist because you can run with
+  all the defaults.
+Clean it up:
+- Move the Vagrant file into the Output directory.
+- Change the packer.yaml settings to match the names used in the simp.json file to make
+  things more consistent
+- Merge the simp_config.rb and simp_packer_tests.sh into one ruby script and clean it up.
+- Delete the Virtualbox Hostonly network if we created it???
 
