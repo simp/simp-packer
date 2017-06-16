@@ -16,7 +16,8 @@
     {
       "vagrant_password": "vagrant",
       "simp_conf_file": "/var/local/simp/files/simp_conf.yaml",
-      "iso_dist_location": "/net/ISO/Distribution_ISOs"
+      "iso_dist_location": "/net/ISO/Distribution_ISOs",
+      "ruby_path": "/opt/puppetlabs/puppet/bin/ruby"
     },
   "builders": [
     {
@@ -108,8 +109,8 @@
 ###########################################
     {
 ## Copy scripts from the host to the virtual machine for use later on
-# TODO:  NOt sure you need to do this.  I think the scripts are copied up as they are
-# used.
+## Some of the scripts are copied up as they are used, but not secondary
+## scripts called from them.
       "type": "file",
       "source": "./scripts",
       "destination": "/var/local/simp/"
@@ -133,14 +134,10 @@
       ],
       "script" : "scripts/tests/check_settings_at_boot.sh"
     },
-## TODO:  I had to wrap the ruby scripts in shell scripts because it
-## runs them as shells.  Need to figure out the correct
-## execute_command for executing a ruby script
     {
       "type": "shell",
-      "remote_path": "/var/local/simp/scripts/tests/check_partitions.sh",
-      "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
-      "script" : "scripts/tests/check_partitions.sh"
+      "execute_command": "chmod +x {{.Path}}; {{.Vars}} {{user `ruby_path`}} '{{.Path}}'",
+      "script" : "scripts/tests/check_partitions.rb"
     },
     {
 ## Set up the vagrant password
@@ -246,9 +243,8 @@
     },
     {
       "type": "shell",
-      "remote_path": "/var/local/simp/scripts/config/hiera.sh",
-      "execute_command": "sudo chmod +x {{.Path}}; sudo {{.Vars}} sh '{{.Path}}'",
-      "script" : "scripts/config/hiera.sh"
+      "execute_command": "sudo chmod +x {{.Path}}; sudo {{.Vars}} {{user `ruby_path`}} '{{.Path}}'",
+      "script" : "scripts/config/hiera_update.rb"
     },
 # This run of puppet server should apply any changes made in hiera and site.pp
     {

@@ -1,6 +1,6 @@
 # This is intended for use with the simp-packer module.
 #
-# simpsetup si used to configure SIMP for testing/CI
+# simpsetup is used to configure SIMP for testing/CI
 # It will take the hostname of the puppetserver, ip and
 # mac and generate DNS/DHCP, the Kickstart server, add
 # users to LDAP, set up autosigning, generate server
