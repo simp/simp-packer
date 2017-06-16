@@ -274,10 +274,6 @@
       ]
     },
     {
-## TODO:  The vagrant up command allows the vagrant use to log in but not mount the
-## vagrant share file.  I disable this in the VagrantFile but installing these
-## guest additions should make that work.  They might not be installing correctly
-## or there is another problem mounting the shared files.  Need to check this out.
       "type": "shell",
       "remote_path": "/var/local/simp/inline-vbox.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
@@ -303,7 +299,6 @@
     }
   ],
   "post-processors": [
-# TODO:  once we are set turn keep_input_articfact to false.  You won't need these.
 # TODO:  I copied the certs into the vagrant box but I haven't figure out to access
 # them.  Are they only available to the vagrant machine and not the host? I used
 # tasty.bacon simp to copy the keys to /etc/pki/simp_apps on the blades and hardcoded
@@ -313,7 +308,7 @@
     {
       "type": "vagrant",
       "output": "{{user `output_directory`}}/{{user `vm_description`}}.box",
-      "keep_input_artifact": true,
+      "keep_input_artifact": false,
       "include": ["./files/packer-vagrant.pem","./files/packer-vagrant.pub"],
       "compression_level": "6"
     }

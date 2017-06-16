@@ -57,7 +57,6 @@ class Utils
       raise "JSON file does not exist or is not a file."
     end
   end
-
   def self.update_hash(json_hash,settings)
     # TODO:  Clean up -This would be a simple loop if I made the variable names
     # in the packer.conf the same as the names in the simp.json
@@ -66,7 +65,6 @@ class Utils
     json_hash['disk_encrypt'] = settings['DISK_CRYPT']
     json_hash['nat_if'] = settings['NAT_INTERFACE']
     json_hash['vm_description'] = settings['VM_DESCRIPTION']
-    json_hash['host_only_network_name'] = settings['HOST_ONLY_NETWORK']
     json_hash['fips'] = settings['FIPS']
     json_hash['output_directory'] = settings['OUTPUT_DIRECTORY']
     json_hash['mac_address'] = settings['MACADDRESS']
@@ -76,6 +74,54 @@ class Utils
   end
 end
 
+######################################################################3
+def getvboxnetworkname(network)
+
+  vboxnet = nil
+  hostonlylist=Hash.new
+  name = nil
+  ipaddr = nil
+
+# Get the list of virtual box networks
+  list=%x(VBoxManage list hostonlyifs).split("\n\n")
+  list.each { |x|
+    nw=x.split("\n")
+    nw.each { |y|
+      entry=y.split(":")
+      case entry[0]
+      when "Name"
+        name = entry[1].strip
+      when "IPAddress"
+        ipaddr = entry[1].strip
+      end
+    }
+    hostonlylist[name] = ipaddr
+  }
+# Check if the network exists and return it name if it does
+  hostonlylist.each {|name, ip|
+    if  ip.eql? network
+      vboxnet = name
+      return vboxnet
+    end
+  }
+# Network does not exists, create it and return the name
+  puts "creating new Virtualbox hostonly network for #{network}"
+  newnet=%x(VBoxManage hostonlyif create)
+  if ( newnet.include? "was successfully created" )
+    x = newnet.split("'")
+    vboxnet = x[1]
+    if system("VBoxManage hostonlyif ipconfig #{vboxnet} --ip #{network}  --netmask 255.255.255.0")
+      return vboxnet
+    else
+      puts "Error:  Failure to configure #{vboxnet} --ip #{network}. "
+    end
+  else
+    puts "Creation of network unsuccesful. #{newnet}"
+  end
+  return nil
+end
+
+#############################################################################
 require 'yaml'
 require 'fileutils'
 
@@ -92,7 +138,6 @@ default_settings = {
       'HOST_ONLY_INTERFACE' => 'enp0s8',
       'MACADDRESS'          => 'aabbbbaa0007',
       'HOST_ONLY_GATEWAY'   => '192.168.101.1',
-      'HOST_ONLY_NETWORK'   => 'vboxnet1',
       'DOMAIN'              => 'simp.test',
       'PUPPETNAME'          => 'puppet',
       'FIPS'                => 'fips=0',
@@ -108,13 +153,15 @@ simpconfig = YAML.load_file("#{testdir}/simp_conf.yaml")
 settings = default_settings.merge(in_settings)
 #  It barfs if the output directory is out there so I put a date time
 #  I could check and remove it????
+
+
 top_output=settings['OUTPUT_DIRECTORY']
 settings['OUTPUT_DIRECTORY'] = settings['OUTPUT_DIRECTORY'] + "/" + time.strftime("%Y%m%d%H%M")
+
+# I set the address of the puppet server to 7 in the network.
 network = settings['HOST_ONLY_GATEWAY'].split(".")[0,3].join(".")
 puppet_fqdn = settings['PUPPETNAME'] + "." + settings['DOMAIN']
 puppet_ip = network + ".7"
-#This needs to be st in the json file so I add it here
-settings['PUPPETIP'] = puppet_ip
 
 simpconfig['cli::network::gateway'] = settings['HOST_ONLY_GATEWAY']
 simpconfig['simp_options::dns::servers'] = [ puppet_ip ]
@@ -138,23 +185,6 @@ File.open("#{workingdir}/files/simp_conf.yaml",'w') do |h|
      h.close
 end
 
-# Write out the Vagrantfile
-
-erb = VagrantFile.new(basedir,settings['VM_DESCRIPTION'],simpconfig['cli::network::ipaddress'],settings['MACADDRESS'],settings['HOST_ONLY_NETWORK'])
-vfile_contents=erb.render
-
-# I can't copy this to the output directory because if it exists before packer runs,
-# then packer fails
-# I don't want it included in the box because I want the user to be able to see and
-# override the network name, mac address so they can see what network needs to be set up
-# or change it to match their set up.
-
-FileUtils.mkdir_p(top_output)
-
-File.open("#{top_output}/Vagrantfile",'w') do |h|
-  h.write(vfile_contents)
-  h.close
-end
 
 #Get rid of the comments in the simp.json file and copy to the working directory.
 json = Utils.getjson json_tmp
@@ -172,9 +202,32 @@ file =  File.read("#{testdir}/vars.json")
 
 json_hash = JSON.parse(file)
 
+json_hash['host_only_network_name'] = getvboxnetworkname(settings['HOST_ONLY_GATEWAY'])
+if json_hash['host_only_network_name'].nil?
+  raise "Error: could not create or find a virtualbox network for #{settings['HOST_ONLY_GATEWAY']}"
+end
+
 updated_json_hash = Utils.update_hash(json_hash,settings)
 
 File.open("#{workingdir}/vars.json", 'w' ) do |h|
   h.write(updated_json_hash.to_json)
+  h.close
+end
+
+# Write out the Vagrantfile
+
+erb = VagrantFile.new(basedir,updated_json_hash['vm_description'],simpconfig['cli::network::ipaddress'],updated_json_hash['mac_address'],updated_json_hash['host_only_network_name'])
+vfile_contents=erb.render
+
+# I can't copy this to the output directory because if it exists before packer runs,
+# then packer fails
+# I don't want it included in the box because I want the user to be able to see and
+# override the network name so they can see what network needs to be set up
+# or change it to match their set up.
+
+FileUtils.mkdir_p(top_output)
+
+File.open("#{top_output}/Vagrantfile",'w') do |h|
+  h.write(vfile_contents)
   h.close
 end
