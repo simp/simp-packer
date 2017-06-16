@@ -1,5 +1,7 @@
 #! /usr/bin/env ruby
 
+puts `df -h`
+
 partition_list = [ '/var','/var/log','/var/log/audit', '/' ]
 x = %x(df -P)
 y = x.split("\n")
@@ -13,4 +15,6 @@ y.each{|m|
 partition_list.each { |p|
     raise "#{p} is missing from partition list"  unless mount_hash.has_key?(p)
 }
+
+puts 'Expected partitions found'
 
