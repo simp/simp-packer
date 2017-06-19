@@ -1,6 +1,7 @@
-#  This sets up 4 users and 2 groups in LDAP:
+#  This sets up 5 users and 3 groups in LDAP:
 #  user1 and user2 in the Users group.
 #  admin1 and admin 2 in the Admin group
+#  auditor1  in the security group
 #
 # @param    $domain The domain name.
 #              It will assume the basedn is of the form
@@ -39,7 +40,7 @@ class simpsetup::ldap(
   exec { 'packer_mod_ldap':
     command => "/usr/bin/ldapmodify -Z -x -w ${password} -D \"cn=LDAPAdmin,OU=People,${basedn}\" -f /tmp/mod.ldif",
     cwd     => '/var/simp/environments/simp/FakeCA',
-    require => File['/tmp/mod.ldif']
+    require => [File['/tmp/mod.ldif'],Exec['packer_addto_ldap']]
   }
 
 }

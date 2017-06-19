@@ -295,7 +295,7 @@
     }
   ],
   "post-processors": [
-# TODO:  I copied the certs into the vagrant box but I haven't figure out to access
+# TODO:  I include the certs into the vagrant box but I haven't figure out to access
 # them.  Are they only available to the vagrant machine and not the host? I used
 # tasty.bacon simp to copy the keys to /etc/pki/simp_apps on the blades and hardcoded
 # it in the Vagrant file.  These are only used to connect via rdp because fips on
@@ -303,7 +303,7 @@
 # also an option to use vnc but  I didn't get that working.)
     {
       "type": "vagrant",
-      "output": "{{user `output_directory`}}/{{user `vm_description`}}.box",
+      "output": "{{user `postprocess_output`}}/{{user `vm_description`}}.box",
       "keep_input_artifact": false,
       "include": ["./files/packer-vagrant.pem","./files/packer-vagrant.pub"],
       "compression_level": "6"

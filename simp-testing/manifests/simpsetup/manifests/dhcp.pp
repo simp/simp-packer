@@ -22,7 +22,7 @@ class simpsetup::dhcp (
   String      $fwdaddr   = $simpsetup::fwdaddr,
 ){
 
-  $rsync_dir = '/var/simp/environments/simp/rsync/CentOS/Global/dhcpd'
+  $rsync_dir = "/var/simp/environments/simp/rsync/${facts['os']['name']}/Global/dhcpd"
 
   case $facts['os']['release']['major'] {
     '7':     { $iface='enp0s8' }
@@ -37,6 +37,7 @@ class simpsetup::dhcp (
     owner => 'root',
     group => 'root',
     mode  => '0640',
+    seltype => 'dhcp_etc_t',
     order => 'numeric'
   }
 
@@ -51,6 +52,5 @@ class simpsetup::dhcp (
     order   => 1,
     content => epp('simpsetup/rsync/dhcp/dhcp-data.epp'),
   }
-
 }
 

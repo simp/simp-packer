@@ -39,25 +39,31 @@ class Utils
 
     "{SSHA}"+Base64.encode64( digest + salt ).chomp
   end
+end
 
-  def self.getjson(json_file)
-    if File.file?(json_file)
-      f = File.open(json_file,'r')
-      json = String.new
-      #remove all the comments I put in the json file
-      # so I could remember why I did stuff
-      f.each {|line|
-        unless  line[0] == '#'
-          json = json + line
-        end
-      }
-      f.close
-      json
-    else
-      raise "JSON file does not exist or is not a file."
-    end
+######################################################################
+def getjson(json_file)
+  if File.file?(json_file)
+    f = File.open(json_file,'r')
+    json = String.new
+    #remove all the comments I put in the json file
+    # so I could remember why I did stuff
+    f.each {|line|
+      unless  line[0] == '#'
+        json = json + line
+      end
+    }
+    f.close
+    json
+  else
+    raise "JSON file does not exist or is not a file."
   end
-  def self.update_hash(json_hash,settings)
+end
+
+#####################################################################
+
+def update_hash(json_hash,settings)
+    time = Time.new
     # TODO:  Clean up -This would be a simple loop if I made the variable names
     # in the packer.conf the same as the names in the simp.json
     json_hash['new_password'] = settings['NEW_PASSWORD']
@@ -69,9 +75,14 @@ class Utils
     json_hash['output_directory'] = settings['OUTPUT_DIRECTORY']
     json_hash['mac_address'] = settings['MACADDRESS']
     json_hash['big_sleep'] = settings['BIG_SLEEP']
+    json_hash['postprocess_output'] = settings['OUTPUT_DIRECTORY']
+    json_hash['output_directory'] = settings['OUTPUT_DIRECTORY'] + "/" + time.strftime("%Y%m%d%H%M")
 
-    json_hash
-  end
+    json_hash['host_only_network_name'] = getvboxnetworkname(settings['HOST_ONLY_GATEWAY'])
+    if json_hash['host_only_network_name'].nil?
+       raise "Error: could not create or find a virtualbox network for #{settings['HOST_ONLY_GATEWAY']}"
+    end
+    return json_hash
 end
 
 ######################################################################3
@@ -125,7 +136,6 @@ end
 require 'yaml'
 require 'fileutils'
 
-time = Time.new
 workingdir = ARGV[0]
 testdir = ARGV[1]
 basedir = File.expand_path(File.dirname(__FILE__))
@@ -146,18 +156,16 @@ default_settings = {
       'BIG_SLEEP'           => ''
 }
 
-
+# input packer.yaml and merge with default settings
 in_settings = YAML.load_file("#{testdir}/packer.yaml")
-simpconfig = YAML.load_file("#{testdir}/simp_conf.yaml")
-
 settings = default_settings.merge(in_settings)
-#  It barfs if the output directory is out there so I put a date time
-#  I could check and remove it????
 
-
-top_output=settings['OUTPUT_DIRECTORY']
-settings['OUTPUT_DIRECTORY'] = settings['OUTPUT_DIRECTORY'] + "/" + time.strftime("%Y%m%d%H%M")
-
+# input the sample simp_conf.yaml and update the network
+# settings and any settings from the packer.yaml file.
+# (Right now this will override the simp_conf.yaml
+# with default setting also such as fips and the LDAP
+# settings. )
+simpconfig = YAML.load_file("#{testdir}/simp_conf.yaml")
 # I set the address of the puppet server to 7 in the network.
 network = settings['HOST_ONLY_GATEWAY'].split(".")[0,3].join(".")
 puppet_fqdn = settings['PUPPETNAME'] + "." + settings['DOMAIN']
@@ -170,8 +178,6 @@ simpconfig['simp_options::puppet::server'] = puppet_fqdn
 simpconfig['cli::network::hostname'] = simpconfig['simp_options::puppet::server']
 simpconfig['simp_options::puppet::ca'] = simpconfig['simp_options::puppet::server']
 #
-#TODO:  Update the cli::network::interface to determine what is is from
-#ip addr or something similiar so this will work for CentOS 6
 simpconfig['cli::network::interface'] = settings['HOST_ONLY_INTERFACE']
 simpconfig['cli::network::netmask'] = "255.255.255.0"
 simpconfig['simp_options::dns::search'] = [ settings['DOMAIN'] ]
@@ -185,10 +191,8 @@ File.open("#{workingdir}/files/simp_conf.yaml",'w') do |h|
      h.close
 end
 
-
 #Get rid of the comments in the simp.json file and copy to the working directory.
-json = Utils.getjson json_tmp
-
+json = getjson json_tmp
 File.open("#{workingdir}/simp.json",'w') { |h|
      h.write json
      h.close
@@ -202,12 +206,7 @@ file =  File.read("#{testdir}/vars.json")
 
 json_hash = JSON.parse(file)
 
-json_hash['host_only_network_name'] = getvboxnetworkname(settings['HOST_ONLY_GATEWAY'])
-if json_hash['host_only_network_name'].nil?
-  raise "Error: could not create or find a virtualbox network for #{settings['HOST_ONLY_GATEWAY']}"
-end
-
-updated_json_hash = Utils.update_hash(json_hash,settings)
+updated_json_hash = update_hash(json_hash,settings)
 
 File.open("#{workingdir}/vars.json", 'w' ) do |h|
   h.write(updated_json_hash.to_json)
@@ -219,12 +218,7 @@ end
 erb = VagrantFile.new(basedir,updated_json_hash['vm_description'],simpconfig['cli::network::ipaddress'],updated_json_hash['mac_address'],updated_json_hash['host_only_network_name'])
 vfile_contents=erb.render
 
-# I can't copy this to the output directory because if it exists before packer runs,
-# then packer fails
-# I don't want it included in the box because I want the user to be able to see and
-# override the network name so they can see what network needs to be set up
-# or change it to match their set up.
-
+top_output=settings['OUTPUT_DIRECTORY']
 FileUtils.mkdir_p(top_output)
 
 File.open("#{top_output}/Vagrantfile",'w') do |h|
