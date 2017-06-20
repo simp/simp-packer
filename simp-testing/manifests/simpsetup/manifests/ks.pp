@@ -16,7 +16,7 @@ class simpsetup::ks (
     owner   => 'root',
     group   => 'apache',
     mode    => '0640',
-    content => epp('simpsetup/ks/${majver}/pupclient_x86_64.cfg.epp')
+    content => epp("simpsetup/ks/${majver}/pupclient_x86_64.cfg.epp")
   }
 
 }
