@@ -237,9 +237,9 @@
     },
     {
       "type": "shell",
-      "remote_path": "/var/local/simp/scripts/config/sitepp_edit.sh",
-      "execute_command": "sudo chmod +x {{.Path}}; sudo {{.Vars}} sh '{{.Path}}'",
-      "script" : "scripts/config/sitepp_edit.sh"
+      "remote_path": "/var/local/simp/scripts/config/sitepp_edit.rb",
+      "execute_command": "sudo chmod +x {{.Path}}; sudo {{.Vars}} {{user `ruby_path`}} '{{.Path}}'",
+      "script" : "scripts/config/sitepp_edit.rb"
     },
     {
       "type": "shell",
