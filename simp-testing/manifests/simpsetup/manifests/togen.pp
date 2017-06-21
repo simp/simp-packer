@@ -24,7 +24,7 @@ END
   exec { 'generate certs from togen':
     command => '/var/simp/environments/simp/FakeCA/gencerts_nopass.sh',
     cwd     => '/var/simp/environments/simp/FakeCA',
-    creates => "/var/simp/environments/simp/site_files/pki_files/files/keydist/ws33.${simpsetup::domain}"
+    creates => "/var/simp/environments/simp/site_files/pki_files/files/keydist/ws33.${simpsetup::domain}",
     require => File['/var/simp/environments/simp/FakeCA/togen']
   }
 }

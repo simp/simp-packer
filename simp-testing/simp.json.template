@@ -269,6 +269,17 @@
         "fi"
       ]
     },
+# Just add some shortcuts to roots .bashrc to help getting aroung
+    {
+      "type": "shell",
+      "remote_path": "/var/local/simp/inline-bashrc-extras.sh",
+      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
+      "inline" : [
+        "if [ -f /var/local/simp/root/.bashrc-extras ]; then",
+        "cat /var/local/simp/root/.bashrc-extras >> /root/.bashrc",
+        "fi"
+      ]
+    },
     {
       "type": "shell",
       "remote_path": "/var/local/simp/inline-vbox.sh",
