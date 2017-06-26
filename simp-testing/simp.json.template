@@ -3,7 +3,7 @@
   "__": "  that requires a fully working puppet server.                     ",
   "__": "                                                                   ",
   "__": " USAGE:                                                            ",
-  "__": "   `~/bin/packer build -var-file=vars.json simp.json`              ",
+  "__": "   `packer build -var-file=vars.json simp.json`              ",
   "__": "                                                                   ",
   "__": " NOTES:                                                            ",
   "__": "   - The first `<wait10>`s are killing time until SSH can connect  ",

@@ -219,3 +219,6 @@ sssd::domains:
 # not referenced in your Puppet configuration.
 svckill::mode: enforcing
 
+useradd::securetty:
+  - tty0
+  - tty1
