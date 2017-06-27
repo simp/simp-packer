@@ -1,0 +1,18 @@
+class site::wsmodules {
+#
+#  Installs simp modules on the puppetserver that
+#  are used by the workstations hostgroup and
+# the simp_nfs
+#
+  $package_list = [
+    'pupmod-simp-gdm',
+    'pupmod-simp-gnome',
+    'pupmod-simp-polkit',
+    'pupmod-simp-simp_nfs',
+    'pupmod-simp-vnc',
+  ]
+
+  package { $package_list :
+    ensure => 'installed',
+  }
+}

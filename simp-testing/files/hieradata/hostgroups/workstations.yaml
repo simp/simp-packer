@@ -1,0 +1,7 @@
+---
+
+simp::runlevel: 'graphical'
+timezone::timezone: 'EST'
+
+classes:
+    - site::workstation

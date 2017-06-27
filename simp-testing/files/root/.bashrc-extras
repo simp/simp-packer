@@ -1,0 +1,29 @@
+export GREP_OPTIONS='--color=auto  --exclude-dir=\*fixture\*'
+export EDITOR=vim
+
+PUPPET_PRODUCTION_DIR=/etc/puppetlabs/code/environments/production
+PUPPET_PRODUCTION_VARDIR=/var/simp/environments/production
+PUPPET_PRODUCTION_MODULES_DIR=${PUPPET_PRODUCTION_DIR}/modules
+PUPPET_PRODUCTION_HIERA_DIR=${PUPPET_PRODUCTION_DIR}/hieradata
+PUPPET_PRODUCTION_MANIFESTS_DIR=${PUPPET_PRODUCTION_DIR}/manifests
+PUPPET_PRODUCTION_MODULES_SITE_MANIFESTS_DIR="${PUPPET_PRODUCTION_MODULES_DIR}/site/manifests"
+PUPPET_PRODUCTION_FAKE_CA=${PUPPET_PRODUCTION_VARDIR}/FakeCA
+
+export pph="${PUPPET_PRODUCTION_HIERA_DIR}"
+export pphh="${PUPPET_PRODUCTION_HIERA_DIR}/hosts"
+export pphg="${PUPPET_PRODUCTION_HIERA_DIR}/hostgroups"
+export ppm="${PUPPET_PRODUCTION_MODULES_DIR}"
+export ppn="${PUPPET_PRODUCTION_MANIFESTS_DIR}"
+export ppms="${PUPPET_PRODUCTION_MODULES_SITE_MANIFESTS_DIR}"
+export ppv="${PUPPET_PRODUCTION_VARDIR}"
+export ppfca="${PUPPET_PRODUCTION_FAKE_CA}"
+
+alias pph="cd ${pph}"
+alias pphh="cd ${pphh}"
+alias pphg="cd ${pphg}"
+alias ppm="cd ${ppm}"
+alias ppn="cd ${ppn}"
+alias ppms="cd ${ppms}"
+alias ppv="cd ${ppv}"
+alias ppfca="cd ${ppfca}"
+

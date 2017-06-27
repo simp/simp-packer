@@ -1,0 +1,6 @@
+<% $simpsetup::servers.each |$number| { %>
+server<%= $number %>.<%= $simpsetup::dhcp::domain %>
+<% } %>
+<% $simpsetup::clients.each |$number| { %>
+ws<%= $number %>.<%= $simpsetup::dhcp::domain %>
+<% } %>

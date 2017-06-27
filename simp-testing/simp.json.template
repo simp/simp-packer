@@ -3,7 +3,7 @@
   "__": "  that requires a fully working puppet server.                     ",
   "__": "                                                                   ",
   "__": " USAGE:                                                            ",
-  "__": "   `~/bin/packer build -var-file=vars.json simp.json`              ",
+  "__": "   `packer build -var-file=vars.json simp.json`              ",
   "__": "                                                                   ",
   "__": " NOTES:                                                            ",
   "__": "   - The first `<wait10>`s are killing time until SSH can connect  ",
@@ -14,17 +14,16 @@
   "__": "     to changed behavior.                                          ",
   "variables" :
     {
-      "simp_prompt": "{{env `SIMP_PACKER_simp_prompt`}}",
-      "fips": "{{env `SIMP_PACKER_fips`}}",
-      "disk_encrypt": "{{env `SIMP_PACKER_disk_encrypt`}}",
-      "simp_conf_file": "{{env `SIMP_PACKER_simp_conf_file`}}",
-      "big_sleep": "{{env `SIMP_PACKER_big_sleep`}}",
-      "host_only_network_name": "{{env `SIMP_PACKER_host_only_network_name`}}",
-      "root_password": "{{env `SIMP_PACKER_root_password`}}",
-      "vagrant_password": "{{env `SIMP_PACKER_vagrant_password`}}"
+      "vagrant_password": "vagrant",
+      "simp_conf_file": "/var/local/simp/files/simp_conf.yaml",
+      "iso_dist_location": "/net/ISO/Distribution_ISOs",
+      "ruby_path": "/opt/puppetlabs/puppet/bin/ruby"
     },
   "builders": [
     {
+## I used virtualbox because that was what had been used in the previous incarnation of
+## simp-packer.  I did not know when I started what a pain VB is to use remotely.  I never
+## tried to use the QEMU builder.  If someone wants to try this...
       "type": "virtualbox-iso",
       "communicator":"ssh",
       "ssh_pty": "true",
@@ -33,16 +32,22 @@
       "iso_checksum":    "{{user `iso_checksum`}}",
       "iso_checksum_type": "{{user `iso_checksum_type`}}",
       "disk_size": "50000",
+      "headless": "true",
+      "vm_name": "{{user `vm_description`}}",
+      "skip_export": "false",
+      "output_directory": "{{user `output_directory`}}",
       "vboxmanage": [
         ["modifyvm", "{{.Name}}", "--memory", "4096"],
         ["modifyvm", "{{.Name}}", "--nic1", "nat"],
         ["modifyvm", "{{.Name}}", "--nic2", "hostonly"],
         ["modifyvm", "{{.Name}}", "--hostonlyadapter2", "{{user `host_only_network_name`}}"],
+        ["modifyvm", "{{.Name}}", "--macaddress2", "{{user `mac_address`}}"],
+        ["modifyvm", "{{.Name}}", "--macaddress1", "auto"],
         ["modifyvm", "{{.Name}}", "--cpus", "2"],
         ["modifyvm", "{{.Name}}", "--accelerate3d", "off"]
       ],
       "boot_command": [
-        "{{user `simp_prompt`}} {{user `disk_encrypt`}} {{user `fips`}}","<enter>",
+        "simp {{user `disk_encrypt`}} {{user `fips`}}","<enter>",
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
@@ -55,76 +60,98 @@
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
-        "<wait10><wait10><wait10><wait10>",
+        "<wait10><wait10><wait10><wait10><wait10><wait10>",
         "<wait10><wait10><wait10><wait10>",
         "{{user `big_sleep`}}",
         "simp<enter>UserPassword<enter>",
         "<wait><wait>",
         "UserPassword<enter>",
         "<wait><wait>",
-        "{{user `new_password`}}<enter>",
         "<wait><wait>",
         "{{user `new_password`}}<enter>",
         "<wait><wait>",
-        "sudo su -<enter>",
         "<wait><wait>",
         "{{user `new_password`}}<enter>",
         "<wait><wait>",
-        "echo 'simp ALL=(ALL) NOPASSWD:ALL'  >> /etc/sudoers<enter>",
         "<wait><wait>",
         "exit<enter>",
+        "<wait10>",
+        "root<enter>RootPassword<enter>",
+        "<wait><wait>",
+        "<wait><wait>",
+        "RootPassword<enter>",
+        "<wait><wait>",
+        "<wait><wait>",
+        "{{user `new_password`}}<enter>",
+        "<wait><wait>",
+        "<wait><wait>",
+        "{{user `new_password`}}<enter>",
+        "<wait><wait>",
+        "<wait><wait>",
+# Bring up the NAT network
+        "echo 'simp ALL=(ALL) NOPASSWD:ALL'  >> /etc/sudoers<enter>",
+        "sed -ie '/Defaults *requiretty/d' /etc/sudoers<enter>",
+        "sed -ie 's/ONBOOT=no/ONBOOT=yes/g' /etc/sysconfig/network-scripts/ifcfg-{{user `nat_if`}}<enter>",
+        "sed -ie 's/DEFROUTE=yes/DEFROUTE=no/g' /etc/sysconfig/network-scripts/ifcfg-{{user `nat_if`}}<enter>",
+        "ifup {{user `nat_if`}}<enter>",
         "exit<enter>"
        ],
       "ssh_username": "simp",
+#      "ssh_private_key_file": "{{user `ssh_key`}}",
       "ssh_password": "{{user `new_password`}}",
-      "shutdown_command": "sudo -S shutdown -P now"
+      "shutdown_command": "sudo /sbin/shutdown -P now"
     }
   ],
   "provisioners": [
+###########################################
+# Set up the users for packer and vagrant #
+# and boot strap the system               #
+###########################################
     {
-## TEST:  Check if it booted into fips or not according to the
-## fips variable set in the boot command.
-      "type": "shell",
-      "remote_path": "/var/local/simp/inline-fips.sh",
-      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
-      "inline" : [
-        "if [[ {{user `fips`}} == 'fips=0' ]]; then",
-          "if [[ `cat /proc/sys/crypto/fips_enabled` != 0 ]]; then",
-           "echo 'Fips is not set correctly in start up'",
-           "exit 2; fi",
-        "else",
-           "if [[ `cat /proc/sys/crypto/fips_enabled` != 1 ]]; then",
-           "echo 'Fips is not set correctly in start up'",
-           "exit 2; fi",
-        "fi"
-      ]
-    },
-    {
-## Set up the vagrant and root passwords
-      "type": "shell",
-      "remote_path": "/var/local/simp/inline-vagrant-users.sh",
-      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
-      "inline" : [
-        "sed -i 's/enforce_for_root//' /etc/pam.d/system-auth /etc/pam.d/*",
-        "useradd vagrant",
-        "echo {{user `vagrant_password`}} | passwd vagrant --stdin",
-        "echo {{user `root_password`}} | passwd root --stdin",
-        "echo 'vagrant ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers",
-        "#puppet apply -e 'include site::vagrant'",
-        "chmod g+rX -R /home/vagrant"
-      ]
+## Copy scripts from the host to the virtual machine for use later on
+## Some of the scripts are copied up as they are used, but not secondary
+## scripts called from them.
+      "type": "file",
+      "source": "./scripts",
+      "destination": "/var/local/simp/"
     },
     {
 ## Copy files from the host to the virtual machine for use later on
       "type": "file",
-      "source": "files",
-      "destination": "/var/local/simp/"
+      "source": "./files",
+      "destination": "/var/local/simp/files"
     },
     {
-## Copy scripts from the host to the virtual machine for use later on
-      "type": "file",
-      "source": "scripts",
-      "destination": "/var/local/simp/"
+## TEST:  Check if it booted into fips or not according to the
+## fips variable set in the boot command.
+## These should run without sudo the environment vars do not work.
+      "type": "shell",
+      "remote_path": "/var/local/simp/scripts/tests/check_settings_at_boot.sh",
+      "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
+      "environment_vars" : [
+        "SIMP_PACKER_fips={{user `fips`}}",
+        "SIMP_PACKER_disk_encrypt={{user `disk_encrypt`}}"
+      ],
+      "script" : "scripts/tests/check_settings_at_boot.sh"
+    },
+    {
+      "type": "shell",
+      "execute_command": "chmod +x {{.Path}}; {{.Vars}} {{user `ruby_path`}} '{{.Path}}'",
+      "script" : "scripts/tests/check_partitions.rb"
+    },
+    {
+## Set up the vagrant password
+      "type": "shell",
+      "remote_path": "/var/local/simp/inline-vagrant-users.sh",
+      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
+      "inline" : [
+        "useradd vagrant",
+        "echo {{user `vagrant_password`}} | passwd vagrant --stdin",
+        "mkdir -p /home/vagrant/.ssh",
+        "cp /var/local/simp/files/authorized_keys /home/vagrant/.ssh/authorized_keys",
+        "chmod g+rX -R /home/vagrant",
+        "chown -R vagrant /home/vagrant"
+      ]
     },
     {
 ## Now we run simp using the simp conf yaml file specified in the shell.
@@ -133,61 +160,164 @@
       "remote_path": "/var/local/simp/inline-simp-config.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -E bash '{{.Path}}'",
       "inline" : [
+         "echo 'Running simp config...'",
          "simp config -a {{user `simp_conf_file`}}"
        ]
     },
     {
-## Load manifest that will keep the vagrant user and will set up simp
-## user so it can continue to use sudo and ssh into the server when
-## puppet is running and simp has locked the system down.
+## Now run bootstrap.
+## This script also configures  a puppet manifest  site::vagrant that configures
+## the simp and vagrant users to be allowed to ssh and sudo as needed by packer
+## and vagrant.
       "type": "shell",
-      "remote_path": "/var/local/simp/puppet-usersetup.sh",
-      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
-      "script": "scripts/puppet-usersetup.sh"
-    },
-    {
-## Now run bootstrap.  It should complete successfully and reboot.
-      "type": "shell",
-      "remote_path": "/var/local/simp/inline-simp-bootstrap.sh",
+      "remote_path": "/var/local/simp/scripts/simp-bootstrap.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -E bash '{{.Path}}'",
-      "inline" : [
-        "simp bootstrap"
-       ]
+      "script" : "scripts/simp-bootstrap.sh"
     },
     {
 ## Reboot the system.
+## If I use a script for this it will randomly error out saying return code is not zero.
+##  Reboot seems to be in a different place on Centos 6 and 7 and with no path
+##  it can't find it.  And passing environment variables doesn't seem to work when the
+## execute command contains sudo even with -E.
       "type": "shell",
-      "remote_path": "/var/local/simp/inline-simp-reboot.sh",
+      "remote_path": "/var/local/simp/reboot1.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -E bash '{{.Path}}'",
+      "expect_disconnect": true,
+      "skip_clean": true,
       "inline" : [
-         "echo 'rebooting now'",
-         "shutdown -r now"
+        "echo 'Rebooting...'",
+        "if [ -f /usr/sbin/reboot ]; then",
+        "/usr/sbin/reboot",
+        "else",
+        "/sbin/reboot",
+        "fi"
        ]
     },
     {
+## Pause a little to let the system boot up all the way then
+## Copy setup manifests
+      "pause_before": "300s",
+      "type": "file",
+      "source": "./manifests",
+      "destination": "/var/local/simp"
+    },
+    {
+## Run puppet again to get closer to a clean run (take 1)
+      "type": "puppet-server",
+      "ignore_exit_codes": true,
+      "options": "--test",
+      "puppet_bin_dir": "/opt/puppetlabs/bin"
+    },
+    {
+## Run puppet again to get closer to a clean run (take 2)
+      "type": "puppet-server",
+      "ignore_exit_codes": true,
+      "options": "--test",
+      "puppet_bin_dir": "/opt/puppetlabs/bin"
+    },
+## TODO:  I had to wrap the ruby scripts in shell scripts because it
+## runs them as shells.  Need to figure out the correct
+## execute_command for executing a ruby script
+    {
+## Check settings after bootstrap.
       "type": "shell",
-      "remote_path": "/var/local/simp/runtests.sh",
-      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -E bash '{{.Path}}'",
+      "remote_path": "/var/local/simp/scripts/tests/check_settings.sh",
+      "execute_command": "sudo chmod +x {{.Path}};sudo {{.Vars}} sh '{{.Path}}'",
+      "script" : "scripts/tests/check_settings.sh"
+    },
+#########################################################
+# Tests have passed so set up simp server               #
+#########################################################
+    {
+      "type": "shell",
+      "remote_path": "/var/local/simp/scripts/config/simpsetup.sh",
+      "execute_command": "sudo chmod +x {{.Path}}; sudo {{.Vars}} sh '{{.Path}}'",
+      "script" : "scripts/config/simpsetup.sh"
+    },
+    {
+      "type": "shell",
+      "remote_path": "/var/local/simp/scripts/config/sitepp_edit.rb",
+      "execute_command": "sudo chmod +x {{.Path}}; sudo {{.Vars}} {{user `ruby_path`}} '{{.Path}}'",
+      "script" : "scripts/config/sitepp_edit.rb"
+    },
+    {
+      "type": "shell",
+      "execute_command": "sudo chmod +x {{.Path}}; sudo {{.Vars}} {{user `ruby_path`}} '{{.Path}}'",
+      "script" : "scripts/config/hiera_update.rb"
+    },
+# This run of puppet server should apply any changes made in hiera and site.pp
+    {
+      "type": "puppet-server",
+      "ignore_exit_codes": true,
+      "options": "--test",
+      "puppet_bin_dir": "/opt/puppetlabs/bin"
+    },
+    {
+      "type": "file",
+      "source":"{{user `iso_dist_location`}}/{{user `box_distro_release`}}",
+      "destination": "/var/local/simp/{{user `box_distro_release`}}"
+    },
+    {
+      "type": "shell",
+      "remote_path": "/var/local/simp/inline-unpackdvd.sh",
+      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
       "inline" : [
-	       "chmod +x /var/local/simp/scripts/simp*.sh",
-         "/var/local/simp/scripts/simp-pupmod_testfips.sh",
-         "echo simp-pupmod_testfips complete",
-         "/var/local/simp/scripts/simp-pupmod_test.sh",
-         "echo simp-pupmod_test complete"
+        "if [ -f /var/local/simp/{{user `box_distro_release`}} ]; then",
+        "/usr/local/bin/unpack_dvd /var/local/simp/{{user `box_distro_release`}}",
+        "rm /var/local/simp/{{user `box_distro_release`}}",
+        "fi"
+      ]
+    },
+# Just add some shortcuts to roots .bashrc to help getting aroung
+    {
+      "type": "shell",
+      "remote_path": "/var/local/simp/inline-bashrc-extras.sh",
+      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
+      "inline" : [
+        "if [ -f /var/local/simp/root/.bashrc-extras ]; then",
+        "cat /var/local/simp/root/.bashrc-extras >> /root/.bashrc",
+        "fi"
       ]
     },
     {
-## NOTE:  This is the only script not run using sudo so variable passing works.
       "type": "shell",
-      "remote_path": "/var/local/simp/scripts/simp-pupmod_test_checksettings.sh",
+      "remote_path": "/var/local/simp/inline-vbox.sh",
+      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
+      "inline" : [
+        "yum install -q -y kernel-devel",
+        "yum install -q -y gcc",
+        "rm -f /lib/modules/`uname -r`/build ; ln -s /usr/src/kernels/`rpm -q kernel-devel --queryformat %{VERSION}-%{RELEASE}.%{ARCH}`/ /lib/modules/`uname -r`/build",
+        "mkdir /mnt/vmtools",
+        "mount -o loop -t iso9660 /var/local/simp/VBoxGuestAdditions.iso /mnt/vmtools",
+        "sh /mnt/vmtools/VBoxLinuxAdditions.run --nox11; true",
+        "umount /mnt/vmtools; rmdir /mnt/vmtools"
+      ]
+    },
+    {
+      "type": "shell",
+      "remote_path": "/var/local/simp/inline-simp-done.sh",
       "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
-      "environment_vars" : [
-        "SIMP_PACKER_simp_conf_file={{user `simp_conf_file`}}",
-        "SIMP_PACKER_simp_prompt={{user `simp_prompt`}}",
-        "SIMP_PACKER_disk_encrypt={{user `disk_encrypt`}}"
-      ],
-      "script" : "scripts/simp-pupmod_test_checksettings.sh"
+      "expect_disconnect": true,
+      "skip_clean": true,
+      "inline" : [
+         "echo 'done'"
+       ]
+    }
+  ],
+  "post-processors": [
+# TODO:  I include the certs into the vagrant box but I haven't figure out to access
+# them.  Are they only available to the vagrant machine and not the host? I used
+# tasty.bacon simp to copy the keys to /etc/pki/simp_apps on the blades and hardcoded
+# it in the Vagrant file.  These are only used to connect via rdp because fips on
+# our work stations does not like the generic MD5 key include in vbox. (NOTE: there is
+# also an option to use vnc but  I didn't get that working.)
+    {
+      "type": "vagrant",
+      "output": "{{user `postprocess_output`}}/{{user `vm_description`}}.box",
+      "keep_input_artifact": false,
+      "include": ["./files/packer-vagrant.pem","./files/packer-vagrant.pub"],
+      "compression_level": "6"
     }
   ]
 }
-

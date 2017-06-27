@@ -1,0 +1,10 @@
+$TTL    86400
+<%= $simpsetup::dns::domain -%>.            IN SOA  <%= $simpsetup::dns::dnsserver -%>. hostmaster.<%= $simpsetup::dns::domain -%>. (
+                           2017111101 
+                           3H              ; refresh
+                           15M             ; retry
+                           1W              ; expiry
+                           1D )            ; minimum
+                           IN NS           <%= $simpsetup::dns::dnsserver -%>.
+
+<%= $simpsetup::dns::dnsserver -%>.   IN A  <%= $simpsetup::dns::ipaddress %>

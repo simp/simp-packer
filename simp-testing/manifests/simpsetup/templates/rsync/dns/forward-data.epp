@@ -1,0 +1,6 @@
+<% $simpsetup::servers.each |$number| { %>
+server<%= $number -%>.<%= $simpsetup::dns::domain -%>.   IN A   <%= $simpsetup::dns::fwdaddr -%>.<%= $number -%>
+<% } %>
+<% $simpsetup::clients.each |$number| { %>
+ws<%= $number -%>.<%= $simpsetup::dns::domain -%>.   IN A   <%= $simpsetup::dns::fwdaddr -%>.<%= $number -%>
+<% } %>

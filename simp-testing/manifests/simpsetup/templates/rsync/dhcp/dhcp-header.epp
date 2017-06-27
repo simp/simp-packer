@@ -1,0 +1,23 @@
+allow booting;
+allow bootp;
+ddns-update-style interim;
+
+class "pxeclients" {
+  match if substring(option vendor-class-identifier, 0, 9) = "PXEClient";
+  next-server         <%= $simpsetup::dhcp::ksip -%>;
+  filename        "linux-install/pxelinux.0";
+}
+
+subnet <%= $simpsetup::dhcp::fwdaddr %>.0 netmask 255.255.255.0 {
+
+  option routers      <%= $simpsetup::dhcp::fwdaddr -%>.1;
+  option subnet-mask      255.255.255.0;
+
+  option domain-name      "<%= $simpsetup::dhcp::domain -%>";
+  option domain-name-servers    <%= $simpsetup::dhcp::dnsip -%>;
+
+  option time-offset      -0;
+
+  default-lease-time      21600;
+  max-lease-time      43200;
+

@@ -1,0 +1,6 @@
+<% $simpsetup::servers.each |$number| { %>
+<%= $number %>  IN PTR server<%= $number -%>.<%= $domain -%>.
+<% } %>
+<% $simpsetup::clients.each |$number| { %>
+<%= $number %> IN PTR  ws<%= $number -%>.<%= $domain -%>.
+<% } %>
