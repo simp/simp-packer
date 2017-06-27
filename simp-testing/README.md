@@ -8,9 +8,8 @@
 * [Environment Variables](#environment-variables)
 * [Define A Test](#define-a-test)
 * [Run The Test](#run-the-test)
-* [Notes](#notes)
+* [The Vagrant File](#the-vagrant-file)
 * [TODO](#todo)
-* [DONE](#done)
 
 ### Overview
 
@@ -63,127 +62,117 @@ Defaults:
   - The default distribution ISO path is `/net/ISO/Distribution_ISOs`.
     It is hard coded in `simp.json.template` right now.
 
-#### Run The Test:
+#### Run The Test
 
 `TMPDIR=/some/tmp/dir ./simp_packer_test.sh /path/to/test/directory`
 
 -  `simp_packer_test.rb` must be run from the top level of the `simp-testing`
   directory.
 - Packer uses around twice the space of the virtual image footprint when
-  building, so ensure there is sufficient space.
+  building, so ensure TMPDIR has sufficient space.  TMPDIR defaults to
+  /tmp which is not (usually) large enough.
 
 ##### Output 
+
 - A directory will be created  under the test directory, where all the scripts,
   manifests, and files are kept. It is erased on completion of the test, but
-  can be preserved with SIMP_PACKER_save_WORKINGDIR=true.
+  can be preserved with `SIMP_PACKER_save_WORKINGDIR=true`.
 - A time stamped log file is created in the top level of the test directory and
   all the output from packer is copied there. If the packer build fails, it is
   renamed from <date>.log to <date>.log.errors.
 - A vagrant box with VagrantFile will be located in the directory defined
-  by the packer.yaml file OUTPUT_DIRECTORY (default is <testdirectory>/OUTPUT.
+  by the packer.yaml file `OUTPUT_DIRECTORY` (default is
+  `<testdirectory>/OUTPUT`).
 
-##### Overview
+##### Overview Of The Tests
 
-The build section installs the iso, adds the vagrant user, configures the network
-to start up a boot time.  Changes the passwords for simp and root. 
-Updates the sudo file so simp user can sudo without a password and without a tty.
+###### The Build Section
 
-The provisioning section:
-- checks if fips was turned on that the system came up in fips.
-- runs simp config and simp bootstrap.
-- installs a manifest that will configure the vagrant user so you can 
-  vagrant ssh once the box is built and configures simp user so packer
-  can continue working.
-- it reboots
-- it runs puppet a couple of times
-- it runs some more tests
-    1) That the build of the puppet server is successful.
-    2) Puppet server is up and running and listening on the ports configured in simp_conf.yaml
-    3) It verifies that FIPS is setting match across the simp_conf.yaml, the simp_def.yaml and
-       in the operational environment.
-    4) Checks that selinux is set to enforcing (the default for simp.)
-    5) If simp_crypt_disk is used in the simp.conf, it verifies that the disk is encrypted.
-    6) Verifies that /, /var/,/var/audit are separate partitions.
-    7) Checks that the port in puppet conf file matches the port in simp_conf.yaml
--if the tests pass it will configure the puppet server
-   1) The simpsetup manifest is run via puppet apply.  It is run once
-      so that if you make changes later on they are not over written.
-       - setup the kickstart files
-       - sets up dns
-       - sets up tftp manifests
-       -togen certificates for all the servers and clients
-       -adds users and groups into LDAP
-       -sets up autosign to be *.<domain name> so kickstarted systems will get
-        their puppet cert autosigned.
-   2) Scripts are run that edit the site.pp file to create some hostgroups
-      and edit the hiera files to include kickstart and tftpboot.
-   3) - I have copied over some manifests like workstation.pp and nfs.pp but they have not
-       been tested and are not configured at this time.
-- it then runs puppet once more
+- Installs the ISO
+- Adds the vagrant user
+- Configures the network to start up a boot time
+- Changes the passwords for simp and root
+- Updates the sudo file so simp user can sudo without a password and without
+  a tty
+
+###### The Provisioning Section
+
+Runs a suite of tests:
+
+- Checks that FIPS was enabled/disabled per configruation
+- Runs simp config and simp bootstrap.
+- Installs a manifest that configures the vagrant user so you can vagrant ssh
+  once the box is built and configures simp user so packer can continue working
+- Reboots and run Puppet a couple of times
+- Ensures that the build of the puppet server is successful and is up and
+  running and listening on the ports configured in `simp_conf.yaml`
+- Verifies that FIPS is setting match across the `simp_conf.yaml`, the
+  `simp_def.yaml` and in the operational environment.
+- Checks that selinux is set to enforcing (the default for simp.)
+- If `simp_crypt_disk` is used in the `simp.conf`, it verifies that the disk is
+  encrypted.
+- Verifies that `/`, `/var/`,`/var/audit` are separate partitions.
+- Checks that the port in puppet conf file matches the port in `simp_conf.yaml`
+
+If the tests pass, it will configure the Puppet server.  The simpsetup manifest
+is run via puppet apply.  It is run once so that if you make changes later on
+they are not over written.
+
+- Setup the kickstart files
+- Sets up dns
+- Sets up tftp manifests
+- togen certificates for all the servers and clients
+- Adds users and groups into LDAP
+- Sets up autosign to be `*.<domain name>` so kickstarted systems will get
+  their puppet cert autosigned.
+- Scripts are run that edit the site.pp file to create some hostgroups and
+  edit the hiera files to include kickstart and tftpboot.
+- I have copied over some manifests like workstation.pp and nfs.pp but they
+  have not been tested and are not configured at this time.
+- It then runs puppet once more
 
 The post-processor then exports the virtualbox to a vagrant box and removes the
 output directory.
-  I have it including some certificates that were genrated on tasty.bacon.
-  These were meant to be used by VRDP.  How ever, I am not sure exactly how to use these
-  and have copied them out via tastypuppet to all the blades.  They are need because
-  vrdp by default encrypts communication with an MD5 cert and our workstations are
-  fips and don't like that.
 
-### Some thoughts on the vagrant file:
-I did not put the Vagrant file in the vagrant box so the network settings could be seen.
-I don't think vagrant is smart enough to check it a vbox hostonly network exists and create it for
-the machine so you will have to check, before you vagrant up the machine that the network exists,
-so you need to know what ip address the machine is using..
-I think you can change the network name in the vagrant box but I still have to check that. I
-may not have the modifyvm set up correctly for that at this time. (TODO)
+### The Vagrant File
 
-The vagrant file does not configure the machine to use the ip address, I have that disabled.  You can turn it
-on, but changing the IP Address will mess up the puppet server.  Also we set up the network using puppet
-in simp config and we want to see what it does, not what vagrant does.
-
-I also turned of the vagrant directory sharing in the VagrantFile but that was just because it wasn't working at first.
-I think that is fixed now.
-
--The vagrant password is vagrant.
-
-### Virtual Box management notes:
-
-This just gives some quick steps for checking your networks and configuring them
-
-To list your hostonly networks:
-
-   VBoxManage list hostonlyifs
-
-When you create a new hostonly network it creates them in order, so vboxnet0, then vboxnet1 ...etc
-
-To create a new network:
-   VBoxManage hostonlyif create
-(It will tell you what network it created.)
-
-To update the address of the network:
-
-   VBoxManage hostonlyif ipconfig <networkname>  --ip <network address>
-
-So to make vboxnet1 set to 192.168.101.1 (that being the router address.)
-   VBoxManage hostonlyif ipconfig vboxnet1 --ip 192.168.101.1
+- The vagrant password is vagrant.
+- The Vagrant file is not wrapped in the Vagrant box so the network settings
+  can be seen. Vagrant is not easily configured to check if a vbox hostonly
+  network exists; you will have to ensure the network exists before running
+  vagrant up.
+- You can change the network name in the Vagrant file.
+- The Vagrant file does not configure the machine to use the IP address.  You
+  can turn it on, but changing the IP address will mess up the puppet server.
+- Directory sharing is enabled.
 
 ### TODO
+
 Tests to add:
+
 - test if master is yum that yum is set up and working.
 - check if puppet is actually running on the port you specified. (netstat or ss)
 - add one last puppet run in at the end and check that it returns 0 (dns and all that should
   be set up and nothing chould change at that point.)
+
 Features to add:
-- add an Environment variable in to allow it to create the box even if tests fails.
+
+- Add an Environment variable in to allow it to create the box even if tests fails.
 - Kickstart a server and client to go with the box.
-- The distribution iso is assumed to be in /net/ISO/Distribution__ISOs.  Make that configurable.
+- The distribution ISO is assumed to be in `/net/ISO/Distribution__ISOs`.  Make
+  that configurable.
 - validate input from packer.yaml and don't fail if it does not exist because you can run with
   all the defaults.
+
 Documentation to add:
+
 - Environment Variables
+
 Clean it up:
+
 - Move the Vagrant file into the Output directory.
-- Change the packer.yaml settings to match the names used in the simp.json file to make
-  things more consistent
-- Merge the simp_config.rb and simp_packer_tests.sh into one ruby script and clean it up.
-- Delete the Virtualbox Hostonly network if we created it???
+- Change the packer.yaml settings to match the names used in the simp.json file
+  to make things more consistent
+- Merge the `simp_config.rb` and `simp_packer_tests.sh` into one ruby script
+  and clean it up.
+- Delete the Virtualbox Hostonly network if we created it
