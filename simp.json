@@ -191,6 +191,14 @@
       ]
     },
     {
+      "type": "shell",
+      "remote_path": "/var/local/packer/remove-root-pass",
+      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
+      "inline": [
+        "/opt/puppetlabs/bin/puppet resource user root password='!!'"
+      ]
+    },
+    {
       "type": "file",
       "source": "files/remove_packer_user.sh",
       "destination": "/var/local/packer/remove_packer_user.sh"
