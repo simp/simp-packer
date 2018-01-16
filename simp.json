@@ -60,6 +60,14 @@
     },
     {
       "type": "shell",
+      "remote_path": "/var/local/packer/fix-etc-shadow.sh",
+      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
+      "inline": [
+        "sed -i 's/root:.*$//g' /etc/shadow"
+      ]
+    },
+    {
+      "type": "shell",
       "remote_path": "/var/local/packer/cloud-init.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
       "inline": [
@@ -188,14 +196,6 @@
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
       "inline": [
         "/opt/puppetlabs/bin/puppet resource user simp managehome=true ensure=absent"
-      ]
-    },
-    {
-      "type": "shell",
-      "remote_path": "/var/local/packer/remove-root-pass",
-      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
-      "inline": [
-        "/opt/puppetlabs/bin/puppet resource user root password='!!'"
       ]
     },
     {
