@@ -50,7 +50,7 @@ Create a test directory and include the following files:
 
 Defaults:
   - The Puppet server's IP will be X.X.X.7
-  - DHCP and DNS are set up to contain server21.domain.name to 
+  - DHCP and DNS are set up to contain server21.domain.name to
     server29.domain.name, and ws30.domain.name - ws39.domain.name. The machine
     server21 will have IP X.X.X.21 and mac address of XXXXXXXXXX21, and so on.
   - The default password for everything is P@ssw0rdP@ssw0rd. You can change the
@@ -66,18 +66,18 @@ Defaults:
 
 `TMPDIR=/some/tmp/dir ./simp_packer_test.sh /path/to/test/directory`
 
--  `simp_packer_test.rb` must be run from the top level of the `simp-testing`
+-  `simp_packer_test.sh` must be run from the top level of the `simp-testing`
   directory.
 - Packer uses around twice the space of the virtual image footprint when
   building, so ensure TMPDIR has sufficient space.  TMPDIR defaults to
   /tmp which is not (usually) large enough.
 
-##### Output 
+##### Output
 
-- A directory will be created  under the test directory, where all the scripts,
-  manifests, and files are kept. It is erased on completion of the test, but
-  can be preserved with `SIMP_PACKER_save_WORKINGDIR=true`.
-- A time stamped log file is created in the top level of the test directory and
+- A working directory will be created  under the test directory, where all
+  the scripts, manifests, and files are kept. It is erased on completion of
+  the test, but can be preserved with `SIMP_PACKER_save_WORKINGDIR=true`.
+- A time-stamped log file is created in the top level of the test directory and
   all the output from packer is copied there. If the packer build fails, it is
   renamed from <date>.log to <date>.log.errors.
 - A vagrant box with VagrantFile will be located in the directory defined
@@ -90,6 +90,7 @@ Defaults:
 
 - Installs the ISO
 - Adds the vagrant user
+- Sets root's umask
 - Configures the network to start up a boot time
 - Changes the passwords for simp and root
 - Updates the sudo file so simp user can sudo without a password and without
@@ -107,15 +108,15 @@ Runs a suite of tests:
 - Ensures that the build of the puppet server is successful and is up and
   running and listening on the ports configured in `simp_conf.yaml`
 - Verifies that FIPS is setting match across the `simp_conf.yaml`, the
-  `simp_def.yaml` and in the operational environment.
+  `simp_config_settings.yaml` and the operational environment.
 - Checks that selinux is set to enforcing (the default for simp.)
 - If `simp_crypt_disk` is used in the `simp.conf`, it verifies that the disk is
   encrypted.
 - Verifies that `/`, `/var/`,`/var/audit` are separate partitions.
 - Checks that the port in puppet conf file matches the port in `simp_conf.yaml`
 
-If the tests pass, it will configure the Puppet server.  The simpsetup manifest
-is run via puppet apply.  It is run once so that if you make changes later on
+If the tests pass, it will configure the Puppet server.  The `simpsetup` manifest
+is run via `puppet apply`.  It is run once so that if you make changes later on
 they are not over written.
 
 - Setup the kickstart files
@@ -152,17 +153,17 @@ Tests to add:
 
 - test if master is yum that yum is set up and working.
 - check if puppet is actually running on the port you specified. (netstat or ss)
-- add one last puppet run in at the end and check that it returns 0 (dns and all that should
-  be set up and nothing chould change at that point.)
+- add one last puppet run in at the end and check that it returns 0 (dns and all
+  that should be set up and nothing chould change at that point.)
 
 Features to add:
 
 - Add an Environment variable in to allow it to create the box even if tests fails.
 - Kickstart a server and client to go with the box.
-- The distribution ISO is assumed to be in `/net/ISO/Distribution__ISOs`.  Make
+- The distribution ISO is hardcoded to be in `/net/ISO/Distribution_ISOs`.  Make
   that configurable.
-- validate input from packer.yaml and don't fail if it does not exist because you can run with
-  all the defaults.
+- validate input from packer.yaml and don't fail if it does not exist because you
+  can run with all the defaults.
 
 Documentation to add:
 
@@ -172,7 +173,7 @@ Clean it up:
 
 - Move the Vagrant file into the Output directory.
 - Change the packer.yaml settings to match the names used in the simp.json file
-  to make things more consistent
+  to make things more consistent and will allow code simplification.
 - Merge the `simp_config.rb` and `simp_packer_tests.sh` into one ruby script
   and clean it up.
 - Delete the Virtualbox Hostonly network if we created it

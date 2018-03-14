@@ -1,5 +1,5 @@
 ---
-VM_DESCRIPTION: 'SIMP6.1-CENTOS6-FIPS'
+VM_DESCRIPTION: 'SIMP6.1-CENTOS6-NOFIPS'
 #    OUTPUT_DIRECTORY:  "#{testdir}/OUTPUT/"
 NAT_INTERFACE: 'eth0'
 HOST_ONLY_INTERFACE: 'eth1'
@@ -8,7 +8,7 @@ HOST_ONLY_GATEWAY: '192.168.102.1'
 #    DOMAIN: 'simp.test'
 #    PUPPETNAME: 'puppet'
 #    NEW_PASSWORD: 'P@ssw0rdP@ssw0rd'
-FIPS: 'fips=1'
+FIPS: 'fips=0'
 #    DISK_CRYPT: ''
 #    BIG_SLEEP: ''
 #    ROOT_UMASK: '0077'

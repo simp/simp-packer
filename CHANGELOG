@@ -1,0 +1,14 @@
+Wed Mar 14 2018 Liz Nemsick <lnemsick.simp@gmail.com> - 0.1.0-0
+- simp-testing updates:
+  - Added ability to set root's umask prior to running 'simp config'.
+    This allows testing of the fix to the SIMP 6.1.0 problem in which
+    SIMP failed to bootstrap on a system on which root's umask has
+    already been restricted to 077.
+  - Added tests to verify that the  puppetserver and puppetdb services
+    are running after SIMP is bootstrapped.
+  - Minor code refactor/documentation updates.
+  - Checked in more example configurations.
+
+Tue Jun 27 2017 Jeanne Greulich <jeanne.greulich@onyxpoint.com> 0.1.0-0
+- Created functioning tests and infrastructure to run them in simp-testing/.
+  When the tests succeed a bootstrapped, SIMP vbox is created.
