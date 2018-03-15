@@ -1,5 +1,5 @@
 ---
-VM_DESCRIPTION: 'SIMP6.1-CENTOS6-FIPS'
+VM_DESCRIPTION: 'SIMP6.1-CENTOS6-FIPS-ENCRYPTED'
 #    OUTPUT_DIRECTORY:  "#{testdir}/OUTPUT/"
 NAT_INTERFACE: 'eth0'
 HOST_ONLY_INTERFACE: 'eth1'
@@ -9,6 +9,6 @@ HOST_ONLY_GATEWAY: '192.168.102.1'
 #    PUPPETNAME: 'puppet'
 #    NEW_PASSWORD: 'P@ssw0rdP@ssw0rd'
 FIPS: 'fips=1'
-#    DISK_CRYPT: ''
-#    BIG_SLEEP: ''
+DISK_CRYPT: 'simp_crypt_disk'
+BIG_SLEEP: "<wait10><wait10><wait10><wait10><wait10><wait10>"
 #    ROOT_UMASK: '0077'

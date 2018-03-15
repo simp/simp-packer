@@ -75,6 +75,7 @@ def update_hash(json_hash,settings)
     json_hash['output_directory'] = settings['OUTPUT_DIRECTORY']
     json_hash['mac_address'] = settings['MACADDRESS']
     json_hash['big_sleep'] = settings['BIG_SLEEP']
+    json_hash['root_umask'] = settings['ROOT_UMASK']
     json_hash['postprocess_output'] = settings['OUTPUT_DIRECTORY']
     json_hash['output_directory'] = settings['OUTPUT_DIRECTORY'] + "/" + time.strftime("%Y%m%d%H%M")
 
@@ -150,10 +151,11 @@ default_settings = {
       'HOST_ONLY_GATEWAY'   => '192.168.101.1',
       'DOMAIN'              => 'simp.test',
       'PUPPETNAME'          => 'puppet',
+      'NEW_PASSWORD'        => 'P@ssw0rdP@ssw0rd',
       'FIPS'                => 'fips=0',
       'DISK_CRYPT'          => '',
-      'NEW_PASSWORD'        => 'P@ssw0rdP@ssw0rd',
-      'BIG_SLEEP'           => ''
+      'BIG_SLEEP'           => '',
+      'ROOT_UMASK'          => '0077'
 }
 
 # input packer.yaml and merge with default settings

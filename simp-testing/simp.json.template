@@ -145,6 +145,7 @@
       "remote_path": "/var/local/simp/inline-vagrant-users.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
       "inline" : [
+        "set -x",
         "useradd vagrant",
         "echo {{user `vagrant_password`}} | passwd vagrant --stdin",
         "mkdir -p /home/vagrant/.ssh",
@@ -154,12 +155,27 @@
       ]
     },
     {
+## Set root's umask, if configured
+      "type": "shell",
+      "remote_path": "/var/local/simp/inline-set-root-umask.sh",
+      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -i '{{.Path}}'",
+      "inline" : [
+         "root_umask={{user `root_umask`}}",
+         "if [ ! -z \"${root_umask}\" ]; then",
+         "echo \"umask ${root_umask}\" >> /root/.bash_profile",
+         "cat /root/.bash_profile",
+         "fi"
+      ]
+    },
+    {
 ## Now we run simp using the simp conf yaml file specified in the shell.
 ## It should complete successfully.
       "type": "shell",
       "remote_path": "/var/local/simp/inline-simp-config.sh",
-      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -E bash '{{.Path}}'",
+      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -i '{{.Path}}'",
       "inline" : [
+         "echo 'umask:'",
+         "umask",
          "echo 'Running simp config...'",
          "simp config -a {{user `simp_conf_file`}}"
        ]
@@ -171,7 +187,7 @@
 ## and vagrant.
       "type": "shell",
       "remote_path": "/var/local/simp/scripts/simp-bootstrap.sh",
-      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -E bash '{{.Path}}'",
+      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -i '{{.Path}}'",
       "script" : "scripts/simp-bootstrap.sh"
     },
     {
