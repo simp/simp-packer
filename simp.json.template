@@ -32,7 +32,9 @@
       "iso_checksum":    "{{user `iso_checksum`}}",
       "iso_checksum_type": "{{user `iso_checksum_type`}}",
       "disk_size": "50000",
-      "headless": "true",
+      "hard_drive_interface": "sata",
+      "sata_port_count": "30",
+      "headless": "{{user `headless`}}",
       "vm_name": "{{user `vm_description`}}",
       "skip_export": "false",
       "output_directory": "{{user `output_directory`}}",
@@ -41,6 +43,9 @@
         ["modifyvm", "{{.Name}}", "--nic1", "nat"],
         ["modifyvm", "{{.Name}}", "--nic2", "hostonly"],
         ["modifyvm", "{{.Name}}", "--hostonlyadapter2", "{{user `host_only_network_name`}}"],
+        ["modifyvm", "{{.Name}}", "--firmware", "{{user `firmware`}}"],
+        ["modifyvm", "{{.Name}}", "--boot1", "disk"],
+        ["modifyvm", "{{.Name}}", "--boot2", "dvd"],
         ["modifyvm", "{{.Name}}", "--macaddress2", "{{user `mac_address`}}"],
         ["modifyvm", "{{.Name}}", "--macaddress1", "auto"],
         ["modifyvm", "{{.Name}}", "--cpus", "2"],
@@ -57,13 +62,9 @@
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
-        "<wait10><wait10><wait10><wait10><wait10><wait10>",
-        "<wait10><wait10><wait10><wait10><wait10><wait10>",
-        "<wait10><wait10><wait10><wait10><wait10><wait10>",
-        "<wait10><wait10><wait10><wait10><wait10><wait10>",
         "<wait10><wait10><wait10><wait10>",
         "{{user `big_sleep`}}",
-        "simp<enter>UserPassword<enter>",
+        "simp<enter><wait><wait>UserPassword<enter>",
         "<wait><wait>",
         "UserPassword<enter>",
         "<wait><wait>",
@@ -76,7 +77,7 @@
         "<wait><wait>",
         "exit<enter>",
         "<wait10>",
-        "root<enter>RootPassword<enter>",
+        "root<enter><wait><wait>RootPassword<enter>",
         "<wait><wait>",
         "<wait><wait>",
         "RootPassword<enter>",
@@ -90,10 +91,20 @@
         "<wait><wait>",
 # Bring up the NAT network
         "echo 'simp ALL=(ALL) NOPASSWD:ALL'  >> /etc/sudoers<enter>",
+        "<wait><wait>",
+        "<wait><wait>",
         "sed -ie '/Defaults *requiretty/d' /etc/sudoers<enter>",
+        "<wait><wait>",
+        "<wait><wait>",
         "sed -ie 's/ONBOOT=no/ONBOOT=yes/g' /etc/sysconfig/network-scripts/ifcfg-{{user `nat_if`}}<enter>",
+        "<wait><wait>",
+        "<wait><wait>",
         "sed -ie 's/DEFROUTE=yes/DEFROUTE=no/g' /etc/sysconfig/network-scripts/ifcfg-{{user `nat_if`}}<enter>",
+        "<wait><wait>",
+        "<wait><wait>",
         "ifup {{user `nat_if`}}<enter>",
+        "<wait><wait>",
+        "<wait><wait>",
         "exit<enter>"
        ],
       "ssh_username": "simp",
@@ -222,14 +233,14 @@
 ## Run puppet again to get closer to a clean run (take 1)
       "type": "puppet-server",
       "ignore_exit_codes": true,
-      "options": "--test",
+      "extra_arguments": "--test",
       "puppet_bin_dir": "/opt/puppetlabs/bin"
     },
     {
 ## Run puppet again to get closer to a clean run (take 2)
       "type": "puppet-server",
       "ignore_exit_codes": true,
-      "options": "--test",
+      "extra_arguments": "--test",
       "puppet_bin_dir": "/opt/puppetlabs/bin"
     },
 ## TODO:  I had to wrap the ruby scripts in shell scripts because it
@@ -266,7 +277,7 @@
     {
       "type": "puppet-server",
       "ignore_exit_codes": true,
-      "options": "--test",
+      "extra_arguments": "--test",
       "puppet_bin_dir": "/opt/puppetlabs/bin"
     },
     {

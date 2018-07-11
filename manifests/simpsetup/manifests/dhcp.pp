@@ -24,10 +24,7 @@ class simpsetup::dhcp (
 
   $rsync_dir = "/var/simp/environments/simp/rsync/${facts['os']['name']}/Global/dhcpd"
 
-  case $facts['os']['release']['major'] {
-    '7':     { $iface='enp0s8' }
-    default: { $iface='eth1'}
-  }
+  $iface = $facts['networking']['primary']
   $_macprefix = split($facts['networking']['interfaces'][$iface]['mac'],':')
   $macprefix = $_macprefix[0,5].join(':')
 

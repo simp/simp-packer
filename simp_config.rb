@@ -62,6 +62,40 @@ end
 
 #####################################################################
 
+def validate_settings(settings)
+  validated = settings
+  case settings['FIRMWARE']
+  when 'bios','efi'
+    validated['FIRMWARE'] = settings['FIRMWARE']
+  else 
+    validated['FIRMWARE'] = 'bios'
+  end
+
+  if settings['HEADLESS'].nil?
+    validated['HEADLESS'] = 'true'
+  else
+    case settings['HEADLESS'].downcase
+    when 'yes','true','y'
+      validated['HEADLESS'] = 'true'
+    when 'no','false','n'
+      validated['HEADLESS'] = 'false'
+    else
+      validated['HEADLESS'] = 'true'
+      puts "Invalid setting for Headless #{settings['HEADLESS']} using 'true'"
+    end
+  end
+
+  case settings['DISK_CRYPT']
+  when 'simp_crypt_disk', 'simp_disk_crypt'
+    validated['DISK_CRYPT'] = 'simp_crypt_disk'
+  else
+    validated['DISK_CRYPT'] = ''
+  end
+
+  validated
+  end
+#####################################################################
+
 def update_hash(json_hash,settings)
     time = Time.new
     # TODO:  Clean up -This would be a simple loop if I made the variable names
@@ -76,6 +110,8 @@ def update_hash(json_hash,settings)
     json_hash['mac_address'] = settings['MACADDRESS']
     json_hash['big_sleep'] = settings['BIG_SLEEP']
     json_hash['root_umask'] = settings['ROOT_UMASK']
+    json_hash['firmware'] = settings['FIRMWARE']
+    json_hash['headless'] = settings['HEADLESS']
     json_hash['postprocess_output'] = settings['OUTPUT_DIRECTORY']
     json_hash['output_directory'] = settings['OUTPUT_DIRECTORY'] + "/" + time.strftime("%Y%m%d%H%M")
 
@@ -148,6 +184,7 @@ default_settings = {
       'NAT_INTERFACE'       => 'enp0s3',
       'HOST_ONLY_INTERFACE' => 'enp0s8',
       'MACADDRESS'          => 'aabbbbaa0007',
+      'FIRMWARE'            => 'bios',
       'HOST_ONLY_GATEWAY'   => '192.168.101.1',
       'DOMAIN'              => 'simp.test',
       'PUPPETNAME'          => 'puppet',
@@ -155,12 +192,13 @@ default_settings = {
       'FIPS'                => 'fips=0',
       'DISK_CRYPT'          => '',
       'BIG_SLEEP'           => '',
+      'HEADLESS '           => 'true',
       'ROOT_UMASK'          => '0077'
 }
 
 # input packer.yaml and merge with default settings
 in_settings = YAML.load_file("#{testdir}/packer.yaml")
-settings = default_settings.merge(in_settings)
+settings = validate_settings(default_settings.merge(in_settings))
 
 # input the sample simp_conf.yaml and update the network
 # settings and any settings from the packer.yaml file.

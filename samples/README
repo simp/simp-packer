@@ -121,3 +121,12 @@ BIG_SLEEP: "<wait10><wait10><wait10>"
 # SIMP host has this lockdown already in place.  A value of '' leaves
 # the umask unchanged.
 ROOT_UMASK: '0077'
+
+# The type of firmware used to boot the system
+# Valide values: 'bios' or 'efi'
+FIRWMARE: 'bios'
+
+# Wether or not to bring up the interface.  It must be set to false if you
+# running this on a system without a GUI.
+# Valid values:  true or false
+HEADLESS: 'true'

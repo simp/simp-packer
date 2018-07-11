@@ -25,6 +25,8 @@ Requirements:
   - [Packer](https://www.packer.io/downloads.html) is distributed as a binary.
     Ensure the binary is in your `$PATH` and comes before any other packer
     executables on the system `PATH="/path/to/packer:$PATH"`
+    simp-packer 2.0.0 requires packer version 1.2.4 or later. It was updated
+    so the UEFI interface could be worked.
   - A SIMP ISO. Either an official release or one generated with build:auto.
 
 ### Usage
