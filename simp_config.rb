@@ -71,18 +71,14 @@ def validate_settings(settings)
     validated['FIRMWARE'] = 'bios'
   end
 
-  if settings['HEADLESS'].nil?
+  case settings['HEADLESS']
+  when /[Yy][Ee][Ss]/,true,'true',/[Yy]/
     validated['HEADLESS'] = 'true'
+  when /[Nn][Oo]?/,'false',false
+    validated['HEADLESS'] = 'false'
   else
-    case settings['HEADLESS'].downcase
-    when 'yes','true','y'
-      validated['HEADLESS'] = 'true'
-    when 'no','false','n'
-      validated['HEADLESS'] = 'false'
-    else
-      validated['HEADLESS'] = 'true'
-      puts "Invalid setting for Headless #{settings['HEADLESS']} using 'true'"
-    end
+    validated['HEADLESS'] = 'true'
+    puts "Invalid setting for Headless #{settings['HEADLESS']} using 'true'"
   end
 
   case settings['DISK_CRYPT']
@@ -112,6 +108,7 @@ def update_hash(json_hash,settings)
     json_hash['root_umask'] = settings['ROOT_UMASK']
     json_hash['firmware'] = settings['FIRMWARE']
     json_hash['headless'] = settings['HEADLESS']
+    json_hash['iso_dist_dir'] = settings['ISO_DIST_DIR']
     json_hash['postprocess_output'] = settings['OUTPUT_DIRECTORY']
     json_hash['output_directory'] = settings['OUTPUT_DIRECTORY'] + "/" + time.strftime("%Y%m%d%H%M")
 
@@ -193,6 +190,7 @@ default_settings = {
       'DISK_CRYPT'          => '',
       'BIG_SLEEP'           => '',
       'HEADLESS '           => 'true',
+      'ISO_DIST_DIR'        => '/net/ISO/Distribution_ISOs',
       'ROOT_UMASK'          => '0077'
 }
 
@@ -258,10 +256,14 @@ end
 erb = VagrantFile.new(basedir,updated_json_hash['vm_description'],simpconfig['cli::network::ipaddress'],updated_json_hash['mac_address'],updated_json_hash['host_only_network_name'])
 vfile_contents=erb.render
 
-top_output=settings['OUTPUT_DIRECTORY']
-FileUtils.mkdir_p(top_output)
 
-File.open("#{top_output}/Vagrantfile",'w') do |h|
+
+File.open("#{settings[OUTPUT_DIRECTORY]}/Vagrantfile",'w') do |h|
   h.write(vfile_contents)
   h.close
 end
+
+Dir.mkdir("#{settings[OUTPUT_DIRECTORY]}/testfiles")
+FileUtils.cp("#{testdir}/vars.json","#{settings[OUTPUT_DIRECTORY]}/testfiles/vars.json")
+FileUtils.cp("#{testdir}/simp.json","#{settings[OUTPUT_DIRECTORY]}/testfiles/simp.json")
+FileUtils.cp("#{testdir}/packer.yaml","#{settings[OUTPUT_DIRECTORY]}/testfiles/packer.yaml")

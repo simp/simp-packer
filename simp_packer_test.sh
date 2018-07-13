@@ -33,8 +33,7 @@ function cleanup () {
 
   cd $TESTDIR
 
-#  case $SIMP_PACKER_save_WORKINGDIR in
-  case "yes" in
+  case $SIMP_PACKER_save_WORKINGDIR in
   "yes" )
       ;;
    *)

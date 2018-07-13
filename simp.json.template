@@ -16,7 +16,6 @@
     {
       "vagrant_password": "vagrant",
       "simp_conf_file": "/var/local/simp/files/simp_conf.yaml",
-      "iso_dist_location": "/net/ISO/Distribution_ISOs",
       "ruby_path": "/opt/puppetlabs/puppet/bin/ruby"
     },
   "builders": [
@@ -282,7 +281,7 @@
     },
     {
       "type": "file",
-      "source":"{{user `iso_dist_location`}}/{{user `box_distro_release`}}",
+      "source":"{{user `iso_dist_dir`}}/{{user `box_distro_release`}}",
       "destination": "/var/local/simp/{{user `box_distro_release`}}"
     },
     {

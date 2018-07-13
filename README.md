@@ -68,7 +68,7 @@ Defaults:
 
 `TMPDIR=/some/tmp/dir ./simp_packer_test.sh /path/to/test/directory`
 
--  `simp_packer_test.sh` must be run from the top level of the `simp-testing`
+-  `simp_packer_test.sh` must be run from the top level of the `simp-packer`
   directory.
 - Packer uses around twice the space of the virtual image footprint when
   building, so ensure TMPDIR has sufficient space.  TMPDIR defaults to
@@ -173,7 +173,6 @@ Documentation to add:
 
 Clean it up:
 
-- Move the Vagrant file into the Output directory.
 - Change the packer.yaml settings to match the names used in the simp.json file
   to make things more consistent and will allow code simplification.
 - Merge the `simp_config.rb` and `simp_packer_tests.sh` into one ruby script
