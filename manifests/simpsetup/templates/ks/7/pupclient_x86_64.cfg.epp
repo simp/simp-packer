@@ -1,24 +1,29 @@
 #
-# Use the following Ruby code to generate your rootpw hash:
-#   ruby -r 'digest/sha2' -e 'puts "password".crypt("$6$" + rand(36**8).to_s(36))'
-#
-# Use the following command to generate your grub password hash:
-#   grub2-mkpasswd-pbkdf2
-#
 # Replace the following strings in this file
-# #BOOTPASS# - Your hashed bootloader password
-# #ROOTPASS# - Your hashed root password
+# #BOOTPASS# - Your SHA-512 hashed bootloader password
+# #ROOTPASS# - Your SHA-512 hashed root password
 # #KSSERVER# - The IP address of your Kickstart server
 # #YUMSERVER# - The IP address of your YUM server
 # #LINUXDIST# - The LINUX Distribution you are kickstarting
 #        - Current CASE SENSITIVE options: RedHat CentOS
+#
+# To generate the BOOTLOADER hash:
+#  > grub2-mkpasswd-pbkdf2
+#
+# To generate the ROOTPASS hash:
+#  > ruby -r 'digest/sha2' -e 'puts "password".crypt("$6$" + rand(36**8).to_s(36))'
+#
+# Optionally:
+# - Adjust the bootloader line for UEFI boot per inline instructions below
+# - Disable FIPS per inline instructions below
 
 authconfig --enableshadow --passalgo=sha512
 # anaconda has known issues when fips is turned on during boot, so it (fips=1)  was remove from bootloader line.
 # see url: https://groups.google.com/forum/?fromgroups#!topic/simp-announce/3pBQDZl1OVc
-# bootloader password set to P@ssw0rdP@ssw0rd
-bootloader --location=mbr --append="console=ttyS1,57600 console=tty1" --iscrypted --password=grub.pbkdf2.sha512.10000.94454C752918769A415DB7949779653CA87DC7D4B21C4E531F5E53CF16DE397CA8BA8BF758019D5F299717D59E4598040FBA0B3039FA757E033A9ED0E37A7FEF.BA03CF7EAEF494D86C79BBEDDF308C23FD359FC31F63851CE28CDEC0D8B3A278B392136BE8E4F1D9028EC8B90C13908B2438385AA8890E0DF2D1E35CFC6B2788
-# rootpw set to P@ssw0rdP@ssw0rd
+bootloader --location=mbr --iscrypted --password=grub.pbkdf2.sha512.10000.94454C752918769A415DB7949779653CA87DC7D4B21C4E531F5E53CF16DE397CA8BA8BF758019D5F299717D59E4598040FBA0B3039FA757E033A9ED0E37A7FEF.BA03CF7EAEF494D86C79BBEDDF308C23FD359FC31F63851CE28CDEC0D8B3A278B392136BE8E4F1D9028EC8B90C13908B2438385AA8890E0DF2D1E35CFC6B2788
+## Comment out the line above and uncomment the following line to use UEFI boot
+#bootloader --iscrypted --password=#BOOTPASS#
+
 rootpw --iscrypted $6$58rp5hrn$Rv/tzwlVBS5oHsKXPwcMzohyFzehtOC9HB502E9j8fjPeujf3cd9THmKODO39Y0Fhnimj5AZ.OXu3GByImjDH.
 zerombr
 firewall --enabled --ssh
@@ -35,13 +40,13 @@ skipx
 %include /tmp/repo-include
 
 text
-keyboard us
+keyboard --xlayouts=us
 lang en_US
 url --noverifyssl --url https://<%= $simpsetup::ks::ipaddress %>/yum/<%= $simpsetup::ks::linuxdist %>/<%= $simpsetup::ks::majver %>/x86_64
 
 %include /tmp/part-include
 
-%packages --nobase
+%packages
 -sendmail
 -sysklogd
 acl
@@ -53,16 +58,18 @@ coolkey
 crontabs
 cryptsetup-luks
 dhclient
+# dracut
+## Uncomment the previous line and comment out the line below to disable
+## checking FIPS compliance at boot.
 <% if $simpsetup::ks::fips { -%>
 dracut-fips
 <% } else { -%>
 dracut
 <% } -%>
-## Uncomment the previous line and comment out the line below to disable
-## checking FIPS compliance at boot.
 fipscheck
 git
 gnupg
+grub2-efi-x64
 iptables
 iptables-ipv6
 irqbalance
@@ -91,6 +98,7 @@ redhat-lsb
 rpm
 rsync
 rsyslog
+shim-x64
 smartmontools
 sssd
 stunnel
@@ -116,7 +124,6 @@ hdparm
 kbd
 libhugetlbfs
 policycoreutils
-prelink
 rootfiles
 selinux-policy-targeted
 setserial
@@ -194,25 +201,16 @@ fi
 %post
 ostype="<%= $simpsetup::ks::linuxdist %>"
 if [ $ostype == "CentOS" ]; then
-  sed -i '/enabled=/d' /etc/yum.repos.d/CentOS-Base.repo;
-  sed -i '/\[.*\]/ a\
-enabled=0' /etc/yum.repos.d/CentOS-Base.repo;
+  sed -i -e '/enabled=/d' -e '/^\[.*\]/a enabled=0' /etc/yum.repos.d/CentOS-*.repo;
 fi
 ksserver="<%= $simpsetup::ks::ipaddress %>"
 
-# Turn off prelinking and remove all previous
-sed -i '/PRELINKING=yes/ c\PRELINKING=no' /etc/sysconfig/prelink
-prelink -u -a
+## Comment out/delete the following block of commands if you want to disable FIPS compliance. ##
+### START FIPS ###
 
-## Comment out/delete the following if you want to disable FIPS compliance. ##
-# FIPS
-<% if $simpsetup::ks::fips { -%>
-if [ -e /sys/firmware/efi ]; then
-  BOOTDEV=`df /boot/efi | tail -1 | cut -f1 -d' '`
-else
-  BOOTDEV=`df /boot | tail -1 | cut -f1 -d' '`
-fi
 # In case you need a working fallback
+<% if $simpsetup::ks::fips { -%>
+BOOTDEV=`df /boot | tail -1 | cut -f1 -d' '`
 DEFAULT_KERNEL_INFO=`/sbin/grubby --default-kernel`
 DEFAULT_INITRD=`/sbin/grubby --info=${DEFAULT_KERNEL_INFO} | grep initrd | cut -f2 -d'='`
 DEFAULT_KERNEL_TITLE=`/sbin/grubby --info=${DEFAULT_KERNEL_INFO} | grep -m1 title | cut -f2 -d'='`
@@ -234,6 +232,7 @@ for x in `ls -d /lib/modules/*`; do
 done
 ## END FIPS ##
 <% } -%>
+
 # Notify users that bootstrap will run on firstboot
 echo "Welcome to SIMP!  If this is firstboot, SIMP bootstrap is scheduled to run.
 If this host is not autosigned by Puppet, sign your Puppet certs to begin bootstrap.
@@ -247,9 +246,12 @@ source /root/.bashrc
 # Enable wait-online
 systemctl enable NetworkManager-wait-online
 
-# Enable the firstboot bootstrapping script.
-wget --no-check-certificate -O /etc/init.d/runpuppet https://$ksserver/ks/runpuppet;
-chmod 700 /etc/rc.d/init.d/runpuppet;
-chkconfig --add runpuppet;
-chkconfig --level 35 runpuppet on;
+# Download the firstboot bootstrapping service file and its helper script
+wget --no-check-certificate -O /etc/systemd/system/simp_client_bootstrap.service https://$ksserver/ks/simp_client_bootstrap.service;
+chmod 644 /etc/systemd/system/simp_client_bootstrap.service;
+wget --no-check-certificate -O /usr/local/sbin/bootstrap_simp_client https://$ksserver/ks/bootstrap_simp_client;
+chmod 700 /usr/local/sbin/bootstrap_simp_client
+
+# Enable the firstboot bootstrapping service
+systemctl enable simp_client_bootstrap.service;
 %end
