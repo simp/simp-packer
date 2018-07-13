@@ -256,14 +256,16 @@ end
 erb = VagrantFile.new(basedir,updated_json_hash['vm_description'],simpconfig['cli::network::ipaddress'],updated_json_hash['mac_address'],updated_json_hash['host_only_network_name'])
 vfile_contents=erb.render
 
+top_output=settings['OUTPUT_DIRECTORY']
+FileUtils.mkdir_p("#{top_output}/testfiles")
 
-
-File.open("#{settings[OUTPUT_DIRECTORY]}/Vagrantfile",'w') do |h|
+File.open("#{top_output}/Vagrantfile",'w') do |h|
   h.write(vfile_contents)
   h.close
 end
-
-Dir.mkdir("#{settings[OUTPUT_DIRECTORY]}/testfiles")
-FileUtils.cp("#{testdir}/vars.json","#{settings[OUTPUT_DIRECTORY]}/testfiles/vars.json")
-FileUtils.cp("#{testdir}/simp.json","#{settings[OUTPUT_DIRECTORY]}/testfiles/simp.json")
-FileUtils.cp("#{testdir}/packer.yaml","#{settings[OUTPUT_DIRECTORY]}/testfiles/packer.yaml")
+# Copy the setup files to the output dir for reference
+FileUtils.cp("#{testdir}/vars.json","#{top_output}/testfiles/vars.json")
+FileUtils.cp("#{testdir}/simp_config.yaml","#{top_output}/testfiles/simp_config.yaml")
+FileUtils.cp("#{testdir}/packer.yaml","#{top_output}/testfiles/packer.yaml")
+FileUtils.cp("#{workingdir}/vars.json","#{top_output}/testfiles/workingdir.vars.json")
+FileUtils.cp("#{workingdir}/simp.json","#{top_output}/testfiles/workingdir.simp.json")
