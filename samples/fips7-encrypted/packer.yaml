@@ -9,4 +9,4 @@ host_only_interface: '192.168.103.1'
 fips: 'fips=1'
 disk_encrypt: 'simp_crypt_disk'
 # Encryption will take a little longer.
-big_sleep: '<wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10>'
+big_sleep: "<wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10>"

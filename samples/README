@@ -130,3 +130,8 @@ firmware: 'bios'
 # running this on a system without a GUI.
 # Valid values:  true or false
 headless: 'true'
+
+# If found, the distribution iso will be unpacked into the yum repository.
+# The name of the ISO is the "box_distro_release" variable set by simp_rake_helpers # in the vars.json file. The directory where this is can be found is set by the
+# iso_dist_dir variable in the packer file.
+iso_dist_dir: /net/ISO/Distribution_ISOs

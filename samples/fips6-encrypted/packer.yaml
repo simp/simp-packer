@@ -9,4 +9,4 @@ host_only_interface: '192.168.102.1'
 fips: 'fips=1'
 disk_encrypt: 'simp_disk_crypt'
 # CentOS 6 takes a little longer to build plus encryption so add more time
-big_sleep: '<wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10>'
+big_sleep: "<wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10>"
