@@ -94,7 +94,7 @@ def validate_settings(settings)
 
 def update_hash(json_hash,settings)
     time = Time.new
-    json_hash.merge(settings)
+    json_hash = json_hash.merge(settings)
     json_hash['postprocess_output'] = settings['output_directory']
     json_hash['output_directory'] = settings['output_directory'] + "/" + time.strftime("%Y%m%d%H%M")
     json_hash['host_only_network_name'] = getvboxnetworkname(settings['host_only_gateway'])
@@ -228,7 +228,6 @@ require 'json'
 file =  File.read("#{testdir}/vars.json")
 
 json_hash = JSON.parse(file)
-
 updated_json_hash = update_hash(json_hash,settings)
 
 File.open("#{workingdir}/vars.json", 'w' ) do |h|
@@ -250,7 +249,7 @@ File.open("#{top_output}/Vagrantfile",'w') do |h|
 end
 # Copy the setup files to the output dir for reference
 FileUtils.cp("#{testdir}/vars.json","#{top_output}/testfiles/vars.json")
-FileUtils.cp("#{testdir}/simp_config.yaml","#{top_output}/testfiles/simp_config.yaml")
+FileUtils.cp("#{testdir}/simp_conf.yaml","#{top_output}/testfiles/simp_conf.yaml")
 FileUtils.cp("#{testdir}/packer.yaml","#{top_output}/testfiles/packer.yaml")
 FileUtils.cp("#{workingdir}/vars.json","#{top_output}/testfiles/workingdir.vars.json")
 FileUtils.cp("#{workingdir}/simp.json","#{top_output}/testfiles/workingdir.simp.json")
