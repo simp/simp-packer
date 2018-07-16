@@ -1,14 +1,10 @@
 ---
-VM_DESCRIPTION: 'SIMP6.1-CENTOS6-FIPS-ENCRYPTED'
-#    OUTPUT_DIRECTORY:  "#{testdir}/OUTPUT/"
-NAT_INTERFACE: 'eth0'
-HOST_ONLY_INTERFACE: 'eth1'
-MACADDRESS: 'aabbccaa0007'
-HOST_ONLY_GATEWAY: '192.168.102.1'
-#    DOMAIN: 'simp.test'
-#    PUPPETNAME: 'puppet'
-#    NEW_PASSWORD: 'P@ssw0rdP@ssw0rd'
-FIPS: 'fips=1'
-DISK_CRYPT: 'simp_crypt_disk'
-BIG_SLEEP: "<wait10><wait10><wait10><wait10><wait10><wait10>"
-#    ROOT_UMASK: '0077'
+vm_description: 'SIMP6.1-CENTOS6-FIPS-ENCRYPTED'
+nat_interface: 'eth0'
+host_only_interface: 'eth1'
+mac_address: 'aabbccbb0007'
+host_only_interface: '192.168.102.1'
+fips: 'fips=1'
+disk_encrypt: 'simp_disk_crypt'
+# CentOS 6 takes a little longer to build plus encryption so add more time
+big_sleep: '<wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10>'

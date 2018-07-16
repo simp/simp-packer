@@ -1,14 +1,10 @@
 ---
-VM_DESCRIPTION: 'SIMP6.1-CENTOS6-FIPS'
-#    OUTPUT_DIRECTORY:  "#{testdir}/OUTPUT/"
-NAT_INTERFACE: 'eth0'
-HOST_ONLY_INTERFACE: 'eth1'
-MACADDRESS: 'aabbccaa0007'
-HOST_ONLY_GATEWAY: '192.168.102.1'
-#    DOMAIN: 'simp.test'
-#    PUPPETNAME: 'puppet'
-#    NEW_PASSWORD: 'P@ssw0rdP@ssw0rd'
-FIPS: 'fips=1'
-#    DISK_CRYPT: ''
-#    BIG_SLEEP: ''
+vm_description: 'SIMP6.1-CENTOS6-FIPS'
+nat_interface: 'eth0'
+host_only_interface: 'eth1'
+mac_address: 'aabbccaa0007'
+host_only_interface: '192.168.102.1'
+fips: 'fips=1'
+# CentOS 6 takes a little longer to build
+big_sleep: '<wait10><wait10><wait10><wait10><wait10>'
 #    ROOT_UMASK: '0077'

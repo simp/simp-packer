@@ -1,14 +1,7 @@
 ---
-VM_DESCRIPTION: 'SIMP6.1-CENTOS7-NOFIPS'
-#    OUTPUT_DIRECTORY: "#{testdir}/OUTPUT/"
-#    NAT_INTERFACE: 'enp0s3'
-#    HOST_ONLY_INTERFACE: 'enp0s8'
-MACADDRESS: 'aabbbbaa0007'
-HOST_ONLY_GATEWAY: '192.168.101.1'
-#    DOMAIN: 'simp.test'
-#    PUPPETNAME: 'puppet'
-#    NEW_PASSWORD: 'P@ssw0rdP@ssw0rd'
-FIPS: 'fips=0'
-#    DISK_CRYPT: ''
-#    BIG_SLEEP: ''
-#    ROOT_UMASK: '0077
+vm_description: 'SIMP6.X-CENTOS7-NOFIPS'
+nat_interface: 'enp0s3'
+host_only_interface: 'enp0s8'
+mac_address: 'aabbcccc0007'
+host_only_interface: '192.168.103.1'
+fips: 'fips=0'

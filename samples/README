@@ -39,18 +39,18 @@ Provisioning Overrides:
 
 # The name/description of the machine.  It is used to create files and
 # directories, so use only letters, numbers, '-', ',' or '_'.
-VM_DESCRIPTION: 'SIMP-PACKER-BUILD'
+vm_desctiption: 'SIMP-PACKER-BUILD'
 
 # Fully qualified path to the directory you want to place your output.
 # The system will create a timestamp directory in here to place
 # the data because it fails if the directory exists.
-OUTPUT_DIRECTORY: '/var/user1/OUTPUT'
+output_directory: '/var/user1/OUTPUT'
 
 # The NAT interface that is used by vagrant.
 # It must be the first interface
 # On Centos 6 it should be eth0, on CentOS 7 enp0s3 works in most cases
 # NOTE:  the MAC for this interface is auto-generated.
-NAT_INTERFACE: 'enp0s3'
+nat_interface: 'enp0s3'
 
 # The next 4 parameters pertain to configuration of the host-only interface.
 # The machine will have a second interface for a host-only VirtualBox network.
@@ -66,42 +66,42 @@ NAT_INTERFACE: 'enp0s3'
 
 # The interface used on the system for the host-only network
 # CentOS 6 it should be 'eth1', on CentOS 7 enp0s8 works in most cases
-HOST_ONLY_INTERFACE: 'enp0s8'
+host_only_interface: 'enp0s8'
 
 # The MAC address of the host-only interface.
 # The MAC addresses for the set of servers and workstations in the
 # generated DHCP configuration are comprised of the first 10 characters
 # (hex #s) of this MAC address plus the numbers 21 - 39.
-MACADDRESS: 'aabbbbaa0007'
+mac_address: 'aabbbbaa0007'
 
 # The gateway is the router address.  It will check if you have
 # a virtualbox network with this gateway and if not create one.
 #(It does not delete it when finished at this time.)
-HOST_ONLY_GATEWAY: '192.168.101.1'
+host_only_gateway: '192.168.101.1'
 
 
 # Domain to which the host belongs.  Will be used to set server's network domain
 # and FQDN.
-DOMAIN: 'simp.test'
+domain: 'simp.test'
 
 # Host name of the server, will be appended to DOMAIN for full name.
-PUPPETNAME': 'puppet',
+puppetname': 'puppet',
 
 # This will be the password for the root, simp and LDAP root.
 #  (new_password in the vars.json file is ignored.)
 # FIXME: This doesn't work for the LDAP root password, at this time (sorry)
-NEW_PASSWORD: 'P@ssw0rdP@ssw0rd',
+new_password: 'P@ssw0rdP@ssw0rd',
 
 # Whether to set up the system with fips
 # Default is 'fips=0' which turns fips off.
-FIPS: 'fips=1'
+fips: 'fips=1'
 
 # Whether to encrypt the disk at build time
 # Valid values:
 #   '' to not encrypt
 #  'simp_crypt_disk' or 'simp_disk_crypt' to encrypt the disk
 #  This is used in diskdetect script in the ks directory.
-DISK_CRYPT: ''
+disk_encrypt: ''
 
 # Additional sleep to add to the time allotted to boot from the ISO.
 # You may need to customize this if your build environment runs slower
@@ -114,19 +114,19 @@ DISK_CRYPT: ''
 #     or more <wait10> strings. Packer will fail with a keyboard input
 #     error if you use single quotes.
 # (2) The default is '', no extra time.
-BIG_SLEEP: "<wait10><wait10><wait10>"
+big_sleep: "<wait10><wait10><wait10>"
 
 # The value of root's umask, set in /root/.bash_profile prior to simp config.
 # Setting this to '0077' tests that SIMP can be bootstrapped when the
 # SIMP host has this lockdown already in place.  A value of '' leaves
 # the umask unchanged.
-ROOT_UMASK: '0077'
+root_umask: '0077'
 
 # The type of firmware used to boot the system
 # Valide values: 'bios' or 'efi'
-FIRWMARE: 'bios'
+firmware: 'bios'
 
 # Wether or not to bring up the interface.  It must be set to false if you
 # running this on a system without a GUI.
 # Valid values:  true or false
-HEADLESS: 'true'
+headless: 'true'

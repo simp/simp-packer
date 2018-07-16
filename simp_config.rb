@@ -64,28 +64,28 @@ end
 
 def validate_settings(settings)
   validated = settings
-  case settings['FIRMWARE']
+  case settings['firmware']
   when 'bios','efi'
-    validated['FIRMWARE'] = settings['FIRMWARE']
-  else 
-    validated['FIRMWARE'] = 'bios'
+    validated['firmware'] = settings['firmware']
+  else
+    validated['firmware'] = 'bios'
   end
 
-  case settings['HEADLESS']
+  case settings['headless']
   when /[Yy][Ee][Ss]/,true,'true',/[Yy]/
-    validated['HEADLESS'] = 'true'
+    validated['headless'] = 'true'
   when /[Nn][Oo]?/,'false',false
-    validated['HEADLESS'] = 'false'
+    validated['headless'] = 'false'
   else
-    validated['HEADLESS'] = 'true'
-    puts "Invalid setting for Headless #{settings['HEADLESS']} using 'true'"
+    validated['headless'] = 'true'
+    puts "Invalid setting for Headless #{settings['headless']} using 'true'"
   end
 
-  case settings['DISK_CRYPT']
+  case settings['disk_encrypt']
   when 'simp_crypt_disk', 'simp_disk_crypt'
-    validated['DISK_CRYPT'] = 'simp_crypt_disk'
+    validated['disk_encrypt'] = 'simp_crypt_disk'
   else
-    validated['DISK_CRYPT'] = ''
+    validated['disk_encrypt'] = ''
   end
 
   validated
@@ -94,27 +94,12 @@ def validate_settings(settings)
 
 def update_hash(json_hash,settings)
     time = Time.new
-    # TODO:  Clean up -This would be a simple loop if I made the variable names
-    # in the packer.conf the same as the names in the simp.json
-    json_hash['new_password'] = settings['NEW_PASSWORD']
-    json_hash['domain'] = settings['DOMAIN']
-    json_hash['disk_encrypt'] = settings['DISK_CRYPT']
-    json_hash['nat_if'] = settings['NAT_INTERFACE']
-    json_hash['vm_description'] = settings['VM_DESCRIPTION']
-    json_hash['fips'] = settings['FIPS']
-    json_hash['output_directory'] = settings['OUTPUT_DIRECTORY']
-    json_hash['mac_address'] = settings['MACADDRESS']
-    json_hash['big_sleep'] = settings['BIG_SLEEP']
-    json_hash['root_umask'] = settings['ROOT_UMASK']
-    json_hash['firmware'] = settings['FIRMWARE']
-    json_hash['headless'] = settings['HEADLESS']
-    json_hash['iso_dist_dir'] = settings['ISO_DIST_DIR']
-    json_hash['postprocess_output'] = settings['OUTPUT_DIRECTORY']
-    json_hash['output_directory'] = settings['OUTPUT_DIRECTORY'] + "/" + time.strftime("%Y%m%d%H%M")
-
-    json_hash['host_only_network_name'] = getvboxnetworkname(settings['HOST_ONLY_GATEWAY'])
+    json_hash.merge(settings)
+    json_hash['postprocess_output'] = settings['output_directory']
+    json_hash['output_directory'] = settings['output_directory'] + "/" + time.strftime("%Y%m%d%H%M")
+    json_hash['host_only_network_name'] = getvboxnetworkname(settings['host_only_gateway'])
     if json_hash['host_only_network_name'].nil?
-       raise "Error: could not create or find a virtualbox network for #{settings['HOST_ONLY_GATEWAY']}"
+       raise "Error: could not create or find a virtualbox network for #{settings['host_only_gateway']}"
     end
     return json_hash
 end
@@ -176,22 +161,22 @@ basedir = File.expand_path(File.dirname(__FILE__))
 json_tmp = basedir + "/simp.json.template"
 
 default_settings = {
-      'VM_DESCRIPTION'      => 'SIMP-PACKER-BUILD',
-      'OUTPUT_DIRECTORY'    => "#{testdir}/OUTPUT",
-      'NAT_INTERFACE'       => 'enp0s3',
-      'HOST_ONLY_INTERFACE' => 'enp0s8',
-      'MACADDRESS'          => 'aabbbbaa0007',
-      'FIRMWARE'            => 'bios',
-      'HOST_ONLY_GATEWAY'   => '192.168.101.1',
-      'DOMAIN'              => 'simp.test',
-      'PUPPETNAME'          => 'puppet',
-      'NEW_PASSWORD'        => 'P@ssw0rdP@ssw0rd',
-      'FIPS'                => 'fips=0',
-      'DISK_CRYPT'          => '',
-      'BIG_SLEEP'           => '',
-      'HEADLESS '           => 'true',
-      'ISO_DIST_DIR'        => '/net/ISO/Distribution_ISOs',
-      'ROOT_UMASK'          => '0077'
+      'vm_description'      => 'SIMP-PACKER-BUILD',
+      'output_directory'    => "#{testdir}/OUTPUT",
+      'nat_interface'       => 'enp0s3',
+      'host_only_interface' => 'enp0s8',
+      'mac_address'         => 'aabbbbaa0007',
+      'firmware'            => 'bios',
+      'host_only_gateway'   => '192.168.101.1',
+      'domain'              => 'simp.test',
+      'puppetname'          => 'puppet',
+      'new_password'        => 'P@ssw0rdP@ssw0rd',
+      'fips'                => 'fips=0',
+      'disk_encrypt'        => '',
+      'big_sleep'           => '',
+      'headless '           => 'true',
+      'iso_dist_dir'        => '/net/ISO/Distribution_ISOs',
+      'root_umask'          => '0077'
 }
 
 # input packer.yaml and merge with default settings
@@ -205,23 +190,23 @@ settings = validate_settings(default_settings.merge(in_settings))
 # settings. )
 simpconfig = YAML.load_file("#{testdir}/simp_conf.yaml")
 # I set the address of the puppet server to 7 in the network.
-network = settings['HOST_ONLY_GATEWAY'].split(".")[0,3].join(".")
-puppet_fqdn = settings['PUPPETNAME'] + "." + settings['DOMAIN']
+network = settings['host_only_gateway'].split(".")[0,3].join(".")
+puppet_fqdn = settings['puppetname'] + "." + settings['domain']
 puppet_ip = network + ".7"
 
-simpconfig['cli::network::gateway'] = settings['HOST_ONLY_GATEWAY']
+simpconfig['cli::network::gateway'] = settings['host_only_gateway']
 simpconfig['simp_options::dns::servers'] = [ puppet_ip ]
 simpconfig['cli::network::ipaddress'] = puppet_ip
 simpconfig['simp_options::puppet::server'] = puppet_fqdn
 simpconfig['cli::network::hostname'] = simpconfig['simp_options::puppet::server']
 simpconfig['simp_options::puppet::ca'] = simpconfig['simp_options::puppet::server']
 #
-simpconfig['cli::network::interface'] = settings['HOST_ONLY_INTERFACE']
+simpconfig['cli::network::interface'] = settings['host_only_interface']
 simpconfig['cli::network::netmask'] = "255.255.255.0"
-simpconfig['simp_options::dns::search'] = [ settings['DOMAIN'] ]
+simpconfig['simp_options::dns::search'] = [ settings['domain'] ]
 simpconfig['simp_options::trusted_nets']= network + ".0/24"
-simpconfig['simp_options::ldap::base_dn'] = "dc=" + settings['DOMAIN'].split(".").join(",dc=")
-simpconfig['simp_options::fips'] = settings['FIPS'].eql?("fips=1")
+simpconfig['simp_options::ldap::base_dn'] = "dc=" + settings['domain'].split(".").join(",dc=")
+simpconfig['simp_options::fips'] = settings['fips'].eql?("fips=1")
 simpconfig['simp_options::ntpd::servers'] = [ simpconfig['cli::network::gateway'] ]
 
 File.open("#{workingdir}/files/simp_conf.yaml",'w') do |h|
@@ -256,7 +241,7 @@ end
 erb = VagrantFile.new(basedir,updated_json_hash['vm_description'],simpconfig['cli::network::ipaddress'],updated_json_hash['mac_address'],updated_json_hash['host_only_network_name'])
 vfile_contents=erb.render
 
-top_output=settings['OUTPUT_DIRECTORY']
+top_output=settings['output_directory']
 FileUtils.mkdir_p("#{top_output}/testfiles")
 
 File.open("#{top_output}/Vagrantfile",'w') do |h|
