@@ -1,4 +1,6 @@
 ---
+# See the README file in the samples directory for a full list
+# # of the variables that can be set and their descriptions.
 vm_description: 'SIMP6.X-CENTOS7-FIPS-ENCRYPTED'
 nat_interface: 'enp0s3'
 host_only_interface: 'enp0s8'
@@ -6,3 +8,5 @@ mac_address: 'aabbcccc0007'
 host_only_interface: '192.168.103.1'
 fips: 'fips=1'
 disk_encrypt: 'simp_crypt_disk'
+# Encryption will take a little longer.
+big_sleep: '<wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10>'
