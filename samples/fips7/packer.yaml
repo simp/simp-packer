@@ -1,7 +1,0 @@
----
-vm_description: 'SIMP6.X-CENTOS7-FIPS'
-nat_interface: 'enp0s3'
-host_only_interface: 'enp0s8'
-mac_address: 'aabbcccc0007'
-host_only_interface: '192.168.103.1'
-fips: 'fips=1'
