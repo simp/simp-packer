@@ -1,10 +1,10 @@
 ---
-simpsetup::ks::rootpasscmd: 
-  - "ruby -r 'digest/sha2' -e 'puts \"
-  - ".crypt(\"$6$\" + rand(36**8).to_s(36))"
+simpsetup::ks::rootpasscmd:
+  - "ruby -r 'digest/sha2' -e \'puts \""
+  - "\".crypt(\"$6$\" + rand(36**8).to_s(36))\'"
 simpsetup::ks::grubpasscmd:
   'cmd': 'grub2-mkpasswd-pbkdf2'
   'expect_array':
-    - /Enter password:/i
-    - /Reenter password:/i
+    - '/Enter password:/i'
+    - '/Reenter password:/i'
 
