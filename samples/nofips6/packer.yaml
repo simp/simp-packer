@@ -5,7 +5,7 @@ vm_description: 'SIMP6.X-CENTOS6-NOFIPS'
 nat_interface: 'eth0'
 host_only_interface: 'eth1'
 mac_address: 'aabbccaa0007'
-host_only_interface: '192.168.101.1'
+ip_address: '192.168.101.1'
 fips: 'fips=0'
 # CentOS 6 takes a little longer to build
 big_sleep: "<wait10><wait10><wait10><wait10><wait10>"
