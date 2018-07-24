@@ -92,7 +92,7 @@ puppetname': 'puppet',
 # FIXME: This doesn't work for the LDAP root password, at this time (sorry)
 new_password: 'P@ssw0rdP@ssw0rd',
 
-# Whether to set up the system with FIPS enable.
+# Whether to set up the system with FIPS enabled.
 # Default is 'fips=0' which turns FIPS off.
 fips: 'fips=1'
 
