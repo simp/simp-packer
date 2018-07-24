@@ -5,7 +5,7 @@ vm_description: 'SIMP6.1-CENTOS6-FIPS-ENCRYPTED'
 nat_interface: 'eth0'
 host_only_interface: 'eth1'
 mac_address: 'aabbccbb0007'
-host_only_interface: '192.168.102.1'
+ip_address: '192.168.102.1'
 fips: 'fips=1'
 disk_encrypt: 'simp_disk_crypt'
 # CentOS 6 takes a little longer to build plus encryption so add more time
