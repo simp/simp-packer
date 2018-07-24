@@ -39,7 +39,7 @@ Provisioning Overrides:
 
 # The name/description of the machine.  It is used to create files and
 # directories, so use only letters, numbers, '-', ',' or '_'.
-vm_desctiption: 'SIMP-PACKER-BUILD'
+vm_description: 'SIMP-PACKER-BUILD'
 
 # Fully qualified path to the directory you want to place your output.
 # The system will create a timestamp directory in here to place
