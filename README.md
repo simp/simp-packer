@@ -52,7 +52,7 @@ Create a test directory and include the following files:
 * `packer.yaml`:  Overrides defaults set in `simp_config.rb`.  Packer
   requires this file (even if you don't want to override defaults). Samples
   can be found in `samples/<sample>/packer.yaml`.  For CentOS 6 builds,
-  you **MUST** change the `NAT_INTERFACE` and `HOST_ONLY_INTERFACE` to `eth0`
+  you **MUST** change the `nat_interface` and `host_only_interface` to `eth0`
   and `eth1`, respectively.
 
 Defaults:
@@ -65,7 +65,7 @@ Defaults:
   default in `vars.json` with `new_password`.  However, at this time, there
   is no mechanism to change the LDAP Password.
 - Configures the SIMP server to be an LDAP server.  It will set
-  the `basedn `to match what you have in the `packer.yaml` for `DOMAIN` or use
+  the `basedn `to match what you have in the `packer.yaml` for `domain` or use
   the default.  It sets up `user1`, `user2`, `admin1`, and `admin2` LDAP users.
   `admin1` and `admin2` are in the `administrators` group.
 - The default distribution ISO path is `/net/ISO/Distribution_ISOs`.
@@ -90,7 +90,7 @@ Defaults:
   all the log output from `packer` is copied there. If the `packer` build fails, it is
   renamed from `<date>.log` to `<date>.log.errors`.
 - A Vagrant box with its VagrantFile will be located in the directory defined
-  by the `packer.yaml file` `OUTPUT_DIRECTORY` (default is `<testdirectory>/OUTPUT`).
+  by the `packer.yaml file` `output_directory` (default is `<testdirectory>/OUTPUT`).
 
 ##### Overview Of The Tests
 
@@ -186,4 +186,4 @@ Clean it up:
   to make things more consistent and will allow code simplification.
 - Merge the `simp_config.rb` and `simp_packer_tests.sh` into one ruby script
   and clean it up.
-- Delete the Virtualbox Hostonly network if we created it
+- Delete the Virtualbox host-only network if we created it
