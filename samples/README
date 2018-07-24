@@ -28,7 +28,7 @@ are overwritten by the defaults.)
 
 packer.yaml:
 YAML file with provisioning overrides.  Each provisioning override
-(listed below) has a default value that will applied if the tag is
+(listed below) has a default value that will applied if the tag is not
 present in this YAML.  However, even if no custom values are to be
 specified, this file must be present.
 
@@ -43,7 +43,7 @@ vm_description: 'SIMP-PACKER-BUILD'
 
 # Fully qualified path to the directory you want to place your output.
 # The system will create a timestamp directory in here to place
-# the data because it fails if the directory exists.
+# the data.
 output_directory: '/var/user1/OUTPUT'
 
 # The NAT interface that is used by vagrant.
@@ -75,8 +75,8 @@ host_only_interface: 'enp0s8'
 mac_address: 'aabbbbaa0007'
 
 # The gateway is the router address.  It will check if you have
-# a virtualbox network with this gateway and if not create one.
-#(It does not delete it when finished at this time.)
+# a VirtualBox network with this gateway and if not create one.
+# (It does not delete it when finished at this time.)
 host_only_gateway: '192.168.101.1'
 
 
@@ -84,7 +84,7 @@ host_only_gateway: '192.168.101.1'
 # and FQDN.
 domain: 'simp.test'
 
-# Host name of the server, will be appended to DOMAIN for full name.
+# Host name of the server, will be appended to 'domain' for full name.
 puppetname': 'puppet',
 
 # This will be the password for the root, simp and LDAP root.
@@ -92,8 +92,8 @@ puppetname': 'puppet',
 # FIXME: This doesn't work for the LDAP root password, at this time (sorry)
 new_password: 'P@ssw0rdP@ssw0rd',
 
-# Whether to set up the system with fips
-# Default is 'fips=0' which turns fips off.
+# Whether to set up the system with FIPS enable.
+# Default is 'fips=0' which turns FIPS off.
 fips: 'fips=1'
 
 # Whether to encrypt the disk at build time
@@ -105,7 +105,7 @@ disk_encrypt: ''
 
 # Additional sleep to add to the time allotted to boot from the ISO.
 # You may need to customize this if your build environment runs slower
-# than than the environment used to develop this packer build & test
+# than than the environment used to develop this packer build and test
 # capability. Should be a sequence of <wait10> strings (10 second wait
 # commands allowed by packer).
 #
@@ -123,15 +123,16 @@ big_sleep: "<wait10><wait10><wait10>"
 root_umask: '0077'
 
 # The type of firmware used to boot the system
-# Valide values: 'bios' or 'efi'
+# Valid values: 'bios' or 'efi'
 firmware: 'bios'
 
-# Wether or not to bring up the interface.  It must be set to false if you
+# Whether or not to bring up the console.  It must be set to false if you
 # running this on a system without a GUI.
 # Valid values:  true or false
 headless: 'true'
 
-# If found, the distribution iso will be unpacked into the yum repository.
-# The name of the ISO is the "box_distro_release" variable set by simp_rake_helpers # in the vars.json file. The directory where this is can be found is set by the
+# If found, the distribution ISO will be unpacked into the yum repository.
+# The name of the ISO is the "box_distro_release" variable set by simp_rake_helpers
+# in the vars.json file. The directory where this is can be found is set by the
 # iso_dist_dir variable in the packer file.
 iso_dist_dir: /net/ISO/Distribution_ISOs
