@@ -5,7 +5,7 @@ vm_description: 'SIMP6.X-CENTOS7-NOFIPS-ENCRYPTED'
 nat_interface: 'enp0s3'
 host_only_interface: 'enp0s8'
 mac_address: 'aabbcccc0007'
-host_only_interface: '192.168.103.1'
+ip_address: '192.168.103.1'
 fips: 'fips=0'
 disk_encrypt: 'simp_crypt_disk'
 # Encryption will take a little longer.
