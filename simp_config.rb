@@ -174,7 +174,7 @@ default_settings = {
       'fips'                => 'fips=0',
       'disk_encrypt'        => '',
       'big_sleep'           => '',
-      'headless '           => 'true',
+      'headless'            => 'true',
       'iso_dist_dir'        => '/net/ISO/Distribution_ISOs',
       'root_umask'          => '0077'
 }
