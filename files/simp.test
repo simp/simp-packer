@@ -1,9 +1,0 @@
-zone "simp.test" IN {
-        type master;
-        file "forward/simp.test.db";
-};
-
-zone "33.168.192.in-addr.arpa" IN {
-        type master;
-        file "reverse/33.168.192.db";
-};

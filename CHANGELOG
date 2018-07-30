@@ -1,3 +1,11 @@
+Wed Jul 11 2018 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 2.0.0-0
+- Removed old code and moved simp-testing to the main directory
+- Updated the code to work with packer version 1.2.4
+- Updated manifests/scripts to work with SIMP 6.2 changes
+- Added firmware option to allow for addition of UEFI testing but
+  have not implemented UEFI code yet.
+- Updated simpsetup to use primary network interface instead of hardcoded interface.
+
 Wed Mar 14 2018 Liz Nemsick <lnemsick.simp@gmail.com> - 0.1.0-0
 - simp-testing updates:
   - Added ability to set root's umask prior to running 'simp config'.

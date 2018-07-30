@@ -1,11 +1,26 @@
 #!/bin/sh
 
-if [[ "$SIMP_PACKER_run_simp_config" = "yes" ]]; then
-  simp config -a /vagrant/simp_config_answers.yaml
-fi
+# run bootstrap
+  echo "**********************"
+  echo "Running Simp Bootstrap"
+  echo "**********************"
+  echo  'umask:'
+  umask
+  simp bootstrap --remove_ssldir --no-track
+# echoing bootstrap log to the log file
+  echo "**********************"
+  echo "Bootstrap Log"
+  echo "**********************"
 
-if [[ "$SIMP_PACKER_run_simp_bootstrap" = "yes" ]]; then
-  simp bootstrap
-fi
+  cat /root/.simp/simp_bootstrap.log*
+  echo "****** End of Bootstrap Log ****************"
 
-exit 0
+#  Have to execute this or the next provisioning scripts
+#  won't be able to ssh and sudo because simp will
+#  have turned off the permissions.
+  echo "**********************"
+  echo "Configuring simp user"
+  echo "**********************"
+  /var/local/simp/scripts/puppet-usersetup.sh
+
+  exit 0
