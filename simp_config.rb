@@ -42,12 +42,11 @@ class Utils
 end
 
 ######################################################################
-def getjson(json_file)
+# Remove all the comments from a json template file
+def read_and_strip_comments_from_file(json_file)
   if File.file?(json_file)
     f = File.open(json_file,'r')
     json = String.new
-    #remove all the comments I put in the json file
-    # so I could remember why I did stuff
     f.each {|line|
       unless  line[0] == '#'
         json = json + line
@@ -89,19 +88,19 @@ def validate_settings(settings)
   end
 
   validated
-  end
+end
 #####################################################################
 
 def update_hash(json_hash,settings)
-    time = Time.new
-    json_hash = json_hash.merge(settings)
-    json_hash['postprocess_output'] = settings['output_directory']
-    json_hash['output_directory'] = settings['output_directory'] + "/" + time.strftime("%Y%m%d%H%M")
-    json_hash['host_only_network_name'] = getvboxnetworkname(settings['host_only_gateway'])
-    if json_hash['host_only_network_name'].nil?
-       raise "Error: could not create or find a virtualbox network for #{settings['host_only_gateway']}"
-    end
-    return json_hash
+  time = Time.new
+  json_hash = json_hash.merge(settings)
+  json_hash['postprocess_output'] = settings['output_directory']
+  json_hash['output_directory'] = settings['output_directory'] + "/" + time.strftime("%Y%m%d%H%M")
+  json_hash['host_only_network_name'] = getvboxnetworkname(settings['host_only_gateway'])
+  if json_hash['host_only_network_name'].nil?
+    raise "Error: could not create or find a virtualbox network for #{settings['host_only_gateway']}"
+  end
+  return json_hash
 end
 
 ######################################################################3
@@ -156,32 +155,32 @@ require 'yaml'
 require 'fileutils'
 
 workingdir = ARGV[0]
-testdir = ARGV[1]
-basedir = File.expand_path(File.dirname(__FILE__))
-json_tmp = basedir + "/simp.json.template"
+testdir    = ARGV[1]
+basedir    = File.expand_path(File.dirname(__FILE__))
+json_tmp   = basedir + "/simp.json.template"
 
 default_settings = {
-      'vm_description'      => 'SIMP-PACKER-BUILD',
-      'output_directory'    => "#{testdir}/OUTPUT",
-      'nat_interface'       => 'enp0s3',
-      'host_only_interface' => 'enp0s8',
-      'mac_address'         => 'aabbbbaa0007',
-      'firmware'            => 'bios',
-      'host_only_gateway'   => '192.168.101.1',
-      'domain'              => 'simp.test',
-      'puppetname'          => 'puppet',
-      'new_password'        => 'P@ssw0rdP@ssw0rd',
-      'fips'                => 'fips=0',
-      'disk_encrypt'        => '',
-      'big_sleep'           => '',
-      'headless'            => 'true',
-      'iso_dist_dir'        => '/net/ISO/Distribution_ISOs',
-      'root_umask'          => '0077'
+  'vm_description'      => 'SIMP-PACKER-BUILD',
+  'output_directory'    => "#{testdir}/OUTPUT",
+  'nat_interface'       => 'enp0s3',
+  'host_only_interface' => 'enp0s8',
+  'mac_address'         => 'aabbbbaa0007',
+  'firmware'            => 'bios',
+  'host_only_gateway'   => '192.168.101.1',
+  'domain'              => 'simp.test',
+  'puppetname'          => 'puppet',
+  'new_password'        => 'P@ssw0rdP@ssw0rd',
+  'fips'                => 'fips=0',
+  'disk_encrypt'        => '',
+  'big_sleep'           => '',
+  'headless'            => 'true',
+  'iso_dist_dir'        => '/net/ISO/Distribution_ISOs',
+  'root_umask'          => '0077'
 }
 
 # input packer.yaml and merge with default settings
 in_settings = YAML.load_file("#{testdir}/packer.yaml")
-settings = validate_settings(default_settings.merge(in_settings))
+settings    = validate_settings(default_settings.merge(in_settings))
 
 # input the sample simp_conf.yaml and update the network
 # settings and any settings from the packer.yaml file.
@@ -190,9 +189,9 @@ settings = validate_settings(default_settings.merge(in_settings))
 # settings. )
 simpconfig = YAML.load_file("#{testdir}/simp_conf.yaml")
 # I set the address of the puppet server to 7 in the network.
-network = settings['host_only_gateway'].split(".")[0,3].join(".")
+network     = settings['host_only_gateway'].split(".")[0,3].join(".")
 puppet_fqdn = settings['puppetname'] + "." + settings['domain']
-puppet_ip = network + ".7"
+puppet_ip   = network + ".7"
 
 simpconfig['cli::network::gateway'] = settings['host_only_gateway']
 simpconfig['simp_options::dns::servers'] = [ puppet_ip ]
@@ -210,24 +209,23 @@ simpconfig['simp_options::fips'] = settings['fips'].eql?("fips=1")
 simpconfig['simp_options::ntpd::servers'] = [ simpconfig['cli::network::gateway'] ]
 
 File.open("#{workingdir}/files/simp_conf.yaml",'w') do |h|
-     h.write simpconfig.to_yaml
-     h.close
+  h.write simpconfig.to_yaml
+  h.close
 end
 
 #Get rid of the comments in the simp.json file and copy to the working directory.
-json = getjson json_tmp
+json = read_and_strip_comments_from_file json_tmp
 File.open("#{workingdir}/simp.json",'w') { |h|
-     h.write json
-     h.close
+  h.write json
+  h.close
 }
 
 # Update the vars.json file with all the settings from packer.conf
 # and copy to the working directory
 require 'json'
 
-file =  File.read("#{testdir}/vars.json")
-
-json_hash = JSON.parse(file)
+vars_json = File.read("#{testdir}/vars.json")
+json_hash = JSON.parse(vars_json)
 updated_json_hash = update_hash(json_hash,settings)
 
 File.open("#{workingdir}/vars.json", 'w' ) do |h|
@@ -236,7 +234,6 @@ File.open("#{workingdir}/vars.json", 'w' ) do |h|
 end
 
 # Write out the Vagrantfile
-
 erb = VagrantFile.new(basedir,updated_json_hash['vm_description'],simpconfig['cli::network::ipaddress'],updated_json_hash['mac_address'],updated_json_hash['host_only_network_name'])
 vfile_contents=erb.render
 
