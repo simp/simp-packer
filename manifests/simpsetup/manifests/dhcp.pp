@@ -30,12 +30,12 @@ class simpsetup::dhcp (
 
 
   concat { 'rsync-dhcpd.conf':
-    path  => "${rsync_dir}/dhcpd.conf",
-    owner => 'root',
-    group => 'root',
-    mode  => '0640',
+    path    => "${rsync_dir}/dhcpd.conf",
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0640',
     seltype => 'dhcp_etc_t',
-    order => 'numeric'
+    order   => 'numeric'
   }
 
   concat::fragment { 'dhcp-header':
