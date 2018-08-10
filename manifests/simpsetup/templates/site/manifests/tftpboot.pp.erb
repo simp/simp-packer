@@ -1,24 +1,33 @@
-# Note the difference in the `extra` arguments here.
-class site::tftpboot {
+# Profile to establish tftpboot/kickstart defaults on a standard SIMP server
+#
+# @param kickstart_server_uri
+#   The URI of the kickstart server, including the top-level ks directory.
+#   By default, this uses HTTP and the host's *primary* IP address.
+#
+class site::tftpboot (
+  Simplib::URI $kickstart_server_uri = "http://${facts['ipaddress']}/ks"
+){
   include '::tftpboot'
 
   case $facts['os']['release']['major'] {
-  '7': { tftpboot::linux_model { 'el7_x86_64':
+    '7': {
+      tftpboot::linux_model { 'el7_x86_64':
         kernel => 'centos-7-x86_64/vmlinuz',
         initrd => 'centos-7-x86_64/initrd.img',
-        ks     => "https://${facts['ipaddress']}/ks/pupclient_x86_64.cfg",
+        ks     => "https://${kickstart_server_uri}/pupclient_x86_64.cfg",
         extra  => "inst.noverifyssl ksdevice=bootif\nipappend 2"
       }
     }
-  '6': { tftpboot::linux_model { 'el6_x86_64':
+    '6': {
+      tftpboot::linux_model { 'el6_x86_64':
         kernel => 'centos-6-x86_64/vmlinuz',
         initrd => 'centos-6-x86_64/initrd.img',
-        ks     => "https://${facts['ipaddress']}/ks/pupclient_x86_64.cfg",
+        ks     => "https://${kickstart_server_uri}/pupclient_x86_64.cfg",
         extra  => "noverifyssl ksdevice=bootif\nipappend 2"
       }
     }
-  default: {
-     warn("${facts['os']['release']['major']} not supported for tftpboot")
+    default: {
+      warn("${facts['os']['release']['major']} not supported for tftpboot")
     }
   }
 
