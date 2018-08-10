@@ -18,7 +18,7 @@
 #            that is writeable and has enough space for packer to
 #            create the disk for the machine.
 #
-#  Example usage   TMPDIR=/var/tmp ./simp_packer_test.sh /var/jmg/packer/nofips 
+#  Example usage   TMPDIR=/var/tmp ./simp_packer_test.sh /var/jmg/packer/nofips
 #
 #  Where I have copied the sample directory nofips to /var/jmg/packer and
 #  have edited the packer and vars files to point to my iso.  I also
@@ -96,7 +96,8 @@ $BASEDIR/simp_config.rb $WORKINGDIR $TESTDIR
 #If you use debug you must set header to true or you won't see the debug.
 #PACKER_LOG=1 PACKER_LOGPATH=/tmp/packer.log.$DATE packer build -var-file=$WORKINGDIR/vars.json $WORKINGDIR/simp.json >& $logfile
 echo "Logs will be written to ${logfile}"
-packer build -var-file=$WORKINGDIR/vars.json $WORKINGDIR/simp.json >& $logfile
+
+PACKER_LOG=${PACKER_LOG:-1} PACKER_LOGPATH=${PACKER_LOGPATH:-/tmp/packer.log.$DATE} packer build -var-file=$WORKINGDIR/vars.json $WORKINGDIR/simp.json |& tee $logfile
 
 if [[ $? -ne 0 ]]; then
   mv $logfile ${logfile}.errors
