@@ -96,10 +96,12 @@ cd "${WORKINGDIR}"
 #If you use debug you must set header to true or you won't see the debug.
 echo "Logs will be written to ${logfile}"
 
+set -x
 PACKER_LOG="${PACKER_LOG:-1}" \
   PACKER_LOGPATH="${PACKER_LOGPATH:-/tmp/packer.log.$DATE}" \
-  packer build -var-file="${WORKINGDIR}/vars.json" "${WORKINGDIR}/simp.json" \
+  packer build -var-file="${WORKINGDIR}/vars.json" ${EXTRA_SIMP_PACKER_ARGS} "${WORKINGDIR}/simp.json" \
   |& tee "${logfile}"
+set +x
 
 if [[ $? -ne 0 ]]; then
   mv "${logfile}" "${logfile}.errors"

@@ -181,13 +181,14 @@ class CheckSettings
 end
 
 ###########################################################
-
 # To ignore validation failures, thereby allowing the Packer
 # build to continue to run, set never_fail to true.  This is
 # useful if you want to allow the box to be built so you can get
 # onto the box to debug a validation failure.
+#
 # TODO: Make this a packer.yaml setting and apply to all validation
 #       scripts
+###########################################################
 never_fail = false
 
 if __FILE__ == $0

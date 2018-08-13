@@ -23,7 +23,9 @@
     {
       "vagrant_password": "vagrant",
       "simp_conf_file": "/var/local/simp/files/simp_conf.yaml",
-      "ruby_path": "/opt/puppetlabs/puppet/bin/ruby"
+      "ruby_path": "/opt/puppetlabs/puppet/bin/ruby",
+      "ssh_agent_auth": "true",
+      "ssh_private_key_file": "/home/ctessmer/.ssh/vagrant.key"
     },
   //
   //  VirtualBox Builder (from an ISO)
@@ -34,6 +36,8 @@
     {
       "type": "virtualbox-iso",
       "communicator":"ssh",
+      "vrdp_bind_address": "0.0.0.0",
+      "ssh_agent_auth": "{{user `ssh_agent_auth`}}",
       "ssh_pty": "true",
       "guest_os_type": "RedHat_64",
       "iso_url":       "{{user `iso_url`}}",
@@ -106,7 +110,7 @@
         "exit<enter>"
        ],
       "ssh_username": "simp",
-//      "ssh_private_key_file": "{{user `ssh_key`}}",
+      "ssh_private_key_file": "{{user `ssh_key`}}",
       "ssh_password": "{{user `new_password`}}",
       "shutdown_command": "sudo /sbin/shutdown -P now"
     }
@@ -176,11 +180,12 @@
       "inline" : [
          "root_umask={{user `root_umask`}}",
          "if [ ! -z \"${root_umask}\" ]; then",
-         "echo \"umask ${root_umask}\" >> /root/.bash_profile",
-         "cat /root/.bash_profile",
+           "echo \"umask ${root_umask}\" >> /root/.bash_profile",
+           "cat /root/.bash_profile",
          "fi"
       ]
     },
+
     // Now we run simp using the simp conf yaml file specified in the shell.
     // It should complete successfully.
     {
@@ -221,9 +226,9 @@
       "inline" : [
         "echo 'Rebooting...'",
         "if [ -f /usr/sbin/reboot ]; then",
-        "/usr/sbin/reboot",
+          "/usr/sbin/reboot",
         "else",
-        "/sbin/reboot",
+          "/sbin/reboot",
         "fi"
        ]
     },
@@ -259,7 +264,8 @@
       "remote_folder": "/var/local/simp/scripts",
       "inline": [ "sudo yum install -y tree; :", "tree /var/local/simp" ]
     },
-    // Enable all scripts to execute on the server
+
+    // Grant all uploaded scripts premission to execute on the server
     {
       "type": "shell",
       "remote_folder": "/var/local/simp/scripts",
@@ -278,7 +284,7 @@
     {
       "type": "shell",
       "remote_folder": "/var/local/simp/scripts",
-      "inline": "/var/local/simp/scripts/tests/check_settings.sh"
+      "inline": ["sudo /var/local/simp/scripts/tests/check_settings.sh"]
     },
 
     ////////////////////////////////////////////////////////////////////////////
@@ -290,20 +296,18 @@
     ////////////////////////////////////////////////////////////////////////////
     {
       "type": "shell",
-      "remote_path": "/var/local/simp/scripts/config/simpsetup.sh",
-      "execute_command": "sudo chmod +x {{.Path}}; sudo {{.Vars}} sh '{{.Path}}'",
-      "script" : "scripts/config/simpsetup.sh"
+      "remote_folder": "/var/local/simp/scripts",
+      "inline": ["sudo /var/local/simp/scripts/config/simpsetup.sh"]
     },
     {
       "type": "shell",
-      "remote_path": "/var/local/simp/scripts/config/sitepp_edit.rb",
-      "execute_command": "sudo chmod +x {{.Path}}; sudo {{.Vars}} {{user `ruby_path`}} '{{.Path}}'",
-      "script" : "scripts/config/sitepp_edit.rb"
+      "remote_folder": "/var/local/simp/scripts",
+      "inline": ["sudo {{user `ruby_path`}} /var/local/simp/scripts/config/sitepp_edit.rb"]
     },
     {
       "type": "shell",
-      "execute_command": "sudo chmod +x {{.Path}}; sudo {{.Vars}} {{user `ruby_path`}} '{{.Path}}'",
-      "script" : "scripts/config/hiera_update.rb"
+      "remote_folder": "/var/local/simp/scripts",
+      "inline": ["sudo {{user `ruby_path`}} /var/local/simp/scripts/config/hiera_update.rb"]
     },
 
     // Run puppet server to apply any changes made in hiera and site.pp
@@ -330,19 +334,20 @@
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
       "inline" : [
         "if [ -f /var/local/simp/{{user `box_distro_release`}} ]; then",
-        "/usr/local/bin/unpack_dvd /var/local/simp/{{user `box_distro_release`}}",
-        "rm /var/local/simp/{{user `box_distro_release`}}",
+          "/usr/local/bin/unpack_dvd /var/local/simp/{{user `box_distro_release`}}",
+          "rm /var/local/simp/{{user `box_distro_release`}}",
         "fi"
       ]
     },
-// Just add some shortcuts to roots .bashrc to help getting aroung
+
+    // Add some shortcuts to root's .bashrc (to help get around)
     {
       "type": "shell",
       "remote_path": "/var/local/simp/inline-bashrc-extras.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
       "inline" : [
         "if [ -f /var/local/simp/root/.bashrc-extras ]; then",
-        "cat /var/local/simp/root/.bashrc-extras >> /root/.bashrc",
+          "cat /var/local/simp/root/.bashrc-extras >> /root/.bashrc",
         "fi"
       ]
     },
