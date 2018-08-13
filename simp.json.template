@@ -1,35 +1,35 @@
 {
-  "__": " SIMP Packer manifest to run tests for simp-core or any module      ",
-  "__": "  that requires a fully working puppet server.                      ",
-  "__": "                                                                    ",
-  "__": " USAGE:                                                             ",
+  "__": " SIMP Packer manifest to run tests for simp-core or any module       ",
+  "__": "  that requires a fully working puppet server.                       ",
+  "__": "                                                                     ",
+  "__": " USAGE:                                                              ",
   "__": "   `packer build -var-file=vars.json simp.json`              ",
-  "__": "                                                                    ",
-  "__": " NOTES:                                                             ",
-  "__": "   - You should not need change this file.                          ",
-  "__": "   - Change behaviors using:                                        ",
-  "__": "     * SIMP_PACKER environment variables                            ",
-  "__": "     * the `simp_conf.yaml` file                                    ",
-  "__": "   - The first `<wait10>`s are killing time until SSH can connect   ",
-  "__": "   - The comments starting with `#` below will be parsed out by the ",
-  "__": "     start-up script.                                               ",
-  "__": "                                                                    ",
-  #
-  # Template User variables:
-  #
-  #   https://www.packer.io/docs/templates/user-variables.html
-  #
+  "__": "                                                                     ",
+  "__": " NOTES:                                                              ",
+  "__": "   - You should not need change this file.                           ",
+  "__": "   - Change behaviors using:                                         ",
+  "__": "     * SIMP_PACKER environment variables                             ",
+  "__": "     * the `simp_conf.yaml` file                                     ",
+  "__": "   - The first `<wait10>`s are killing time until SSH can connect    ",
+  "__": "   - The comments starting below (`//` or `#`) will be parsed out by ",
+  "__": "     the start-up script.                                            ",
+  "__": "                                                                     ",
+  //
+  // Template User variables:
+  //
+  //   https://www.packer.io/docs/templates/user-variables.html
+  //
   "variables" :
     {
       "vagrant_password": "vagrant",
       "simp_conf_file": "/var/local/simp/files/simp_conf.yaml",
       "ruby_path": "/opt/puppetlabs/puppet/bin/ruby"
     },
-  #
-  #  VirtualBox Builder (from an ISO)
-  #
-  #     https://www.packer.io/docs/builders/virtualbox-iso.html
-  #
+  //
+  //  VirtualBox Builder (from an ISO)
+  //
+  //     https://www.packer.io/docs/builders/virtualbox-iso.html
+  //
   "builders": [
     {
       "type": "virtualbox-iso",
@@ -90,11 +90,11 @@
         "<wait5>",
         "{{user `new_password`}}<enter>",
         "<wait5>",
-# Bring up the NAT network
         "echo 'simp ALL=(ALL) NOPASSWD:ALL'  >> /etc/sudoers<enter>",
         "<wait5>",
         "sed -ie '/Defaults *requiretty/d' /etc/sudoers<enter>",
         "<wait5>",
+        // Bring up the NAT network
         "sed -ie 's/ONBOOT=no/ONBOOT=yes/g' /etc/sysconfig/network-scripts/ifcfg-{{user `nat_interface`}}<enter>",
         "<wait5>",
         "sed -ie 's/ONBOOT=no/ONBOOT=yes/g' /etc/sysconfig/network-scripts/ifcfg-{{user `nat_interface`}}<enter>",
@@ -106,36 +106,36 @@
         "exit<enter>"
        ],
       "ssh_username": "simp",
-#      "ssh_private_key_file": "{{user `ssh_key`}}",
+//      "ssh_private_key_file": "{{user `ssh_key`}}",
       "ssh_password": "{{user `new_password`}}",
       "shutdown_command": "sudo /sbin/shutdown -P now"
     }
   ],
   "provisioners": [
-    ####################################################################
-    # Set up the users for packer and vagrant and bootstrap the system #
-    ####################################################################
+    //###################################################################
+    // Set up the users for packer and vagrant and bootstrap the system #
+    //###################################################################
 
-    # Copy scripts from the host to the virtual machine for use later on
-    # Some of the scripts are copied up as they are used, but not secondary
-    # scripts called from them.
+    // Copy scripts from the host to the virtual machine for use later on
+    // Some of the scripts are copied up as they are used, but not secondary
+    // scripts called from them.
     {
       "type": "file",
       "source": "./scripts",
       "destination": "/var/local/simp/"
     },
 
-    # Copy files from the host to the virtual machine for use later on
+    // Copy files from the host to the virtual machine for use later on
     {
       "type": "file",
       "source": "./files",
       "destination": "/var/local/simp/files"
     },
 
-    # TEST:  Check if it booted into fips or not according to the
-    #        fips variable set in the boot command.
-    #
-    # These should run without sudo the environment vars do not work.
+    // TEST:  Check if it booted into fips or not according to the
+    //        fips variable set in the boot command.
+    //
+    // These should run without sudo the environment vars do not work.
     {
       "type": "shell",
       "remote_path": "/var/local/simp/scripts/tests/check_settings_at_boot.sh",
@@ -152,7 +152,7 @@
       "script" : "scripts/tests/check_partitions.rb"
     },
 
-    # Set up the vagrant password
+    // Set up the vagrant password
     {
       "type": "shell",
       "remote_path": "/var/local/simp/inline-vagrant-users.sh",
@@ -168,7 +168,7 @@
       ]
     },
 
-    # Set root umask (if configured)
+    // Set root umask (if configured)
     {
       "type": "shell",
       "remote_path": "/var/local/simp/inline-set-root-umask.sh",
@@ -181,8 +181,8 @@
          "fi"
       ]
     },
-    # Now we run simp using the simp conf yaml file specified in the shell.
-    # It should complete successfully.
+    // Now we run simp using the simp conf yaml file specified in the shell.
+    // It should complete successfully.
     {
       "type": "shell",
       "remote_path": "/var/local/simp/inline-simp-config.sh",
@@ -195,11 +195,11 @@
        ]
     },
 
-    # Now run bootstrap.
-    #
-    # This script also configures  a puppet manifest  site::vagrant that configures
-    # the simp and vagrant users to be allowed to ssh and sudo as needed by packer
-    # and vagrant.
+    // Now run bootstrap.
+    //
+    // This script also configures  a puppet manifest  site::vagrant that configures
+    // the simp and vagrant users to be allowed to ssh and sudo as needed by packer
+    // and vagrant.
     {
      "type": "shell",
       "remote_path": "/var/local/simp/scripts/simp-bootstrap.sh",
@@ -207,11 +207,11 @@
       "script" : "scripts/simp-bootstrap.sh"
     },
 
-    # Reboot the system.
-    # If I use a script for this it will randomly error out saying return code is not zero.
-    #  Reboot seems to be in a different place on Centos 6 and 7 and with no path
-    #  it can't find it.  And passing environment variables doesn't seem to work when the
-    # execute command contains sudo even with -E.
+    // Reboot the system.
+    // If I use a script for this it will randomly error out saying return code is not zero.
+    //  Reboot seems to be in a different place on Centos 6 and 7 and with no path
+    //  it can't find it.  And passing environment variables doesn't seem to work when the
+    // execute command contains sudo even with -E.
     {
       "type": "shell",
       "remote_path": "/var/local/simp/reboot1.sh",
@@ -228,16 +228,16 @@
        ]
     },
 
-    # Copy setup manifests
+    // Copy setup manifests
     {
-      # Pause a little to let the system boot up all the way then
+      // Pause a little to let the system boot up all the way
       "pause_before": "300s",
       "type": "file",
       "source": "./puppet",
       "destination": "/var/local/simp"
     },
 
-    # Run puppet again to get closer to a clean run (take 1)
+    // Run puppet again to get closer to a clean run (take 1)
     {
       "type": "puppet-server",
       "ignore_exit_codes": true,
@@ -245,7 +245,7 @@
       "puppet_bin_dir": "/opt/puppetlabs/bin"
     },
 
-    # Run puppet again to get closer to a clean run (take 2)
+    // Run puppet again to get closer to a clean run (take 2)
     {
       "type": "puppet-server",
       "ignore_exit_codes": true,
@@ -277,9 +277,9 @@
       "inline": "/var/local/simp/scripts/tests/check_settings.sh"
     },
 
-    #########################################################
-    # Tests have passed so set up simp server               #
-    #########################################################
+    //########################################################
+    // Tests have passed so set up simp server               #
+    //########################################################
     {
       "type": "shell",
       "remote_path": "/var/local/simp/scripts/config/simpsetup.sh",
@@ -297,14 +297,15 @@
       "execute_command": "sudo chmod +x {{.Path}}; sudo {{.Vars}} {{user `ruby_path`}} '{{.Path}}'",
       "script" : "scripts/config/hiera_update.rb"
     },
-# This run of puppet server should apply any changes made in hiera and site.pp
+
+    // Run puppet server to apply any changes made in hiera and site.pp
     {
       "type": "puppet-server",
       "ignore_exit_codes": true,
       "extra_arguments": "--test",
       "puppet_bin_dir": "/opt/puppetlabs/bin"
     },
-    # FIXME: REMOVE THIS LATER IT IS ONLY FOR DEBUGGING
+    // FIXME: REMOVE THIS LATER IT IS ONLY FOR DEBUGGING
     {
       "type": "shell",
       "inline": [ "sudo df -h", "free -h" ]
@@ -325,7 +326,7 @@
         "fi"
       ]
     },
-# Just add some shortcuts to roots .bashrc to help getting aroung
+// Just add some shortcuts to roots .bashrc to help getting aroung
     {
       "type": "shell",
       "remote_path": "/var/local/simp/inline-bashrc-extras.sh",
@@ -362,12 +363,12 @@
     }
   ],
   "post-processors": [
-# TODO:  I include the certs into the vagrant box but I haven't figure out to access
-# them.  Are they only available to the vagrant machine and not the host? I used
-# tasty.bacon simp to copy the keys to /etc/pki/simp_apps on the blades and hardcoded
-# it in the Vagrant file.  These are only used to connect via rdp because fips on
-# our work stations does not like the generic MD5 key include in vbox. (NOTE: there is
-# also an option to use vnc but  I didn't get that working.)
+// TODO:  I include the certs into the vagrant box but I haven't figure out to access
+// them.  Are they only available to the vagrant machine and not the host? I used
+// tasty.bacon simp to copy the keys to /etc/pki/simp_apps on the blades and hardcoded
+// it in the Vagrant file.  These are only used to connect via rdp because fips on
+// our work stations does not like the generic MD5 key include in vbox. (NOTE: there is
+// also an option to use vnc but  I didn't get that working.)
     {
       "type": "vagrant",
       "output": "{{user `postprocess_output`}}/{{user `vm_description`}}.box",
