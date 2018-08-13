@@ -6,7 +6,7 @@ codedir=$(puppet config print environmentpath)
 pupenv=$(puppet config print environment)
 puppetmodpath="${codedir}/${pupenv}/modules"
 
-cp -R "${packerdir}/manifests/simpsetup ${puppetmodpath}"
+cp -R "${packerdir}/puppet/modules/simpsetup" "${puppetmodpath}/"
 chmod -R g+rx "${puppetmodpath}/simpsetup"
 chown -R root:puppet "${puppetmodpath}/simpsetup"
 

@@ -82,7 +82,7 @@ if [[ ! -f "${TESTDIR}/vars.json" ]]; then
   cleanup -1
 fi
 
-for dir in "files" "manifests" "scripts"; do
+for dir in "files" "puppet" "scripts"; do
    if [[ -d "${BASEDIR}/${dir}" ]]; then
      cp -Rp "${BASEDIR}/${dir}" "${WORKINGDIR}/"
   fi
