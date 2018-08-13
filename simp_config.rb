@@ -48,7 +48,7 @@ def read_and_strip_comments_from_file(json_file)
     f = File.open(json_file,'r')
     json = String.new
     f.each {|line|
-      unless  line[0] == '#'
+      unless line.to_s =~ %r[^(\s*(#|//))]
         json = json + line
       end
     }
@@ -127,9 +127,9 @@ def getvboxnetworkname(network)
     hostonlylist[name] = ipaddr
   }
 # Check if the network exists and return it name if it does
-  hostonlylist.each {|name, ip|
-    if  ip.eql? network
-      vboxnet = name
+  hostonlylist.each {|net_name, ip|
+    if ip.eql? network
+      vboxnet = net_name
       return vboxnet
     end
   }

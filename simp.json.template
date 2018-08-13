@@ -1,28 +1,37 @@
 {
-  "__": " SIMP Packer manifest to run tests for simp-core or any module     ",
-  "__": "  that requires a fully working puppet server.                     ",
-  "__": "                                                                   ",
-  "__": " USAGE:                                                            ",
+  "__": " SIMP Packer manifest to run tests for simp-core or any module      ",
+  "__": "  that requires a fully working puppet server.                      ",
+  "__": "                                                                    ",
+  "__": " USAGE:                                                             ",
   "__": "   `packer build -var-file=vars.json simp.json`              ",
-  "__": "                                                                   ",
-  "__": " NOTES:                                                            ",
-  "__": "   - The first `<wait10>`s are killing time until SSH can connect  ",
-  "__": "   - The comments starting with ## below will be parsed out by the ",
-  "__": "     start-up script.                                              ",
-  "__": "   - You should not need change this file.  SIMP_PACKER environment",
-  "__": "     variables and the simp_conf.yaml file passed should be used   ",
-  "__": "     to changed behavior.                                          ",
+  "__": "                                                                    ",
+  "__": " NOTES:                                                             ",
+  "__": "   - You should not need change this file.                          ",
+  "__": "   - Change behaviors using:                                        ",
+  "__": "     * SIMP_PACKER environment variables                            ",
+  "__": "     * the `simp_conf.yaml` file                                    ",
+  "__": "   - The first `<wait10>`s are killing time until SSH can connect   ",
+  "__": "   - The comments starting with `#` below will be parsed out by the ",
+  "__": "     start-up script.                                               ",
+  "__": "                                                                    ",
+  #
+  # Template User variables:
+  #
+  #   https://www.packer.io/docs/templates/user-variables.html
+  #
   "variables" :
     {
       "vagrant_password": "vagrant",
       "simp_conf_file": "/var/local/simp/files/simp_conf.yaml",
       "ruby_path": "/opt/puppetlabs/puppet/bin/ruby"
     },
+  #
+  #  VirtualBox Builder (from an ISO)
+  #
+  #     https://www.packer.io/docs/builders/virtualbox-iso.html
+  #
   "builders": [
     {
-## I used virtualbox because that was what had been used in the previous incarnation of
-## simp-packer.  I did not know when I started what a pain VB is to use remotely.  I never
-## tried to use the QEMU builder.  If someone wants to try this...
       "type": "virtualbox-iso",
       "communicator":"ssh",
       "ssh_pty": "true",
@@ -103,28 +112,31 @@
     }
   ],
   "provisioners": [
-###########################################
-# Set up the users for packer and vagrant #
-# and boot strap the system               #
-###########################################
+    ####################################################################
+    # Set up the users for packer and vagrant and bootstrap the system #
+    ####################################################################
+
+    # Copy scripts from the host to the virtual machine for use later on
+    # Some of the scripts are copied up as they are used, but not secondary
+    # scripts called from them.
     {
-## Copy scripts from the host to the virtual machine for use later on
-## Some of the scripts are copied up as they are used, but not secondary
-## scripts called from them.
       "type": "file",
       "source": "./scripts",
       "destination": "/var/local/simp/"
     },
+
+    # Copy files from the host to the virtual machine for use later on
     {
-## Copy files from the host to the virtual machine for use later on
       "type": "file",
       "source": "./files",
       "destination": "/var/local/simp/files"
     },
+
+    # TEST:  Check if it booted into fips or not according to the
+    #        fips variable set in the boot command.
+    #
+    # These should run without sudo the environment vars do not work.
     {
-## TEST:  Check if it booted into fips or not according to the
-## fips variable set in the boot command.
-## These should run without sudo the environment vars do not work.
       "type": "shell",
       "remote_path": "/var/local/simp/scripts/tests/check_settings_at_boot.sh",
       "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
@@ -139,8 +151,9 @@
       "execute_command": "chmod +x {{.Path}}; {{.Vars}} {{user `ruby_path`}} '{{.Path}}'",
       "script" : "scripts/tests/check_partitions.rb"
     },
+
+    # Set up the vagrant password
     {
-## Set up the vagrant password
       "type": "shell",
       "remote_path": "/var/local/simp/inline-vagrant-users.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
@@ -154,8 +167,9 @@
         "chown -R vagrant /home/vagrant"
       ]
     },
+
+    # Set root umask (if configured)
     {
-## Set root's umask, if configured
       "type": "shell",
       "remote_path": "/var/local/simp/inline-set-root-umask.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -i '{{.Path}}'",
@@ -167,9 +181,9 @@
          "fi"
       ]
     },
+    # Now we run simp using the simp conf yaml file specified in the shell.
+    # It should complete successfully.
     {
-## Now we run simp using the simp conf yaml file specified in the shell.
-## It should complete successfully.
       "type": "shell",
       "remote_path": "/var/local/simp/inline-simp-config.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -i '{{.Path}}'",
@@ -180,22 +194,25 @@
          "simp config -a {{user `simp_conf_file`}}"
        ]
     },
+
+    # Now run bootstrap.
+    #
+    # This script also configures  a puppet manifest  site::vagrant that configures
+    # the simp and vagrant users to be allowed to ssh and sudo as needed by packer
+    # and vagrant.
     {
-## Now run bootstrap.
-## This script also configures  a puppet manifest  site::vagrant that configures
-## the simp and vagrant users to be allowed to ssh and sudo as needed by packer
-## and vagrant.
-      "type": "shell",
+     "type": "shell",
       "remote_path": "/var/local/simp/scripts/simp-bootstrap.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -i '{{.Path}}'",
       "script" : "scripts/simp-bootstrap.sh"
     },
+
+    # Reboot the system.
+    # If I use a script for this it will randomly error out saying return code is not zero.
+    #  Reboot seems to be in a different place on Centos 6 and 7 and with no path
+    #  it can't find it.  And passing environment variables doesn't seem to work when the
+    # execute command contains sudo even with -E.
     {
-## Reboot the system.
-## If I use a script for this it will randomly error out saying return code is not zero.
-##  Reboot seems to be in a different place on Centos 6 and 7 and with no path
-##  it can't find it.  And passing environment variables doesn't seem to work when the
-## execute command contains sudo even with -E.
       "type": "shell",
       "remote_path": "/var/local/simp/reboot1.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -E bash '{{.Path}}'",
@@ -210,41 +227,59 @@
         "fi"
        ]
     },
+
+    # Copy setup manifests
     {
-## Pause a little to let the system boot up all the way then
-## Copy setup manifests
+      # Pause a little to let the system boot up all the way then
       "pause_before": "300s",
       "type": "file",
-      "source": "./manifests",
+      "source": "./puppet",
       "destination": "/var/local/simp"
     },
+
+    # Run puppet again to get closer to a clean run (take 1)
     {
-## Run puppet again to get closer to a clean run (take 1)
       "type": "puppet-server",
       "ignore_exit_codes": true,
       "extra_arguments": "--test",
       "puppet_bin_dir": "/opt/puppetlabs/bin"
     },
+
+    # Run puppet again to get closer to a clean run (take 2)
     {
-## Run puppet again to get closer to a clean run (take 2)
       "type": "puppet-server",
       "ignore_exit_codes": true,
       "extra_arguments": "--test",
       "puppet_bin_dir": "/opt/puppetlabs/bin"
     },
-## TODO:  I had to wrap the ruby scripts in shell scripts because it
-## runs them as shells.  Need to figure out the correct
-## execute_command for executing a ruby script
+
+    // FIXME: REMOVE THIS LATER IT IS ONLY FOR DEBUGGING
     {
-## Check settings after bootstrap.
       "type": "shell",
-      "remote_path": "/var/local/simp/scripts/tests/check_settings.sh",
-      "execute_command": "sudo chmod +x {{.Path}};sudo {{.Vars}} sh '{{.Path}}'",
-      "script" : "scripts/tests/check_settings.sh"
+      "inline": [ "sudo yum install -y tree; :", "tree /var/local/simp" ]
     },
-#########################################################
-# Tests have passed so set up simp server               #
-#########################################################
+    // Enable all scripts to execute on the server
+    {
+      "type": "shell",
+      "inline": [ "sudo find /var/local/simp/scripts -type f -name '*.sh' -exec chmod +x {} \\;" ]
+    },
+    // Check settings after bootstrap.
+    //
+    // TODO:  I had to wrap the ruby scripts in shell scripts because it
+    // runs them as shells.  Need to figure out the correct
+    // execute_command for executing a ruby script
+    //
+    // FIXME: according to https://www.packer.io/docs/provisioners/shell.html
+    // this should br run using `inline` instead of `script`, because
+    // `/var/local/simp` was alrady uploaded
+    {
+      "type": "shell",
+      "inline": "/var/local/simp/scripts/tests/check_settings.sh"
+    },
+
+    #########################################################
+    # Tests have passed so set up simp server               #
+    #########################################################
     {
       "type": "shell",
       "remote_path": "/var/local/simp/scripts/config/simpsetup.sh",
@@ -268,6 +303,11 @@
       "ignore_exit_codes": true,
       "extra_arguments": "--test",
       "puppet_bin_dir": "/opt/puppetlabs/bin"
+    },
+    # FIXME: REMOVE THIS LATER IT IS ONLY FOR DEBUGGING
+    {
+      "type": "shell",
+      "inline": [ "sudo df -h", "free -h" ]
     },
     {
       "type": "file",
