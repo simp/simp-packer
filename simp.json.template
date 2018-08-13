@@ -256,14 +256,17 @@
     // FIXME: REMOVE THIS LATER IT IS ONLY FOR DEBUGGING
     {
       "type": "shell",
+      "remote_folder": "/var/local/simp/scripts",
       "inline": [ "sudo yum install -y tree; :", "tree /var/local/simp" ]
     },
     // Enable all scripts to execute on the server
     {
       "type": "shell",
+      "remote_folder": "/var/local/simp/scripts",
       "inline": [ "sudo find /var/local/simp/scripts -type f -name '*.sh' -exec chmod +x {} \\;" ]
     },
-    // Check settings after bootstrap.
+
+    // TEST: Check settings after bootstrap.
     //
     // TODO:  I had to wrap the ruby scripts in shell scripts because it
     // runs them as shells.  Need to figure out the correct
@@ -274,12 +277,17 @@
     // `/var/local/simp` was alrady uploaded
     {
       "type": "shell",
+      "remote_folder": "/var/local/simp/scripts",
       "inline": "/var/local/simp/scripts/tests/check_settings.sh"
     },
 
-    //########################################################
-    // Tests have passed so set up simp server               #
-    //########################################################
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    // Tests have passed!!
+    //
+    // Now, set up the SIMP server:
+    //
+    ////////////////////////////////////////////////////////////////////////////
     {
       "type": "shell",
       "remote_path": "/var/local/simp/scripts/config/simpsetup.sh",
@@ -308,6 +316,7 @@
     // FIXME: REMOVE THIS LATER IT IS ONLY FOR DEBUGGING
     {
       "type": "shell",
+      "remote_folder": "/var/local/simp/scripts",
       "inline": [ "sudo df -h", "free -h" ]
     },
     {
