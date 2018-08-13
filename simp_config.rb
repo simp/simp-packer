@@ -1,12 +1,13 @@
 #!/usr/bin/env ruby
+# Update config files with packer.yaml setting and copy to working dir
 #
-#This is going to take the files in the test directory and update
-#what needs to be updated in the configuration files according
-#to the packer.yaml settings and move them to the working directory.
-#The working directory is what is copied to simp server.
+# This is going to take the files in the test directory and update
+# what needs to be updated in the configuration files according
+# to the packer.yaml settings and move them to the working directory.
+# The working directory is what is copied to simp server.
 #
 
-class VagrantFile
+class VagrantfileTemplate
   def initialize(dir,name,ip,mac,nw)
     @name = name;
     @ipaddress = ip;
@@ -126,14 +127,10 @@ def getvboxnetworkname(network)
     }
     hostonlylist[name] = ipaddr
   }
-# Check if the network exists and return it name if it does
-  hostonlylist.each {|net_name, ip|
-    if ip.eql? network
-      vboxnet = net_name
-      return vboxnet
-    end
-  }
-# Network does not exists, create it and return the name
+  # Check if the network exists and return it name if it does
+  hostonlylist.each {|net_name, ip| return(net_name) if ip.eql?(network) }
+
+  # Network does not exist, create it and return the name
   puts "creating new Virtualbox hostonly network for #{network}"
   newnet=%x(VBoxManage hostonlyif create)
   if ( newnet.include? "was successfully created" )
@@ -213,7 +210,7 @@ File.open("#{workingdir}/files/simp_conf.yaml",'w') do |h|
   h.close
 end
 
-#Get rid of the comments in the simp.json file and copy to the working directory.
+# Get rid of the comments in the simp.json file and copy to the working directory.
 json = read_and_strip_comments_from_file json_tmp
 File.open("#{workingdir}/simp.json",'w') { |h|
   h.write json
@@ -234,8 +231,14 @@ File.open("#{workingdir}/vars.json", 'w' ) do |h|
 end
 
 # Write out the Vagrantfile
-erb = VagrantFile.new(basedir,updated_json_hash['vm_description'],simpconfig['cli::network::ipaddress'],updated_json_hash['mac_address'],updated_json_hash['host_only_network_name'])
-vfile_contents=erb.render
+template = VagrantfileTemplate.new(
+  basedir,
+  updated_json_hash['vm_description'],
+  simpconfig['cli::network::ipaddress'],
+  updated_json_hash['mac_address'],
+  updated_json_hash['host_only_network_name']
+)
+vfile_contents=template.render
 
 top_output=settings['output_directory']
 FileUtils.mkdir_p("#{top_output}/testfiles")
