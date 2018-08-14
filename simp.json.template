@@ -19,14 +19,15 @@
   //
   //   https://www.packer.io/docs/templates/user-variables.html
   //
-  "variables" :
-    {
-      "vagrant_password": "vagrant",
-      "simp_conf_file": "/var/local/simp/files/simp_conf.yaml",
-      "ruby_path": "/opt/puppetlabs/puppet/bin/ruby",
-      "ssh_agent_auth": "true",
-      "ssh_private_key_file": "/home/ctessmer/.ssh/vagrant.key"
-    },
+  "variables" : {
+    "vagrant_password": "vagrant",
+    "simp_conf_file": "/var/local/simp/files/simp_conf.yaml",
+    "ruby_path": "/opt/puppetlabs/puppet/bin/ruby",
+    // "ssh_private_key_file": "/home/ctessmer/.ssh/vagrant.key",
+    "ssh_agent_auth": "true",
+    "vrdp_bind_address": "0.0.0.0"
+  },
+
   //
   //  VirtualBox Builder (from an ISO)
   //
@@ -34,22 +35,22 @@
   //
   "builders": [
     {
-      "type": "virtualbox-iso",
-      "communicator":"ssh",
-      "vrdp_bind_address": "0.0.0.0",
-      "ssh_agent_auth": "{{user `ssh_agent_auth`}}",
-      "ssh_pty": "true",
-      "guest_os_type": "RedHat_64",
-      "iso_url":       "{{user `iso_url`}}",
-      "iso_checksum":    "{{user `iso_checksum`}}",
+      "type":              "virtualbox-iso",
+      "communicator":      "ssh",
+      "guest_os_type":     "RedHat_64",
+      "ssh_pty":           "true",
+      "vm_name":           "{{user `vm_description`}}",
+      "iso_url":           "{{user `iso_url`}}",
+      "iso_checksum":      "{{user `iso_checksum`}}",
       "iso_checksum_type": "{{user `iso_checksum_type`}}",
-      "disk_size": "50000",
+      "headless":          "{{user `headless`}}",
+      "vrdp_bind_address": "{{user `vrdp_bind_address`}}",
+      "ssh_agent_auth":    "{{user `ssh_agent_auth`}}",
+      "output_directory":  "{{user `output_directory`}}",
+      "skip_export":       "false",
+      "disk_size":         "50000",
+      "sata_port_count":   "30",
       "hard_drive_interface": "sata",
-      "sata_port_count": "30",
-      "headless": "{{user `headless`}}",
-      "vm_name": "{{user `vm_description`}}",
-      "skip_export": "false",
-      "output_directory": "{{user `output_directory`}}",
       "vboxmanage": [
         ["modifyvm", "{{.Name}}", "--memory", "4096"],
         ["modifyvm", "{{.Name}}", "--nic1", "nat"],
@@ -76,6 +77,7 @@
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
         "<wait10><wait10><wait10><wait10>",
         "{{user `big_sleep`}}",
+        // set simp user password
         "simp<enter><wait><wait>UserPassword<enter>",
         "<wait><wait>",
         "UserPassword<enter>",
@@ -86,6 +88,7 @@
         "<wait5>",
         "exit<enter>",
         "<wait10>",
+        // set root user password
         "root<enter><wait><wait>RootPassword<enter>",
         "<wait5><wait>",
         "RootPassword<enter>",
@@ -96,31 +99,32 @@
         "<wait5>",
         "echo 'simp ALL=(ALL) NOPASSWD:ALL'  >> /etc/sudoers<enter>",
         "<wait5>",
-        "sed -ie '/Defaults *requiretty/d' /etc/sudoers<enter>",
+        "sed -i.packer-orig -e '/Defaults *requiretty/d' /etc/sudoers<enter>",
         "<wait5>",
         // Bring up the NAT network
-        "sed -ie 's/ONBOOT=no/ONBOOT=yes/g' /etc/sysconfig/network-scripts/ifcfg-{{user `nat_interface`}}<enter>",
+        "sed -i.packer-orig -e 's/ONBOOT=no/ONBOOT=yes/g' /etc/sysconfig/network-scripts/ifcfg-{{user `nat_interface`}}<enter>",
         "<wait5>",
-        "sed -ie 's/ONBOOT=no/ONBOOT=yes/g' /etc/sysconfig/network-scripts/ifcfg-{{user `nat_interface`}}<enter>",
+        "sed -i.packer-orig -e 's/ONBOOT=no/ONBOOT=yes/g' /etc/sysconfig/network-scripts/ifcfg-{{user `nat_interface`}}<enter>",
         "<wait5>",
-        "sed -ie 's/DEFROUTE=yes/DEFROUTE=no/g' /etc/sysconfig/network-scripts/ifcfg-{{user `nat_interface`}}<enter>",
+        "sed -i.packer-orig -e 's/DEFROUTE=yes/DEFROUTE=no/g' /etc/sysconfig/network-scripts/ifcfg-{{user `nat_interface`}}<enter>",
         "<wait5>",
         "ifup {{user `nat_interface`}}<enter>",
         "<wait5>",
         "exit<enter>"
        ],
       "ssh_username": "simp",
-      "ssh_private_key_file": "{{user `ssh_key`}}",
+      // "ssh_private_key_file": "{{user `ssh_key`}}",
       "ssh_password": "{{user `new_password`}}",
       "shutdown_command": "sudo /sbin/shutdown -P now"
     }
   ],
+
+  // Set up the users for packer and vagrant and bootstrap the system
+  // --------------------------------------------------------------------------
   "provisioners": [
-    //###################################################################
-    // Set up the users for packer and vagrant and bootstrap the system #
-    //###################################################################
 
     // Copy scripts from the host to the virtual machine for use later on
+    //
     // Some of the scripts are copied up as they are used, but not secondary
     // scripts called from them.
     {
@@ -139,7 +143,8 @@
     // TEST:  Check if it booted into fips or not according to the
     //        fips variable set in the boot command.
     //
-    // These should run without sudo the environment vars do not work.
+    // These should run without sudo (the environment vars do not work).
+    // ------------------------------------------------------------------------
     {
       "type": "shell",
       "remote_path": "/var/local/simp/scripts/tests/check_settings_at_boot.sh",
@@ -150,6 +155,7 @@
       ],
       "script" : "scripts/tests/check_settings_at_boot.sh"
     },
+    // TEST:  Check for expected partitions
     {
       "type": "shell",
       "execute_command": "chmod +x {{.Path}}; {{.Vars}} {{user `ruby_path`}} '{{.Path}}'",
@@ -202,9 +208,12 @@
 
     // Now run bootstrap.
     //
-    // This script also configures  a puppet manifest  site::vagrant that configures
-    // the simp and vagrant users to be allowed to ssh and sudo as needed by packer
-    // and vagrant.
+    // This script also configures a puppet manifest `site::vagrant` that
+    // configures the simp and vagrant users to be allowed to ssh and sudo as
+    // needed by packer and vagrant.
+    //
+    // TODO: Move `site::vagrant` out of the bash script heredoc and into its
+    //       own file.
     {
      "type": "shell",
       "remote_path": "/var/local/simp/scripts/simp-bootstrap.sh",
@@ -213,10 +222,12 @@
     },
 
     // Reboot the system.
-    // If I use a script for this it will randomly error out saying return code is not zero.
-    //  Reboot seems to be in a different place on Centos 6 and 7 and with no path
-    //  it can't find it.  And passing environment variables doesn't seem to work when the
-    // execute command contains sudo even with -E.
+    //
+    // If I use a script for this, it will randomly error out saying return
+    // code is not zero.  Reboot seems to be in a different place on Centos 6
+    // and 7 and with no path it can't find it.  And passing environment
+    // variables doesn't seem to work when the execute command contains sudo
+    // even with -E.
     {
       "type": "shell",
       "remote_path": "/var/local/simp/reboot1.sh",
@@ -233,7 +244,16 @@
        ]
     },
 
-    // Copy setup manifests
+    // ########################################################################
+    //                  ____  _____ ____   ___   ___ _____
+    //                  |  _ \| ____| __ ) / _ \ / _ \_   _|
+    //                  | |_) |  _| |  _ \| | | | | | || |
+    //                  |  _ <| |___| |_) | |_| | |_| || |
+    //                  |_| \_\_____|____/ \___/ \___/ |_|
+    //
+    // ########################################################################
+
+    // Upload puppet code
     {
       // Pause a little to let the system boot up all the way
       "pause_before": "300s",
@@ -277,10 +297,6 @@
     // TODO:  I had to wrap the ruby scripts in shell scripts because it
     // runs them as shells.  Need to figure out the correct
     // execute_command for executing a ruby script
-    //
-    // FIXME: according to https://www.packer.io/docs/provisioners/shell.html
-    // this should br run using `inline` instead of `script`, because
-    // `/var/local/simp` was alrady uploaded
     {
       "type": "shell",
       "remote_folder": "/var/local/simp/scripts",
@@ -323,11 +339,14 @@
       "remote_folder": "/var/local/simp/scripts",
       "inline": [ "sudo df -h", "free -h" ]
     },
+
+    // Upload OS DVD ISO
     {
       "type": "file",
       "source":"{{user `iso_dist_dir`}}/{{user `box_distro_release`}}",
       "destination": "/var/local/simp/{{user `box_distro_release`}}"
     },
+    // Unpack DVD
     {
       "type": "shell",
       "remote_path": "/var/local/simp/inline-unpackdvd.sh",
@@ -351,6 +370,8 @@
         "fi"
       ]
     },
+
+    // Install Virtualbox Guest Additions
     {
       "type": "shell",
       "remote_path": "/var/local/simp/inline-vbox.sh",
@@ -376,13 +397,14 @@
        ]
     }
   ],
+
   "post-processors": [
-// TODO:  I include the certs into the vagrant box but I haven't figure out to access
-// them.  Are they only available to the vagrant machine and not the host? I used
-// tasty.bacon simp to copy the keys to /etc/pki/simp_apps on the blades and hardcoded
-// it in the Vagrant file.  These are only used to connect via rdp because fips on
-// our work stations does not like the generic MD5 key include in vbox. (NOTE: there is
-// also an option to use vnc but  I didn't get that working.)
+    // TODO:  I include the certs into the vagrant box but I haven't figure out to access
+    // them.  Are they only available to the vagrant machine and not the host? I used
+    // tasty.bacon simp to copy the keys to /etc/pki/simp_apps on the blades and hardcoded
+    // it in the Vagrant file.  These are only used to connect via rdp because fips on
+    // our work stations does not like the generic MD5 key include in vbox. (NOTE: there is
+    // also an option to use vnc but  I didn't get that working.)
     {
       "type": "vagrant",
       "output": "{{user `postprocess_output`}}/{{user `vm_description`}}.box",
@@ -392,3 +414,4 @@
     }
   ]
 }
+// vim: filetype=javascript
