@@ -1,20 +1,17 @@
 #! /usr/bin/env ruby
+# Test to see if expect partitions exist, fail if they don't
+EXPECTED_PARTITIONS = ['/var', '/var/log', '/var/log/audit', '/'].sort
+puts `findmnt --df`
 
-puts `df -h`
+mounts     = `findmnt --noheadings --raw`.split("\n").map { |line| line.split(' ')[0] }
 
-partition_list = [ '/var','/var/log','/var/log/audit', '/' ]
-x = %x(df -P)
-y = x.split("\n")
+EXPECTED_PARTITIONS.each do |p|
+  unless mounts.include?(p)
+    raise "ERROR: The expected partition '#{p}' is not mounted"
+  end
+end
 
-mount_hash = Hash.new
-y.each{|m|
-  mount = m.split(' ')
-  mount_hash["#{mount[5]}"] = mount[0]
-}
-
-partition_list.each { |p|
-    raise "#{p} is missing from partition list"  unless mount_hash.has_key?(p)
-}
-
-puts 'Expected partitions found'
-
+puts '-----------------------------------',
+     'SUCCESS: Found expected partitions:',
+     EXPECTED_PARTITIONS.each { |p| puts p },
+     '-----------------------------------'
