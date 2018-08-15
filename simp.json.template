@@ -205,6 +205,17 @@
          "simp config -a {{user `simp_conf_file`}}"
        ]
     },
+    // Disable NetworkManager (may prevent a problem with beaker)
+    {
+      "type": "shell",
+      "remote_path": "/var/local/simp/inline-disable-network-manager.sh",
+      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
+      "inline" : [
+        "if [ $(/opt/puppetlabs/puppet/bin/facter os.family) == 'RedHat' ] && [ $(/opt/puppetlabs/puppet/bin/facter os.distro.release.major) = \"7\" ] ; then",
+          "sudo systemctl disable NetworkManager",
+        "fi"
+      ]
+    },
 
     // Now run bootstrap.
     //
