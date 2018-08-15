@@ -1,30 +1,41 @@
+# simp-packer
+
+[Packer][packer] tooling to create Beaker-capable [Vagrant][vagrant] `.box`es from
+[SIMP][simp] ISOs for the purpose of CI testing full SIMP installations. 
+
+
 <!-- vim-markdown-toc GFM -->
 
 * [Overview](#overview)
 * [Setup](#setup)
 * [Usage](#usage)
   * [Environment variables](#environment-variables)
-  * [Defining a test](#defining-a-test)
-    * [The default SIMP server environment](#the-default-simp-server-environment)
-  * [Running tests](#running-tests)
+  * [Using Packer to test a SIMP environment](#using-packer-to-test-a-simp-environment)
+  * [Defining a packer build](#defining-a-packer-build)
+  * [Running a build](#running-a-build)
     * [Output](#output)
-    * [Overview Of The Tests](#overview-of-the-tests)
-      * [The Build Section](#the-build-section)
-      * [The Provisioning Section](#the-provisioning-section)
-* [The Vagrant File](#the-vagrant-file)
+* [Reference](#reference)
+  * [The Packer file](#the-packer-file)
+    * [The Build Section](#the-build-section)
+    * [The Provisioning Section](#the-provisioning-section)
+  * [The Vagrantfile](#the-vagrantfile)
+  * [Default SIMP server environment](#default-simp-server-environment)
+* [Troubleshooting & common problems](#troubleshooting--common-problems)
+  * [Building the boxes](#building-the-boxes)
+    * [`fatal error: runtime: out of memory`](#fatal-error-runtime-out-of-memory)
+    * [`Post-processor failed:` ... `no space left on device`](#post-processor-failed--no-space-left-on-device)
 * [TODO](#todo)
 
 <!-- vim-markdown-toc -->
 
 ## Overview
 
-[Packer][packer] tooling to create Beaker-capable [Vagrant][vagrant] `.box`es from
-[SIMP][simp] ISOs for the purpose of CI testing full SIMP installations.  The build of a
+![simp-packer basics][simp-packer-basics]
 
-
-*
-* The vagrant boxes are currently Virtualbox
 * `simp-packer` supports SIMP >= 6.0.0-0.
+* The Vagrant boxes use the Virtualbox hypervisor, and are built using the Vagrant's [virtualbox-iso][vagrant-virtualbox-iso] builder.
+
+[simp-packer-basics]: assets/simp-packer-basics.png
 
 ## Setup
 
@@ -51,11 +62,22 @@ Requirements:
 
 ### Environment variables
 
-:warning: FIXME: Document this section!
+* The [Environment Variables for Packer][packer-env-vars] are useful to customize builds.
+* Other important variables:
 
-### Defining a test
+| Variable | Description |
+| -------- | ----------- |
+| **`EXTRA_SIMP_PACKER_ARGS`** | Injects extra CLI arguments during `packer build` |
+| **`TMP_DIR`**               | This is a critical [packer variable][packer-env-vars] that desrves special mention: this location _must_ be able to store an over 4GB as the box is built.  The default location is `/tmp`, which on many systems is unable to store that much data  |
 
-Create a test directory and include the following files:
+
+
+
+### Using Packer to test a SIMP environment
+
+### Defining a packer build
+
+Create a **test directory**, and include the following files:
 
 * `vars.json`:  The JSON file corresponding with the SIMP ISO.  Contains
   variables that point to the ISO, the ISO checksum, the name of the
@@ -72,25 +94,7 @@ Create a test directory and include the following files:
   respectively.
 
 
-#### The default SIMP server environment
-
-- The Puppet server's IP will be `X.X.X.7`
-- DHCP and DNS are pre-populated with entries for `server21.domain.name`
-  through `server29.domain.name`, and `ws30.domain.name` to `ws39.domain.name`.
-  - Each host's IP and MAC will match the hostname's number: e.g., `server21`
-    will have the IP `X.X.X.21` and the MAC address `XX:XX:XX:XX:XX:21`.
-- FIXME: (verify what everything means) The default password for everything is `P@ssw0rdP@ssw0rd`. You can change the
-  default in `vars.json` with `new_password`.  However, at this time, there is
-  no mechanism to change the LDAP Password.
-- The SIMP server is configured to be an LDAP server:
-  - The `basedn` will match the `packer.yaml`'s `domain` (or use the default).
-  - Basic LDAP users are included: `user1`, `user2`, `admin1`, `admin2`
-    - `admin1` and `admin2` are in the `administrators` group.
-- The default distribution's ISO path is `/net/ISO/Distribution_ISOs`. This is
-  currently hard-coded in `simp.json.template`.
-
-
-### Running tests
+### Running a build
 
 `TMPDIR=/some/tmp/dir ./simp_packer_test.sh /path/to/test/directory`
 
@@ -113,9 +117,11 @@ Create a test directory and include the following files:
   by the `packer.yaml file` `output_directory` (default is
   `<testdirectory>/OUTPUT`).
 
-#### Overview Of The Tests
+## Reference
 
-##### The Build Section
+### The Packer file
+
+#### The Build Section
 
 - Installs the ISO
 - Adds the `vagrant` user
@@ -125,7 +131,7 @@ Create a test directory and include the following files:
 - Updates the `sudoers` file so `simp` user can sudo without a password and
   without a tty
 
-##### The Provisioning Section
+#### The Provisioning Section
 
 Runs a suite of tests:
 
@@ -168,19 +174,92 @@ changes later on they are not overwritten. This module does the following:
 The post-processor then exports the VirtualBox to a Vagrant box and removes the
 output directory.
 
-## The Vagrant File
 
-- [ ] The `vagrant` user's SSH password is `vagrant`.
-- [ ] The Vagrantfile is not wrapped in the Vagrant .box, so the network
+### The Vagrantfile
+
+- The `vagrant` user's SSH password is `vagrant`.
+- The Vagrantfile is not wrapped in the Vagrant `.box`, so the network
   settings can be seen. Vagrant is not easily configured to check if a vbox
   hostonly network exists; you will have to ensure the network exists before
   running `vagrant up`.
-- [ ] You can change the network name in the Vagrant file.
-   - FIXME: verify that this is not a problem with beaker
-- [ ] The Vagrantfile does not configure the machine to _use_ its IP address.
+- You can change the network name in the Vagrant file.
+   - [ ]  FIXME: verify that this is not a problem with beaker
+- The Vagrantfile does not configure the machine to _use_ its IP address.
   You can turn it on, but changing the IP address will mess up the puppet
   server.
-- [ ] Directory sharing is enabled.
+- Directory sharing is enabled.
+
+
+### Default SIMP server environment
+
+- The Puppet server's IP will be `X.X.X.7`
+- DHCP and DNS are pre-populated with entries for `server21.domain.name`
+  through `server29.domain.name`, and `ws30.domain.name` to `ws39.domain.name`.
+  - Each host's IP and MAC will match the hostname's number: e.g., `server21`
+    will have the IP `X.X.X.21` and the MAC address `XX:XX:XX:XX:XX:21`.
+- FIXME: (verify what everything means) The default password for everything is `P@ssw0rdP@ssw0rd`. You can change the
+  default in `vars.json` with `new_password`.  However, at this time, there is
+  no mechanism to change the LDAP Password.
+- The SIMP server is configured to be an LDAP server:
+  - The `basedn` will match the `packer.yaml`'s `domain` (or use the default).
+  - Basic LDAP users are included: `user1`, `user2`, `admin1`, `admin2`
+    - `admin1` and `admin2` are in the `administrators` group.
+- The default distribution's ISO path is `/net/ISO/Distribution_ISOs`. This is
+  currently hard-coded in `simp.json.template`.
+
+## Troubleshooting & common problems
+
+### Building the boxes
+
+#### `fatal error: runtime: out of memory`
+
+This error is generally encountered during the OS ISO upload, and it means what it
+says: the host machine that is building the VM has run out of available RAM
+
+**Characteristic log snippet:**
+
+```
+2018/08/13 15:38:35 ui: ==> virtualbox-iso: Uploading /path/to/ISO/CentOS-7-x86_64-DVD-1708.iso => /var/local/simp/CentOS-7-x86
+_64-DVD-1708.iso
+==> virtualbox-iso: Uploading /path/to/ISO/CentOS-7-x86_64-DVD-1708.iso => /var/local/simp/CentOS-7-x86_64-DVD-1708.iso
+2018/08/13 15:38:35 packer: 2018/08/13 15:38:35 [DEBUG] Opening new ssh session
+2018/08/13 15:38:35 packer: 2018/08/13 15:38:35 [DEBUG] Starting remote scp process:  scp -vt /var/local/simp
+2018/08/13 15:38:35 packer: 2018/08/13 15:38:35 [DEBUG] Started SCP session, beginning transfers...
+2018/08/13 15:38:35 packer: 2018/08/13 15:38:35 [DEBUG] scp: Uploading CentOS-7-x86_64-DVD-1708.iso: perms=C0600 size=4521459712
+2018/08/13 15:38:43 packer: fatal error: runtime: out of memory
+2018/08/13 15:38:43 packer:
+2018/08/13 15:38:43 packer: runtime stack:
+2018/08/13 15:38:43 packer: runtime.throw(0x2314ecc, 0x16)
+2018/08/13 15:38:43 packer:     /usr/local/go/src/runtime/panic.go:616 +0x81
+```
+
+
+#### `Post-processor failed:` ... `no space left on device`
+
+`simp_config.rb` configures the vagrant post-processor to write the `.box` file
+into the `<testingdirectory>/OUTPUT` directory, or the path of
+`output_directory` if it is defined by the `packer.yaml` file.  If this
+location does not have the capacity to hold the box while it is being
+constructed, it will fail.
+
+**Characteristic log snippet:**
+
+```
+==> virtualbox-iso: Running post-processor: vagrant
+==> virtualbox-iso (vagrant): Creating Vagrant box for 'virtualbox' provider
+    virtualbox-iso (vagrant): Copying from artifact: OUTPUT/packer-virtualbox-iso-1454117110-disk1.vmdk
+Build 'virtualbox-iso' errored: 1 error(s) occurred:
+
+* Post-processor failed: write /tmp/packer040362584/packer-virtualbox-iso-1454117110-disk1.vmdk: no space left on device
+
+==> Some builds didn't complete successfully and had errors:
+--> virtualbox-iso: 1 error(s) occurred:
+
+* Post-processor failed: write /tmp/packer040362584/packer-virtualbox-iso-1454117110-disk1.vmdk: no space left on device
+
+==> Builds finished but no artifacts were created.
+```
+
 
 
 ## TODO
@@ -213,7 +292,7 @@ Features to add:
 
 Documentation to add:
 
-- [ ] Environment Variables
+- [x] Environment Variables
 - [ ] What does `simp_config.rb` do?
 - [ ] The purpose of simp-packer
 
@@ -231,3 +310,5 @@ Clean it up:
 [packer]: https://packer.io
 [vagrant]: https://www.vagrantup.com
 [simp]: https://github.com/NationalSecurityAgency/SIMP
+[vagrant-virtualbox-iso]: https://www.packer.io/docs/builders/virtualbox-iso.html
+[packer-env-vars]: https://www.packer.io/docs/other/environment-variables.html
