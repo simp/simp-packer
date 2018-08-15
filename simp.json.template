@@ -102,9 +102,9 @@
         "sed -i -e '/Defaults *requiretty/d' /etc/sudoers<enter>",
         "<wait5>",
         // configure NAT interface
-        "sed -i -e 's/ONBOOT=no/ONBOOT=yes/g' -e 's/DEFROUTE=yes/DEFROUTE=no/g' -e 's/NM_CONTROLLED=yes/NM_CONTROLLED=no/g'  /etc/sysconfig/network-scripts/ifcfg-{{user `nat_interface`}}<enter>",
+        "sed -i -e 's/ONBOOT=no/ONBOOT=yes/g' -e 's/DEFROUTE=yes/DEFROUTE=no/g' /etc/sysconfig/network-scripts/ifcfg-{{user `nat_interface`}}<enter>",
         "<wait5>",
-        "grep NM_CONTROLLED /etc/sysconfig/network-scripts/ifcfg-{{user `nat_interface`}} || echo NM_CONTROLLED=no >> /etc/sysconfig/network-scripts/ifcfg-{{user `nat_interface`}}<enter>",
+        //"grep NM_CONTROLLED /etc/sysconfig/network-scripts/ifcfg-{{user `nat_interface`}} || echo NM_CONTROLLED=no >> /etc/sysconfig/network-scripts/ifcfg-{{user `nat_interface`}}<enter>",
         "<wait5>",
         // bring up NAT interface
         "ifup {{user `nat_interface`}}<enter>",
