@@ -99,22 +99,21 @@
         "<wait5>",
         "echo 'simp ALL=(ALL) NOPASSWD:ALL'  >> /etc/sudoers<enter>",
         "<wait5>",
-        "sed -i.packer-orig -e '/Defaults *requiretty/d' /etc/sudoers<enter>",
+        "sed -i -e '/Defaults *requiretty/d' /etc/sudoers<enter>",
         "<wait5>",
-        // Bring up the NAT network
-        "sed -i.packer-orig -e 's/ONBOOT=no/ONBOOT=yes/g' /etc/sysconfig/network-scripts/ifcfg-{{user `nat_interface`}}<enter>",
+        // configure NAT interface
+        "sed -i -e 's/ONBOOT=no/ONBOOT=yes/g' -e 's/DEFROUTE=yes/DEFROUTE=no/g' -e 's/NM_CONTROLLED=yes/NM_CONTROLLED=no/g'  /etc/sysconfig/network-scripts/ifcfg-{{user `nat_interface`}}<enter>",
         "<wait5>",
-        "sed -i.packer-orig -e 's/ONBOOT=no/ONBOOT=yes/g' /etc/sysconfig/network-scripts/ifcfg-{{user `nat_interface`}}<enter>",
+        "grep NM_CONTROLLED /etc/sysconfig/network-scripts/ifcfg-{{user `nat_interface`}} || echo NM_CONTROLLED=no >> /etc/sysconfig/network-scripts/ifcfg-{{user `nat_interface`}}<enter>",
         "<wait5>",
-        "sed -i.packer-orig -e 's/DEFROUTE=yes/DEFROUTE=no/g' /etc/sysconfig/network-scripts/ifcfg-{{user `nat_interface`}}<enter>",
-        "<wait5>",
+        // bring up NAT interface
         "ifup {{user `nat_interface`}}<enter>",
         "<wait5>",
         "exit<enter>"
        ],
       "ssh_username": "simp",
-      // "ssh_private_key_file": "{{user `ssh_key`}}",
       "ssh_password": "{{user `new_password`}}",
+      // "ssh_private_key_file": "{{user `ssh_key`}}",
       "shutdown_command": "sudo /sbin/shutdown -P now"
     }
   ],
