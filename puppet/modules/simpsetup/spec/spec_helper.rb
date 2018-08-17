@@ -29,6 +29,21 @@ EOM
   FileUtils.mkdir_p(_dir) unless File.directory?(_dir)
 end
 
+def massage_os_facts(os_facts)
+  _facts = os_facts.merge( {:networking => {
+    'ip' => os_facts[:ipaddress],
+    'fqdn' => os_facts[:fqdn],
+    'domain' => os_facts[:domain],
+    'primary' => 'ens3',
+    'interfaces' => {
+      'ens3' => {
+        'ip' => os_facts[:ipaddress],
+        'mac' => os_facts[:macaddress],
+      }}}
+  })
+  _facts
+end
+
 RSpec.configure do |c|
   # If nothing else...
   c.default_facts = {
