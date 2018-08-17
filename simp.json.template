@@ -288,13 +288,6 @@
       "puppet_bin_dir": "/opt/puppetlabs/bin"
     },
 
-    // FIXME: REMOVE THIS LATER IT IS ONLY FOR DEBUGGING
-    {
-      "type": "shell",
-      "remote_folder": "/var/local/simp/scripts",
-      "inline": [ "sudo yum install -y tree; :", "tree /var/local/simp" ]
-    },
-
     // Grant all uploaded scripts premission to execute on the server
     {
       "type": "shell",
@@ -342,12 +335,6 @@
       "ignore_exit_codes": true,
       "extra_arguments": "--test",
       "puppet_bin_dir": "/opt/puppetlabs/bin"
-    },
-    // FIXME: REMOVE THIS LATER IT IS ONLY FOR DEBUGGING
-    {
-      "type": "shell",
-      "remote_folder": "/var/local/simp/scripts",
-      "inline": [ "sudo df -h", "free -h" ]
     },
 
     // Upload OS DVD ISO
