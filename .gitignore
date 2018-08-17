@@ -11,3 +11,4 @@ packer_cache
 # mergetool
 *.orig
 dist
+puppet/modules/*/spec/fixtures
