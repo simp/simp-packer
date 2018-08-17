@@ -1,0 +1,14 @@
+{
+  "name": "simp-simpsetup",
+  "version": "0.1.0",
+  "author": "SIMP Team",
+  "summary": "A ispecial profile that pre-configures a freshly bootstrapped SIMP server",
+  "license": "Apache-2.0",
+  "source": "https://github.com/simp/simp-packer",
+  "project_page": "https://github.com/simp/simp-packer",
+  "issues_url": "https://simp-project.atlassian.net/",
+  "dependencies": [
+    {"name":"puppetlabs-stdlib","version_requirement":">= 4.11.0"}
+  ],
+  "data_provider": null
+}
