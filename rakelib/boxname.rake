@@ -36,9 +36,7 @@ module Simp
             }]
           }],
         }
-      box_metadata_json = JSON.pretty_generate box_metadata
-puts box_metadata.to_yaml
-puts  box_metadata_json
+        box_metadata_json = JSON.pretty_generate box_metadata
 
         # write box metadata file
         puts "Writing '#{box_json_path}...'"
@@ -146,16 +144,14 @@ end
 
 
 namespace :vagrant do
-  desc <<BOXNAME_DESCRIPTION
-Create boxname.json from SIMP ISO .json file
+  desc <<-BOXNAME_DESCRIPTION.gsub(/^ {4}/,'')
+    Create boxname.json from SIMP ISO .json file
 
-Example:
-  rake vagrant:boxname["$PWD/test-el7-v11/vars.json","$PWD/test-el7-v11/OUTPUT/SIMP6.X-CENTOS7-FIPS.box"]
-BOXNAME_DESCRIPTION
-
+    Example:
+      rake vagrant:boxname["$PWD/test-el7-v11/vars.json","$PWD/test-el7-v11/OUTPUT/SIMP6.X-CENTOS7-FIPS.box"]
+  BOXNAME_DESCRIPTION
   task :boxname, [:simp_iso_json_file,:vagrantbox_path]  do |t, args|
     args.with_defaults( :simp_iso_json_file => 'vars.json' )
-
     converter = Simp::Converter::VarsJsonToVagrantBoxJson.new(args.simp_iso_json_file)
     converter.vagrant_box_json(args.vagrantbox_path)
   end
