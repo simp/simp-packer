@@ -1,20 +1,20 @@
 #  This sets up 5 users and 3 groups in LDAP:
-#  user1 and user2 in the Users group.
-#  admin1 and admin 2 in the Admin group
-#  auditor1  in the security group
+#  * `user1` and `user2` in the `Users` group.
+#  * `admin1` and `admin2` in the `Admin` group
+#  * `auditor1`  in the `security` group
 #
 # @param    $domain The domain name.
 #              It will assume the basedn is of the form
 #              dc=my,dc=domain,dc=name
-# @param    $password The password for the root user
-#              in LDAP.
+# @param    $password The password for the root user in LDAP.
 class simpsetup::ldap(
   String      $domain    = $simpsetup::domain,
   String      $password  = 'P@ssw0rdP@ssw0rd'
 ) {
 
   $_domain = split($domain, '\.')
-  $basedn = "dc=${ _domain.join(',dc=')}"
+  $domain_dn = $_domain.join(',dc=')
+  $basedn = "dc=${domain_dn}"
 
   file {  '/tmp/add.ldif':
     owner   => 'root',
