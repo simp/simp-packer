@@ -299,7 +299,7 @@ Documentation to add:
 Clean it up:
 
 - [ ] Verify documentation
-  - [ ] FIXME commens in `README.md`
+  - [ ] FIXME comments in `README.md`
 - [ ] Change the `packer.yaml` settings to match the names used in the
   `simp.json` file to make things more consistent and will allow code
   simplification.
