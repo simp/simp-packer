@@ -23,6 +23,9 @@
     "vagrant_password": "vagrant",
     "simp_conf_file": "/var/local/simp/files/simp_conf.yaml",
     "ruby_path": "/opt/puppetlabs/puppet/bin/ruby",
+    // NOTE: Uncomment this variable and the "ssh_private_key_file" below
+    //       to inject a known ssh key during provisioning.  This is useful
+    //       to log in and troubleshoot VMs as they are provisioining
     // "ssh_private_key_file": "/home/ctessmer/.ssh/vagrant.key",
     "ssh_agent_auth": "true",
     "vrdp_bind_address": "0.0.0.0"
@@ -113,6 +116,9 @@
        ],
       "ssh_username": "simp",
       "ssh_password": "{{user `new_password`}}",
+      // NOTE: Uncomment this option and the "ssh_private_key_file" variable
+      //       to inject a known ssh key during provisioning.  This is useful
+      //       to log in and troubleshoot VMs as they are provisioining
       // "ssh_private_key_file": "{{user `ssh_key`}}",
       "shutdown_command": "sudo /sbin/shutdown -P now"
     }
@@ -396,12 +402,6 @@
   ],
 
   "post-processors": [
-    // TODO:  I include the certs into the vagrant box but I haven't figure out to access
-    // them.  Are they only available to the vagrant machine and not the host? I used
-    // tasty.bacon simp to copy the keys to /etc/pki/simp_apps on the blades and hardcoded
-    // it in the Vagrant file.  These are only used to connect via rdp because fips on
-    // our work stations does not like the generic MD5 key include in vbox. (NOTE: there is
-    // also an option to use vnc but  I didn't get that working.)
     {
       "type": "vagrant",
       "output": "{{user `postprocess_output`}}/{{user `vm_description`}}.box",
