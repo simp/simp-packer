@@ -1,4 +1,1 @@
-require 'simp/rake/pupmod/helpers'
-require 'puppet-strings/tasks'
-
-Simp::Rake::Pupmod::Helpers.new(File.dirname(__FILE__))
+# NOTE: Do not include simp/rake/pupmod/helpers for top-level simp-packer tasks
