@@ -8,42 +8,41 @@ module Simp
       end
 
       def vagrant_box_json( vagrantbox_path, box_json_path='boxname.json' )
-        simp_box_version  = infer_simp_version(@vars_json_data)
-        datetime_fragment = Time.now.strftime('%Y%m%d.%H%M%S')
-        box_version = "#{simp_box_version}.#{datetime_fragment}"
-        vars_simp_release = @vars_json_data['box_simp_release']
-        z_date = Time.now.utc.strftime('%Y-%m-%dT%H:%M:%S.%3NZ')
-        box_checksum = `sha256sum "#{vagrantbox_path}"`.split(/ +/).first
-        box_name = "simpci/server-#{simp_box_version}"
-        box_url = "file://#{vagrantbox_path}"
+        utc_time         = Time.now.utc
+        utc_z_date       = utc_time.strftime('%Y-%m-%dT%H:%M:%S.%3NZ')
+        utc_hhmmss_hms   = utc_time.strftime('%Y%m%d.%H%M%S')
+        simp_box_version = infer_simp_version(@vars_json_data)
+        box_name         = "server-#{simp_box_version}"
+        full_box_version = "#{simp_box_version}.#{utc_hhmmss_hms}"
 
-        box_metadata = {
-          'description'       => "SIMP server #{vars_simp_release}",
-          'short_description' => "SIMP server #{vars_simp_release}",
-          'name' => box_name,
-          'versions' => [{
-            'version' => box_version,
-            'status' => 'active',
-            'description_html' => nil,
-            'description_markdown' => nil,
-            'created_at' => z_date,
-            'updated_at' => z_date,
-            'providers' => [{
-              'checksum_type' => 'sha256',
-              'checksum'      => box_checksum,
-              'name'          => 'virtualbox',
-              'url'           => box_url,
-            }]
-          }],
-        }
-        box_metadata_json = JSON.pretty_generate box_metadata
+        unless File.file? vagrantbox_path
+          raise Errno::ENOENT, "ERROR: Can't find .box file at '#{vagrantbox_path}'"
+        end
+        box_checksum     = `sha256sum "#{vagrantbox_path}"`.split(/ +/).first
+        box_metadata = vagrant_box_json_entry(
+          'simpci',
+          "server-#{simp_box_version}",
+          full_box_version,
+          "SIMP server #{simp_box_version}",
+          "file://#{vagrantbox_path}",
+          utc_z_date,
+          utc_z_date,
+          box_checksum,
+        )
 
         # write box metadata file
         puts "Writing '#{box_json_path}...'"
-        File.open(box_json_path, 'w') {|f| f.puts box_metadata_json }
-        require 'pathname'
+        File.open(box_json_path, 'w') do |f|
+          f.puts JSON.pretty_generate(box_metadata)
+        end
 
-        # construct a relevant `vagrant init`
+        puts_vagrant_init_message(box_metadata['box_tag'], box_json_path)
+
+      end
+
+      # construct a relevant `vagrant init`
+      def puts_vagrant_init_message(box_tag, box_json_path)
+        require 'pathname'
         pn = Pathname.new(box_json_path)
         if pn.absolute?
           vf_box_url = "file://#{pn.realpath.to_s}"
@@ -52,7 +51,61 @@ module Simp
         else
           vf_box_url = "file://./#{pn.to_s}"
         end
-        puts "vagrant init #{box_name} #{vf_box_url}"
+        puts "vagrant init #{box_tag} #{vf_box_url}"
+      end
+
+      # Returns a versioned box metadata data structure used by sevices like
+      # Vagrant Cloud.
+      #
+      # @see https://www.vagrantup.com/docs/boxes/format.html#box-metadata
+      #   Vagrant Box Metadata structure
+      # @see https://www.vagrantup.com/docs/vagrant-cloud/api.html#read-a-box
+      #   Vagrant Cloud API documentation for "Read a box"
+      #
+      # @return [Hash]
+      def vagrant_box_json_entry(
+        user_name,
+        box_name,
+        box_version,
+        description,
+        box_url,
+        created_at,
+        updated_at,
+        box_checksum,
+        checksum_type = 'sha256',
+        status        = 'active',
+        provider_name = 'virtualbox',
+        is_private    = false,
+        downloads     = 0
+      )
+        box_tag = "#{user_name}/#{box_name}"
+        box_metadata = {
+          "tag"                  => box_tag,      # "myuser/test"
+          'name'                 => box_name,     # "test"
+          'username'             => user_name,    # 'myuser"
+          'created_at'           => created_at,   # '2017-10-20T14:19:59.842Z"
+          'updated_at'           => updated_at,   # "2017-10-20T15:23:53.363Z"
+          'private'              => is_private,
+          'downloads'            => downloads,
+          'short_description'    => description,
+          'description_markdown' => description,
+          'description_html'     => "<p>#{description}</p>",
+          'versions'             => [{
+            'version'              => box_version,
+            'status'               => status,
+            'description_html'     => "<p>#{description}</p>",
+            'description_markdown' => description,
+            'created_at'           => created_at,
+            'updated_at'           => updated_at,
+            'providers'            => [{
+              'checksum_type' => checksum_type,
+              'checksum'      => box_checksum,
+              'name'          => provider_name,
+              'url'           => box_url,
+            }]
+          }],
+        }
+        box_metadata
       end
 
       def infer_simp_version(vars_json_data)
@@ -65,10 +118,10 @@ module Simp
       end
 
 
-      # Magic to get the ACTUAL SIMP ISO version out of the vars.json
+      # Magic method to get the ACTUAL SIMP ISO version out of the vars.json
       #
-      # This hack is necessary because of the strange data coming back with the
-      # simp-metadata-based ISO builds.
+      # This hack is necessary because of the strange data that currenlty comes
+      # back with the simp-metadata-based ISO builds.
       #
       def semver_simpbox_hack_checks(vars_json_data)
         iso_name = File.basename(vars_json_data['iso_url'])
