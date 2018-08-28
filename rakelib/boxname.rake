@@ -1,6 +1,6 @@
 require 'json'
 module Simp
-  module Converter
+  module Packer
     class VarsJsonToVagrantBoxJson
       def initialize( vars_json_path )
         JSON.parse File.read(vars_json_path)
@@ -205,7 +205,7 @@ namespace :vagrant do
   BOXNAME_DESCRIPTION
   task :boxname, [:simp_iso_json_file,:vagrantbox_path]  do |t, args|
     args.with_defaults( :simp_iso_json_file => 'vars.json' )
-    converter = Simp::Converter::VarsJsonToVagrantBoxJson.new(args.simp_iso_json_file)
+    converter = Simp::Packer::VarsJsonToVagrantBoxJson.new(args.simp_iso_json_file)
     converter.vagrant_box_json(args.vagrantbox_path)
   end
 end
