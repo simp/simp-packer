@@ -4,7 +4,6 @@ require 'yaml'
 class SettingsError < StandardError; end
 
 class CheckSettings
-
   def initialize(never_fail)
     # when true, checking stops at the first failed
     # check, but the failure is ignored
@@ -25,17 +24,17 @@ class CheckSettings
       fips_enabled = (fips == 1)
 
       if fips_enabled == expected_conf
-        puts "The system fips setting '#{fips}' and configuration" +
-         " setting '#{expected_conf}' agree."
+        puts "The system fips setting '#{fips}' and configuration" \
+             " setting '#{expected_conf}' agree."
       else
-        err_msg = "System setting fips = #{fips} does not agree with" +
-          " configuration setting '#{expected_conf}'."
-        raise SettingsError.new(err_msg)
+        err_msg = "System setting fips = #{fips} does not agree with" \
+                  " configuration setting '#{expected_conf}'."
+        raise SettingsError, err_msg
       end
     else
-      err_msg = "Expected FIPs configuration is '#{expected_conf}' but" +
-        " the actual configuration has '#{actual_conf}'."
-      raise SettingsError.new(err_msg)
+      err_msg = "Expected FIPs configuration is '#{expected_conf}' but" \
+                " the actual configuration has '#{actual_conf}'."
+      raise SettingsError, err_msg
     end
   end
 
@@ -46,14 +45,14 @@ class CheckSettings
     # not modified by any tests.  So, the masterport should be 8410,
     # instead of the default of 8150.
     # TODO read configured value from the hieradata
-    expected= 8140
+    expected = 8140
     actual = %x(puppet config print masterport).to_i
 
     if actual == expected
       puts "The puppet masterport setting matches the configured value '#{expected}'."
     else
       err_msg = "Puppet master port should be '#{expected}', but is set to #{actual}."
-      raise SettingsError.new(err_msg)
+      raise SettingsError, err_msg
     end
 
     # For the test configuration, the puppet master is also the CA server.
@@ -63,9 +62,9 @@ class CheckSettings
     if actual == expected
       puts "The puppet ca_port setting matches the configured value '#{expected}'."
     else
-      err_msg =  "The puppet ca_port setting should be '#{expected}'," +
-        " but is '#{actual}'."
-      raise SettingsError.new(err_msg)
+      err_msg =  "The puppet ca_port setting should be '#{expected}'," \
+                 " but is '#{actual}'."
+      raise SettingsError, err_msg
     end
   end
 
@@ -87,7 +86,7 @@ class CheckSettings
       puts "The system selinux setting agrees with the configured value '#{expected}'."
     else
       err_msg = "Selinux should be '#{expected}', but is set to '#{actual}'."
-      raise SettingsError.new(err_msg)
+      raise SettingsError, err_msg
     end
   end
 
@@ -97,14 +96,14 @@ class CheckSettings
   #   puppet resource service <service name>
   def check_service_status(service, expected_status = 'running')
     result = %x(puppet resource service #{service})
-    match = result.match(/ensure => '(stopped|running)',/)
+    match = result.match(%r{ensure => '(stopped|running)',})
     if match
       if match[1] == expected_status
         puts "Service '#{service}' status matches expected value '#{expected_status}'."
       else
-        err_msg = "Service '#{service}' status should be '#{expected_status}'," +
-          " but is '#{match[1]}'."
-        raise SettingsError.new(err_msg)
+        err_msg = "Service '#{service}' status should be '#{expected_status}'," \
+                  " but is '#{match[1]}'."
+        raise SettingsError, err_msg
       end
     else
       # even if the service doesn't exist, the puppet CLI will return
@@ -114,7 +113,7 @@ class CheckSettings
       #   }
       # So we must really be broken, if the puppet CLI doesn't work!
       err_msg = "Unable to determine #{service} status using 'puppet resource service'."
-      raise SettingsError.new(err_msg)
+      raise SettingsError, err_msg
     end
   end
 
@@ -128,18 +127,18 @@ class CheckSettings
   # Loads the test and actual settings from their respective files,
   # packer.yaml and (typically) simp_config_settings.yaml
   def load_settings
-    @expected_conf=YAML.load_file(@expected_conf_file)
-    @actual_conf=YAML.load_file(@actual_conf_file)
+    @expected_conf = YAML.load_file(@expected_conf_file)
+    @actual_conf = YAML.load_file(@actual_conf_file)
   end
 
-  def parse_args(args)
+  def parse_args(_args)
     if ARGV.size < 2
       msg = "Usage: #{File.basename(__FILE__)} expected_conf_file actual_conf_file"
-      raise ArgumentError.new(msg)
+      raise ArgumentError, msg
     end
     @expected_conf_file = ARGV[0] # test config (packer.yaml)
     @actual_conf_file = ARGV[1]   # actual config on server under test
-                                  # (simp_config_settings.yaml)
+    # (simp_config_settings.yaml)
   end
 
   # Load the configuration specified by command line arguments
@@ -168,16 +167,15 @@ class CheckSettings
         warn "ERROR: #{e.message}"
         result = 1
       end
-    rescue => e
+    rescue StandardError => e
       # everything else
       warn "FAILURE: #{e.message}"
-      e.backtrace.first(10).each{|l| warn l }
+      e.backtrace.first(10).each { |l| warn l }
       result = 1
     end
 
     result
   end
-
 end
 
 ###########################################################
@@ -191,7 +189,7 @@ end
 ###########################################################
 never_fail = false
 
-if __FILE__ == $0
+if $PROGRAM_NAME == __FILE__
   checker = CheckSettings.new(never_fail)
   exit checker.run(ARGV)
 end

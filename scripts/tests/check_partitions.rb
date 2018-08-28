@@ -1,14 +1,12 @@
 #! /usr/bin/env ruby
 # Test to see if expect partitions exist, fail if they don't
 EXPECTED_PARTITIONS = ['/var', '/var/log', '/var/log/audit', '/'].sort
-puts `findmnt --df`
+puts %x(findmnt --df)
 
-mounts     = `findmnt --noheadings --raw`.split("\n").map { |line| line.split(' ')[0] }
+mounts = %x(findmnt --noheadings --raw).split("\n").map { |line| line.split(' ')[0] }
 
 EXPECTED_PARTITIONS.each do |p|
-  unless mounts.include?(p)
-    raise "ERROR: The expected partition '#{p}' is not mounted"
-  end
+  raise "ERROR: The expected partition '#{p}' is not mounted" unless mounts.include?(p)
 end
 
 puts '-----------------------------------',

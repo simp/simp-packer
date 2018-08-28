@@ -1,13 +1,13 @@
 require 'json'
 module Simp
-  module Converter
+  module Packer
     class VarsJsonToVagrantBoxJson
-      def initialize( vars_json_path )
+      def initialize(vars_json_path)
         JSON.parse File.read(vars_json_path)
         @vars_json_data = JSON.parse File.read(vars_json_path)
       end
 
-      def vagrant_box_json( vagrantbox_path, box_json_path='boxname.json' )
+      def vagrant_box_json(vagrantbox_path, box_json_path = 'boxname.json')
         utc_time         = Time.now.utc
         utc_z_date       = utc_time.strftime('%Y-%m-%dT%H:%M:%S.%3NZ')
         utc_hhmmss_hms   = utc_time.strftime('%Y%m%d.%H%M%S')
@@ -18,7 +18,7 @@ module Simp
         unless File.file? vagrantbox_path
           raise Errno::ENOENT, "ERROR: Can't find .box file at '#{vagrantbox_path}'"
         end
-        box_checksum     = `sha256sum "#{vagrantbox_path}"`.split(/ +/).first
+        box_checksum = %x(sha256sum "#{vagrantbox_path}").split(%r{ +}).first
         box_metadata = vagrant_box_json_entry(
           'simpci',
           "server-#{simp_box_version}",
@@ -27,7 +27,7 @@ module Simp
           "file://#{vagrantbox_path}",
           utc_z_date,
           utc_z_date,
-          box_checksum,
+          box_checksum
         )
 
         # write box metadata file
@@ -37,20 +37,19 @@ module Simp
         end
 
         puts_vagrant_init_message(box_metadata['box_tag'], box_json_path)
-
       end
 
       # construct a relevant `vagrant init`
       def puts_vagrant_init_message(box_tag, box_json_path)
         require 'pathname'
         pn = Pathname.new(box_json_path)
-        if pn.absolute?
-          vf_box_url = "file://#{pn.realpath.to_s}"
-        elsif pn.realpath.relative_path_from(Pathname.getwd).to_s =~ /^\../
-          vf_box_url = "file://#{pn.realpath.to_s}"
-        else
-          vf_box_url = "file://./#{pn.to_s}"
-        end
+        vf_box_url = if pn.absolute?
+                       "file://#{pn.realpath}"
+                     elsif pn.realpath.relative_path_from(Pathname.getwd).to_s =~ %r{^\..}
+                       "file://#{pn.realpath}"
+                     else
+                       "file://./#{pn}"
+                     end
         puts "vagrant init #{box_tag} #{vf_box_url}"
       end
 
@@ -80,7 +79,7 @@ module Simp
       )
         box_tag = "#{user_name}/#{box_name}"
         box_metadata = {
-          "tag"                  => box_tag,      # "myuser/test"
+          'tag'                  => box_tag,      # "myuser/test"
           'name'                 => box_name,     # "test"
           'username'             => user_name,    # 'myuser"
           'created_at'           => created_at,   # '2017-10-20T14:19:59.842Z"
@@ -101,9 +100,9 @@ module Simp
               'checksum_type' => checksum_type,
               'checksum'      => box_checksum,
               'name'          => provider_name,
-              'url'           => box_url,
+              'url'           => box_url
             }]
-          }],
+          }]
         }
         box_metadata
       end
@@ -114,9 +113,8 @@ module Simp
         if simphack_fragment = semver_simpbox_hack_checks(vars_json_data)
           fragment = simphack_fragment
         end
-        fragment = ensure_semver(fragment)
+        ensure_semver(fragment)
       end
-
 
       # Magic method to get the ACTUAL SIMP ISO version out of the vars.json
       #
@@ -125,8 +123,8 @@ module Simp
       #
       def semver_simpbox_hack_checks(vars_json_data)
         iso_name = File.basename(vars_json_data['iso_url'])
-        str = iso_name.sub(/^SIMP-/,'').sub(/\.iso$/,'').gsub(/-x86_64/,'.x86-64').gsub(/_/,'-')
-        if (str == semver_fragment(str))
+        str = iso_name.sub(%r{^SIMP-}, '').sub(%r{\.iso$}, '').gsub(%r{-x86_64}, '.x86-64').tr('_', '-')
+        if str == semver_fragment(str)
           str
         else
           false
@@ -146,7 +144,7 @@ module Simp
       def ensure_semver(fragment)
         if semver_xyz_count(fragment) < 3
           str = semver_xyz_match(fragment)
-          suffix = box_simp_release.sub(/^#{str}\.?/,'').sub(/^(.+)$/,'-\1')
+          suffix = box_simp_release.sub(%r{^#{str}\.?}, '').sub(%r{^(.+)$}, '-\1')
           fragment = "#{pad_missing_semver_xyz_sections(fragment)}#{suffix}"
         end
         fragment
@@ -160,7 +158,7 @@ module Simp
       # @param str [String] A SemVer fragment to evaluate
       # @return [String] As much of a valid SemVer String as there is
       def semver_fragment(str)
-        semver2_0_0ish_regex=/^(((?:\d+\.?){2}\d)(?:[\-+][a-zA-Z0-9\-.]*?$)|((?:\d+\.?){0,2}\d))/
+        semver2_0_0ish_regex = %r{^(((?:\d+\.?){2}\d)(?:[\-+][a-zA-Z0-9\-.]*?$)|((?:\d+\.?){0,2}\d))}
         semver2_0_0ish_regex.match(str).captures.first
       end
 
@@ -169,7 +167,7 @@ module Simp
       # @param str [String] A SemVer fragment to evaluate
       # @return [String] Matching SemVer X.Y.Z sections
       def semver_xyz_match(str)
-        semver2_0_0ish_xyz_regex = /^(((?:\d+\.?){0,2}\d))/
+        semver2_0_0ish_xyz_regex = %r{^(((?:\d+\.?){0,2}\d))}
         matches = semver2_0_0ish_xyz_regex.match(str.to_s)
         matches.nil? ? '' : matches.captures.first
       end
@@ -188,24 +186,23 @@ module Simp
         count = semver_xyz_count(str)
         xyz_str = semver_xyz_match(str)
         count = semver_xyz_count(xyz_str)
-        (3-count).times { xyz_str += '.0' }
+        (3 - count).times { xyz_str += '.0' }
         xyz_str
       end
     end
   end
 end
 
-
 namespace :vagrant do
-  desc <<-BOXNAME_DESCRIPTION.gsub(/^ {4}/,'')
+  desc <<-BOXNAME_DESCRIPTION.gsub(%r{^ {4}}, '')
     Create boxname.json from SIMP ISO .json file
 
     Example:
       rake vagrant:boxname["$PWD/test-el7-v11/vars.json","$PWD/test-el7-v11/OUTPUT/SIMP6.X-CENTOS7-FIPS.box"]
   BOXNAME_DESCRIPTION
-  task :boxname, [:simp_iso_json_file,:vagrantbox_path]  do |t, args|
-    args.with_defaults( :simp_iso_json_file => 'vars.json' )
-    converter = Simp::Converter::VarsJsonToVagrantBoxJson.new(args.simp_iso_json_file)
+  task :boxname, [:simp_iso_json_file, :vagrantbox_path] do |_t, args|
+    args.with_defaults(:simp_iso_json_file => 'vars.json')
+    converter = Simp::Packer::VarsJsonToVagrantBoxJson.new(args.simp_iso_json_file)
     converter.vagrant_box_json(args.vagrantbox_path)
   end
 end

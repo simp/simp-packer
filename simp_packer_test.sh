@@ -28,21 +28,21 @@
 #
 #
 
-function cleanup () {
+cleanup() {
   exitcode=${1:0}
 
+  # shellcheck disable=SC2164
   cd "${TESTDIR}"
 
-  case "${_}"save_WORKINGDIR in
-  "yes" )
+  case "${SIMP_PACKER_save_WORKINGDIR:-no}" in
+    yes)
       ;;
-   *)
-      rm -rf "${WORKINGDIR}"
+    *)
+       rm -rf "${WORKINGDIR}"
       ;;
-   esac
+  esac
 
   exit "${exitcode}"
-
 }
 
 # BASEDIR should be the simp-packer directory where this executable is.
@@ -62,32 +62,33 @@ fi
 
 WORKINGDIR="${TESTDIR}/working.${DATE}"
 logfile="${TESTDIR}/${DATE}.$(basename "$0").log"
-if [[ -d "${WORKINGDIR}" ]]; then
+if [ -d "${WORKINGDIR}" ]; then
    rm -rf "./${WORKINGDIR}"
 fi
 mkdir "${WORKINGDIR}"
 
-if [[ ! -f "${TESTDIR}/packer.yaml" ]]; then
+if [ ! -f "${TESTDIR}/packer.yaml" ]; then
   echo "${TESTDIR}/packer.yaml not found"
   cleanup -1
 fi
 
-if [[ ! -f "${TESTDIR}/simp_conf.yaml" ]]; then
+if [ ! -f "${TESTDIR}/simp_conf.yaml" ]; then
   echo "${TESTDIR}/simp_conf.yaml  not found"
   cleanup -1
 fi
 
-if [[ ! -f "${TESTDIR}/vars.json" ]]; then
+if [ ! -f "${TESTDIR}/vars.json" ]; then
   echo "${TESTDIR}/vars.json Not found"
   cleanup -1
 fi
 
 for dir in "files" "puppet" "scripts"; do
-   if [[ -d "${BASEDIR}/${dir}" ]]; then
+   if [ -d "${BASEDIR}/${dir}" ]; then
      cp -Rp "${BASEDIR}/${dir}" "${WORKINGDIR}/"
   fi
 done
 
+# shellcheck disable=SC2164
 cd "${WORKINGDIR}"
 
 # Update config files with packer.yaml setting and copy to working dir
@@ -97,13 +98,15 @@ cd "${WORKINGDIR}"
 echo "Logs will be written to ${logfile}"
 
 set -x
+# shellcheck disable=SC2086
 PACKER_LOG="${PACKER_LOG:-1}" \
   PACKER_LOGPATH="${PACKER_LOGPATH:-/tmp/packer.log.$DATE}" \
   packer build -var-file="${WORKINGDIR}/vars.json" ${EXTRA_SIMP_PACKER_ARGS} "${WORKINGDIR}/simp.json" \
   |& tee "${logfile}"
 set +x
 
-if [[ $? -ne 0 ]]; then
+# shellcheck disable=SC2181
+if [ $? -ne 0 ]; then
   mv "${logfile}" "${logfile}.errors"
   echo "ERROR: packer build failed. Check ${logfile}.errors"
   cleanup -1

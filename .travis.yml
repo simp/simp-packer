@@ -1,33 +1,75 @@
-# The testing matrix considers ruby/puppet versions supported by SIMP and PE:
+# The testing matrix **for simp-packer** only considers ruby/puppet versions
+# supported by SIMP:
 # ------------------------------------------------------------------------------
-#  release    pup   ruby      eol
-# PE 2016.4   4.7   2.1.9  TBD (LTS)
-# PE 2016.5   4.8   2.1.9  2017-10-31
-# SIMP6.0.0   4.8   2.1.9  TBD
-# PE 2017.1   4.9   2.1.9  2017-10-31
-# PE 2017.2   4.10  2.1.9  TBD
+#  release    pup   ruby   eol
+# SIMP 6.0    4.8   2.1.9  TBD***
+# SIMP 6.2    4.10  2.1.9  TBD
+#
+# *** = Modules created for SIMP 6.2+ are not required to support Puppet < 4.10
 ---
 language: ruby
-sudo: false
 cache: bundler
-before_script:
-- bundle update
-bundler_args: "--without development system_tests"
-before_install: rm Gemfile.lock || true
-script:
-- bundle exec rake test
+sudo: false
+bundler_args: --without development system_tests --path .vendor
 notifications:
   email: false
-rvm:
-- 2.1.9
-env:
-  global:
-  - STRICT_VARIABLES=yes
-  matrix:
-  - PUPPET_VERSION="~> 4.8.2"
-  - PUPPET_VERSION="~> 4.10.0"
-  - PUPPET_VERSION="~> 4.9.2"
-  - PUPPET_VERSION="~> 4.7.0"
-matrix:
-  fast_finish: true
 
+before_install:
+  - rm -f Gemfile.lock
+  - gem update --system
+
+jobs:
+  allow_failures:
+    - env: PUPPET_VERSION="~>5.0"
+
+  include:
+    - stage: validate
+      name: rubocop
+      script:
+        - bundle exec rubocop -c .rubocop.yml
+
+    - stage: validate
+      name: shellcheck
+      script:
+        - 'which shellcheck &> /dev/null && shellcheck --version || echo "WARNING: NO SHELLCHECK"'
+        - 'shellcheck --exclude=2039 *.sh scripts/*.sh'
+
+    - stage: puppet
+      rvm: 2.1.9
+      env: PUPPET_VERSION="~>4.8.2"
+      script: bundle exec rake puppet:test
+
+    - stage: puppet
+      rvm: 2.1.9
+      env: PUPPET_VERSION="~>4.10.4"
+      script: bundle exec rake puppet:test
+
+    # Test the latest Puppet 5, just to know if it works
+    - stage: puppet
+      rvm: 2.4.1
+      env: PUPPET_VERSION="~>5.0"
+      script: bundle exec rake puppet:test
+
+###    - stage: deploy
+###      rvm: 2.4.4
+###      script:
+###        - true
+###      before_deploy:
+###        - "export PUPMOD_METADATA_VERSION=`ruby -r json -e \"puts JSON.parse(File.read('metadata.json')).fetch('version')\"`"
+###        - '[[ $TRAVIS_TAG =~ ^simp-${PUPMOD_METADATA_VERSION}$|^${PUPMOD_METADATA_VERSION}$ ]]'
+###      deploy:
+###        - provider: releases
+###          api_key:
+###            secure: INSERT_KEY_HERE
+###          skip_cleanup: true
+###          on:
+###            tags: true
+###            condition: '($SKIP_FORGE_PUBLISH != true)'
+###        - provider: puppetforge
+###          user: simp
+###          password:
+###            secure: INSERT_KEY_HERE
+###          on:
+###            tags: true
+###            rvm: 2.4.4
+###            condition: '($SKIP_FORGE_PUBLISH != true)'

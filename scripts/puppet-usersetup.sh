@@ -12,7 +12,7 @@ if [ ! -d "${pupenvdir}/simp/modules/site/manifests" ]; then
    mkdir -p "${pupenvdir}/simp/modules/site/manifests"
 fi
 
-cat << EOF > ${pupenvdir}/simp/modules/site/manifests/vagrant.pp
+cat << EOF > "${pupenvdir}/simp/modules/site/manifests/vagrant.pp"
 # site-specific configuration
 #
 # in this instance, it is just some tweaks to make sure simp in vagrant runs well
@@ -59,7 +59,7 @@ class site::vagrant {
 }
 EOF
 
-cat << EOF > ${pupenvdir}/simp/hieradata/default.yaml
+cat << EOF > "${pupenvdir}/simp/hieradata/default.yaml"
 ---
 classes:
   - 'site::vagrant'
