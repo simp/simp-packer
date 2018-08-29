@@ -44,17 +44,14 @@ end
 ######################################################################
 # Remove all the comments from a json template file
 def read_and_strip_comments_from_file(json_file)
-  if File.file?(json_file)
-    f = File.open(json_file, 'r')
-    json = ''
-    f.each do |line|
-      json += line unless line.to_s =~ %r{^(\s*(#|//))}
-    end
-    f.close
-    json
-  else
-    raise 'JSON file does not exist or is not a file.'
+  raise "JSON file '#{json_file}' doees not exist or is not a file." unless File.file?(json_file)
+  f = File.open(json_file, 'r')
+  json = ''
+  f.each do |line|
+    json += line unless line.to_s =~ %r{^(\s*(#|//))}
   end
+  f.close
+  json
 end
 
 #####################################################################
@@ -132,11 +129,10 @@ def getvboxnetworkname(network)
   if newnet.include? 'was successfully created'
     x = newnet.split("'")
     vboxnet = x[1]
-    if system("VBoxManage hostonlyif ipconfig #{vboxnet} --ip #{network}  --netmask 255.255.255.0")
+    unless system("VBoxManage hostonlyif ipconfig #{vboxnet} --ip #{network}  --netmask 255.255.255.0")
       return vboxnet
-    else
-      puts "Error:  Failure to configure #{vboxnet} --ip #{network}. "
     end
+    puts "Error:  Failure to configure #{vboxnet} --ip #{network}. "
   else
     puts "Creation of network unsuccesful. #{newnet}"
   end
@@ -150,7 +146,7 @@ require 'fileutils'
 workingdir = ARGV[0]
 testdir    = ARGV[1]
 basedir    = __dir__
-json_tmp   = basedir + '/simp.json.template'
+json_tmp   = File.join(basedir, 'templates', 'simp.json.template')
 
 default_settings = {
   'vm_description'      => 'SIMP-PACKER-BUILD',

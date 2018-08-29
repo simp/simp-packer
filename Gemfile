@@ -2,12 +2,14 @@
 # NOTE: SIMP Puppet rake tasks support ruby 2.1.9
 # ------------------------------------------------------------------------------
 gem_sources = ENV.fetch('GEM_SERVERS','https://rubygems.org').split(/[, ]+/)
+puppet_version =  ENV.fetch('PUPPET_VERSION', '~>4.0')
 
+puts '='*80, "gem 'puppet', '#{puppet_version}'" ,'='*80
 gem_sources.each { |gem_source| source gem_source }
 
 group :test do
   gem 'rake'
-  gem 'puppet', ENV.fetch('PUPPET_VERSION',  '~> 4.0')
+  gem 'puppet', puppet_version
   gem 'rspec'
   gem 'rspec-puppet'
   gem 'hiera-puppet-helper'
@@ -18,12 +20,11 @@ group :test do
   gem 'puppet-lint-trailing_comma-check', :require => false
   gem 'simp-rspec-puppet-facts', ENV.fetch('SIMP_RSPEC_PUPPET_FACTS_VERSION', '~> 1.3')
   gem 'simp-rake-helpers', ENV.fetch('SIMP_RAKE_HELPERS_VERSION', '~> 3.5')
-  gem 'rubocop'
+  gem 'rubocop', '~> 0.57.0' # supports ruby 2.1
   gem 'rubocop-rspec'
 end
 
 group :development do
-  gem 'rubocop'
   gem 'travis'
   gem 'travish'
   gem 'pry'

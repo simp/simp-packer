@@ -1,7 +1,7 @@
 # simp-packer
 
 [Packer][packer] tooling to create Beaker-capable [Vagrant][vagrant] `.box`es from
-[SIMP][simp] ISOs for the purpose of CI testing full SIMP installations. 
+[SIMP][simp] ISOs for the purpose of CI testing full SIMP installations.
 
 
 <!-- vim-markdown-toc GFM -->
@@ -24,7 +24,14 @@
   * [Building the boxes](#building-the-boxes)
     * [`fatal error: runtime: out of memory`](#fatal-error-runtime-out-of-memory)
     * [`Post-processor failed:` ... `no space left on device`](#post-processor-failed--no-space-left-on-device)
+* [Development](#development)
+  * [Contributing to `simp-packer`](#contributing-to-simp-packer)
+  * [Travis pipeline](#travis-pipeline)
 * [TODO](#todo)
+  * [Documentation](#documentation)
+  * [Tests](#tests)
+  * [Features](#features)
+  * [Cleanup](#cleanup)
 
 <!-- vim-markdown-toc -->
 
@@ -261,54 +268,113 @@ Build 'virtualbox-iso' errored: 1 error(s) occurred:
 ```
 
 
+## Development
+
+### Contributing to `simp-packer`
+
+Please read our [Contribution Guide][simp-contrib].
+
+If you find any issues, they can be submitted to our [JIRA][simp-jira].
+
+To see a list of development-related tasks available for this project, run:
+
+      bundle exec rake -T
+
+### Travis pipeline
+
+**Validation:**
+
+* Ruby code is linted with [rubocop][rubocop], using `bundle exec rake
+  test:rubocup`.
+* Shell scripts are linted with [shellcheck][shellcheck], using `bundle exec
+  test:shellcheck`.
+  * _(The `shellcheck` binary is is now built into Travis CI environments, even
+    for `language: ruby`!)_
+  * **NOTE:** The version of `shellcheck` on Travis CI may be different than
+    your local development environment.  In particular, the EL7 EPEL `ShellCheck`
+    package is much older (0.35 vs 0.45+)—in practice, this has generally
+    meant that `shellcheck` in Travis CI catches more nuanced errors.
+* Puppet code and metadata is linted as part of the
+  `test:puppet` rake task.  At the moment, only Puppet code  under
+  `puppet/modules/` is linted.
+
+**Puppet (SIMP versions):**
+
+* All Puppet modules under the `puppet/modules/` directory will be tested
+  using `bundle exec rake test:puppet`.
+* The Travis CI pipeline matrix only considers the versions of Puppet used in
+  SIMP along with the latest 5.x (which is informational, and allowed to fail).
+
 
 ## TODO
 
-Refactoring:
-
-- [ ] Restructure project to place puppet code in one place, ruby another, etc
-  - [ ] right now some Puppet code is embedded as bash heredocs
-
-Tests to add:
-
-- [ ] Test if the SIMP server's YUM repos are setup and working. These are the
-  repos the SIMP clients are configured to use.
-- [ ] Check if puppet is actually running on the port you specified using `netstat`
-  or `ss`.
-- [ ] Add one last puppet run in at the end and check that it returns 0.  Since all
-  services including DNS should be set up, nothing should change at that
-  point.)
-
-Features to add:
-
-- [ ] Add an Environment variable in to allow it to create the box even if tests
-  fail.
-- [ ] Kickstart a server and client to go with the box.
-- [ ] Make the location of the distribution ISO configurable.  Right now it is
-  hardcoded to be `/net/ISO/Distribution_ISOs`
-- [ ] Validate input from `packer.yaml`
-- [ ] Don't fail if `packer.yaml` doesn't exist (it should be able to run with
-  all the defaults).
-
-Documentation to add:
-
-- [x] Environment Variables
-- [ ] What does `simp_config.rb` do?
-- [ ] The purpose of simp-packer
-
-Clean it up:
+### Documentation
 
 - [ ] Verify documentation
   - [ ] FIXME comments in `README.md`
+- [x] Environment Variables
+- [ ] What does `simp_config.rb` do?
+- [ ] The purpose of simp-packer
+- [x] Contribution/Development
+
+### Tests
+
+- [x] Asset tests _(phase 1—low-hanging fruit)_:
+  - [x] [Shellcheck][shellcheck] to lint shell scripts
+  - [x] [Rubocop][rubocop] to lint ruby scripts
+  - [x] Local Puppet module tests: syntax validation, lint checks, and spec
+  - [x] All asset tests should be run from rake tasks
+  - [x] Update the Travis CI pipeline to run asset tests
+- [ ] Asset tests _(phase 2—more complete)_:
+  - [ ] Tests (at least linting) for any non-module puppet manifests?
+  - [ ] Validate [packer JSON _schema_][packer-schema]
+  - [ ] Spec tests for ruby code (after refactoring into testable components
+  - [ ] Validate packer JSON
+        under `lib/`)
+  - [ ] Update the GitLab CI pipeline to run asset tests
+    - `test:shellcheck` will need a `shellcheck`-capable CI Runner
+- [ ] Integration tests during `packer build`:
+  - [ ] Test if the SIMP server's YUM repos are setup and working. These are
+    the repos the SIMP clients are configured to use.
+  - [ ] Check if puppet is actually running on the port you specified using
+    `netstat` or `ss`.
+  - [ ] Add one last puppet run in at the end and check that it returns 0.
+    Since all services including DNS should be set up, nothing should change at
+    that point.)
+
+### Features
+
+- [ ] Move the packer build into a rake task
+- [ ] Refactor reusable host-side ruby code into a `lib/` directory
+- [ ] Add an Environment variable in to allow it to create the box even if tests
+      fail.
+- [ ] Kickstart a server and client to go with the box.
+- [ ] Make the location of the distribution ISO configurable.  Right now it is
+      hardcoded to be `/net/ISO/Distribution_ISOs`
+- [ ] Validate input from `packer.yaml`
+- [ ] Don't fail if `packer.yaml` doesn't exist (it should be able to run with
+      all the defaults).
+- [ ] Compose `simp-packer.json` from JSON snippets
+
+### Cleanup
+
+- [ ] Restructure project to place puppet code in one place, ruby another, etc
+  - [ ] right now some Puppet code is embedded as bash heredocs
 - [ ] Change the `packer.yaml` settings to match the names used in the
   `simp.json` file to make things more consistent and will allow code
   simplification.
 - [ ] Merge the `simp_config.rb` and `simp_packer_tests.sh` into one ruby
   script and clean it up.
 - [ ] Delete the Virtualbox host-only network if we created it
+- [ ] `rake clean` should delete symlinks that will break packer.
 
-[packer]: https://packer.io
-[vagrant]: https://www.vagrantup.com
-[simp]: https://github.com/NationalSecurityAgency/SIMP
-[vagrant-virtualbox-iso]: https://www.packer.io/docs/builders/virtualbox-iso.html
-[packer-env-vars]: https://www.packer.io/docs/other/environment-variables.html
+[simp]:                    https://github.com/NationalSecurityAgency/SIMP
+[simp-contrib]:            https://simp.readthedocs.io/en/master/contributors_guide/
+[simp-jira]:               https://simp-project.atlassian.net
+[packer]:                  https://packer.io
+[packer-schema]:           https://github.com/lostintangent/packer-schema
+[vagrant]:                 https://www.vagrantup.com
+[vagrant-virtualbox-iso]:  https://www.packer.io/docs/builders/virtualbox-iso.html
+[packer-env-vars]:         https://www.packer.io/docs/other/environment-variables.html
+[rubocop]:                 https://github.com/rubocop-hq/rubocop
+[shellcheck]:              https://github.com/koalaman/shellcheck

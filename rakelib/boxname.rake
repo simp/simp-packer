@@ -12,8 +12,6 @@ module Simp
         utc_z_date       = utc_time.strftime('%Y-%m-%dT%H:%M:%S.%3NZ')
         utc_hhmmss_hms   = utc_time.strftime('%Y%m%d.%H%M%S')
         simp_box_version = infer_simp_version(@vars_json_data)
-        box_name         = "server-#{simp_box_version}"
-        full_box_version = "#{simp_box_version}.#{utc_hhmmss_hms}"
 
         unless File.file? vagrantbox_path
           raise Errno::ENOENT, "ERROR: Can't find .box file at '#{vagrantbox_path}'"
@@ -22,7 +20,7 @@ module Simp
         box_metadata = vagrant_box_json_entry(
           'simpci',
           "server-#{simp_box_version}",
-          full_box_version,
+          "#{simp_box_version}.#{utc_hhmmss_hms}",
           "SIMP server #{simp_box_version}",
           "file://#{vagrantbox_path}",
           utc_z_date,
@@ -110,7 +108,7 @@ module Simp
       def infer_simp_version(vars_json_data)
         box_simp_release = vars_json_data['box_simp_release']
         fragment = semver_fragment(box_simp_release)
-        if simphack_fragment = semver_simpbox_hack_checks(vars_json_data)
+        if (simphack_fragment = semver_simpbox_hack_checks(vars_json_data))
           fragment = simphack_fragment
         end
         ensure_semver(fragment)
@@ -183,7 +181,6 @@ module Simp
 
       # Use zeros to pad any missing SemVer X.Y.Z numbers
       def pad_missing_semver_xyz_sections(str)
-        count = semver_xyz_count(str)
         xyz_str = semver_xyz_match(str)
         count = semver_xyz_count(xyz_str)
         (3 - count).times { xyz_str += '.0' }
