@@ -52,7 +52,7 @@ cleanup() {
 SCRIPT=$(readlink -f "$0")
 # Absolute path this script is in.
 BASEDIR=$(dirname "${SCRIPT}")
-TESTDIR=$1
+TESTDIR=$(ruby -e "print File.expand_path('${1}')")
 DATE=$(date +%y%m%d%H%M%S)
 
 if [[ ! -d "${TESTDIR}" ]]; then
