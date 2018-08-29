@@ -154,7 +154,7 @@ require 'fileutils'
 workingdir = ARGV[0]
 testdir    = ARGV[1]
 basedir    = File.expand_path(File.dirname(__FILE__))
-json_tmp   = basedir + "/simp.json.template"
+json_tmp   = File.join(basedir, "templates/simp.json.template")
 
 default_settings = {
   'vm_description'      => 'SIMP-PACKER-BUILD',
@@ -171,7 +171,7 @@ default_settings = {
   'disk_encrypt'        => '',
   'big_sleep'           => '',
   'headless'            => 'true',
-  'iso_dist_dir'        => '/net/ISO/Distribution_ISOs',
+  'iso_dist_dir'        => '/srv/thanos/ISO',
   'root_umask'          => '0077'
 }
 
