@@ -1,3 +1,37 @@
+Wed Aug 30 2018 Chris Tessmer <chris.tessmer@onyxpoint.com> - FUTURE
+- Cleaned up scripts and manifests:
+  - Code conforms to common lint checks
+  - Fixed minor bugs
+  - Added meaningful tests:
+    - Shell scripts are linted by shellcheck.
+    - Ruby code is linted by rubocop.
+    - Added spec tests to the `simpsetup` Puppet module
+  - Restructured puppet code:
+    - Puppet code is now under `puppet/modules/` and `puppet/profiles/`.
+    - Added module metadata and development files to `simpsetup`.
+    - Unused manifest files have been given the suffix `.UNUSED`.
+- README love:
+  - Restructured and expanded documentation;
+  - Added a diagram of the basic workflow and directory structure.
+  - Added a troubleshooting section.
+  - Converted `samples/README` to markdown and linked from the top-level
+    `README.md`.
+  - Added TODO checklist for upcoming tasks.
+  - Documented important environment variables.
+  - Automated Markdown TOC with `mzlogin/vim-markdown-toc` (vim plugin).
+- Cleaned up `simp.json.template`
+  - Added RHEL support, new variables, minor fixes for bugs and logic
+  - Moved to `templates/`
+  - Expanded comments and converted them into `//`-format, so text editors can
+    use JavaScript syntax highlighting rules to correctly render the whole file.
+- Added Rake tasks.  Notable examples:
+  - `bundle exec rake test`: Runs all tests
+  - `bundle exec rake clean`: Removes packer-breaking symlinks and fixtures
+  - `bundle exec rake vagrant:boxname[]`: (experimental) Generates a JSON file
+    that Vagrantfiles and beaker nodesets can use to compare box versions
+- Added a functional Travis CI pipeline.
+
+
 Wed Jul 11 2018 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 2.0.0-0
 - Removed old code and moved simp-testing to the main directory
 - Updated the code to work with packer version 1.2.4
