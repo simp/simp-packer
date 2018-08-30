@@ -4,7 +4,6 @@
 gem_sources = ENV.fetch('GEM_SERVERS','https://rubygems.org').split(/[, ]+/)
 puppet_version =  ENV.fetch('PUPPET_VERSION', '~>4.0')
 
-puts '='*80, "gem 'puppet', '#{puppet_version}'" ,'='*80
 gem_sources.each { |gem_source| source gem_source }
 
 group :test do
