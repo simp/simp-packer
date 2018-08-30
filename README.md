@@ -366,7 +366,7 @@ To see a list of development-related tasks available for this project, run:
 - [ ] Merge the `simp_config.rb` and `simp_packer_tests.sh` into one ruby
   script and clean it up.
 - [ ] Delete the Virtualbox host-only network if we created it
-- [ ] `rake clean` should delete symlinks that will break packer.
+- [x] `rake clean` should delete symlinks that will break packer.
 
 [simp]:                    https://github.com/NationalSecurityAgency/SIMP
 [simp-contrib]:            https://simp.readthedocs.io/en/master/contributors_guide/
