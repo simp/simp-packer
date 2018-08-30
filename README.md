@@ -329,9 +329,9 @@ To see a list of development-related tasks available for this project, run:
 - [ ] Asset tests _(phase 2—more complete)_:
   - [ ] Tests (at least linting) for any non-module puppet manifests?
   - [ ] Validate [packer JSON _schema_][packer-schema]
-  - [ ] Spec tests for ruby code (after refactoring into testable components
-  - [ ] Validate packer JSON
+  - [ ] Spec tests for ruby code (after refactoring into testable components)
         under `lib/`)
+  - [ ] Validate packer JSON
   - [ ] Update the GitLab CI pipeline to run asset tests
     - `test:shellcheck` will need a `shellcheck`-capable CI Runner
 - [ ] Integration tests during `packer build`:
@@ -346,7 +346,7 @@ To see a list of development-related tasks available for this project, run:
 ### Features
 
 - [ ] Move the packer build into a rake task
-- [ ] Refactor reusable host-side ruby code into a `lib/` directory
+- [x] Refactor reusable host-side ruby code into a `lib/` directory
 - [ ] Add an Environment variable in to allow it to create the box even if tests
       fail.
 - [ ] Kickstart a server and client to go with the box.
