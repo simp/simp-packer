@@ -75,7 +75,7 @@ Requirements:
 | Variable | Description |
 | -------- | ----------- |
 | **`EXTRA_SIMP_PACKER_ARGS`** | Injects extra CLI arguments during `packer build` |
-| **`TMP_DIR`**               | This is a critical [packer variable][packer-env-vars] that desrves special mention: this location _must_ be able to store an over 4GB as the box is built.  The default location is `/tmp`, which on many systems is unable to store that much data  |
+| **`TMP_DIR`**               | This is a critical [packer variable][packer-env-vars] that deserves special mention: this location _must_ be able to store over 4GB as the box is built.  The default location is `/tmp`, which on many systems is unable to store that much data.  |
 
 
 
@@ -149,7 +149,7 @@ Runs a suite of tests:
   working
 - Reboots and runs Puppet a couple of times.
 - Ensures that the build of the puppetserver is successful and the puppetserver
-  up and running and listening on the ports configured in `simp_conf.yaml`.
+  is up and running and listening on the ports configured in `simp_conf.yaml`.
 - Verifies that FIPS is setting match across the `simp_conf.yaml`, the
   `simp_config_settings.yaml` and the operational environment.
 - Checks that selinux is set to `enforcing` (the default for simp.)
@@ -201,7 +201,7 @@ output directory.
 
 - The Puppet server's IP will be `X.X.X.7`
 - DHCP and DNS are pre-populated with entries for `server21.domain.name`
-  through `server29.domain.name`, and `ws30.domain.name` to `ws39.domain.name`.
+  through `server29.domain.name`, and `ws31.domain.name` to `ws39.domain.name`.
   - Each host's IP and MAC will match the hostname's number: e.g., `server21`
     will have the IP `X.X.X.21` and the MAC address `XX:XX:XX:XX:XX:21`.
 - FIXME: (verify what everything means) The default password for everything is `P@ssw0rdP@ssw0rd`. You can change the
