@@ -100,6 +100,7 @@ Create a **test directory**, and include the following files:
   the `nat_interface` and `host_only_interface` to `eth0` and `eth1`,
   respectively.
 
+See [samples/README.md](samples/README.md) for more information.
 
 ### Running a build
 
