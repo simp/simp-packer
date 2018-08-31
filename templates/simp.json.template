@@ -172,6 +172,7 @@
     // TEST:  Check for expected partitions
     {
       "type": "shell",
+      "remote_path": "/var/local/simp/scripts/tests/check_partitions.rb",
       "execute_command": "chmod +x {{.Path}}; {{.Vars}} {{user `ruby_path`}} '{{.Path}}'",
       "script" : "scripts/tests/check_partitions.rb"
     },
@@ -292,6 +293,7 @@
       "type": "puppet-server",
       "ignore_exit_codes": true,
       "extra_arguments": "--test",
+      "staging_dir": "/var/local/simp/scripts",
       "puppet_bin_dir": "/opt/puppetlabs/bin"
     },
 
@@ -300,14 +302,15 @@
       "type": "puppet-server",
       "ignore_exit_codes": true,
       "extra_arguments": "--test",
+      "staging_dir": "/var/local/simp/scripts",
       "puppet_bin_dir": "/opt/puppetlabs/bin"
     },
 
     // Grant all uploaded scripts premission to execute on the server
     {
       "type": "shell",
-      "remote_folder": "/var/local/simp/scripts",
-      "inline": [ "sudo find /var/local/simp/scripts -type f -name '*.sh' -exec chmod +x {} \\;" ]
+      "remote_path": "/var/local/simp/scripts/inline-find-chmod-x--var-local-simp-scripts.sh",
+      "inline": [ "sudo find /var/local/simp/scripts -type f -name '*.sh' -print -exec chmod +x {} \\;" ]
     },
 
     // TEST: Check settings after bootstrap.
@@ -317,8 +320,9 @@
     // execute_command for executing a ruby script
     {
       "type": "shell",
-      "remote_folder": "/var/local/simp/scripts",
-      "inline": ["sudo /var/local/simp/scripts/tests/check_settings.sh"]
+      "remote_path": "/var/local/simp/scripts/inline-run-check_settings-sh.sh",
+//      "execute_command": "sudo chmod +x {{.Path}};sudo {{.Vars}} sh '{{.Path}}'",
+      "inline": ["sudo sh /var/local/simp/scripts/tests/check_settings.sh"]
     },
 
     ////////////////////////////////////////////////////////////////////////////
@@ -330,17 +334,20 @@
     ////////////////////////////////////////////////////////////////////////////
     {
       "type": "shell",
-      "remote_folder": "/var/local/simp/scripts",
+//      "execute_command": "sudo chmod +x {{.Path}}; sudo {{.Vars}} sh '{{.Path}}'",
+      "remote_path": "/var/local/simp/scripts/inline-run-simpsetup.sh",
       "inline": ["sudo /var/local/simp/scripts/config/simpsetup.sh"]
     },
     {
       "type": "shell",
-      "remote_folder": "/var/local/simp/scripts",
+      "remote_path": "/var/local/simp/scripts/inline-run-sitepp_edit-rb.sh",
+//      "execute_command": "sudo chmod +x {{.Path}}; sudo {{.Vars}} sh '{{.Path}}'",
       "inline": ["sudo {{user `ruby_path`}} /var/local/simp/scripts/config/sitepp_edit.rb"]
     },
     {
       "type": "shell",
-      "remote_folder": "/var/local/simp/scripts",
+      "remote_path": "/var/local/simp/scripts/inline-run-hiera_update-rb.sh",
+//      "execute_command": "sudo chmod +x {{.Path}}; sudo {{.Vars}} sh '{{.Path}}'",
       "inline": ["sudo {{user `ruby_path`}} /var/local/simp/scripts/config/hiera_update.rb"]
     },
 

@@ -59,4 +59,3 @@ NO_SHELLCHECK_MESSAGE
     end
   end
 end
-

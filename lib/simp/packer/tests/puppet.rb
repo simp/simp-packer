@@ -42,4 +42,3 @@ module Simp
     end
   end
 end
-

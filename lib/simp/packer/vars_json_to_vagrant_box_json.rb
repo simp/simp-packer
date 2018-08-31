@@ -8,48 +8,32 @@ module Simp
         @vars_json_data = JSON.parse File.read(vars_json_path)
       end
 
-      def vagrant_box_json(vagrantbox_path, box_json_path = 'boxname.json')
+      def vagrant_box_json(vagrantbox_path, _box_json_path = 'boxname.json')
         utc_time         = Time.now.utc
         utc_z_date       = utc_time.strftime('%Y-%m-%dT%H:%M:%S.%3NZ')
         utc_hhmmss_hms   = utc_time.strftime('%Y%m%d.%H%M%S')
-        simp_box_version = infer_simp_version(@vars_json_data)
+#        box__z_date         = File.mtime(vagrantbox_path).strftime('%Y%m%d.%H%M%S')
+#        box__utc_hhmmss_hms = File.mtime(vagrantbox_path).strftime('%Y%m%d.%H%M%S')
+        simp_box_flavors = infer_simp_flavors(@vars_json_data)
 
+require 'pry'; binding.pry
         unless File.file? vagrantbox_path
           raise Errno::ENOENT, "ERROR: Can't find .box file at '#{vagrantbox_path}'"
         end
+
+        warn "Calculating sha256sum of '#{vagrantbox_path}'..."
         box_checksum = %x(sha256sum "#{vagrantbox_path}").split(%r{ +}).first
         box_metadata = vagrant_box_json_entry(
           'simpci',
-          "server-#{simp_box_version}",
-          "#{simp_box_version}.#{utc_hhmmss_hms}",
-          "SIMP server #{simp_box_version}",
+          "server-#{simp_box_flavors}",
+          utc_hhmmss_hms.to_s,
+          "SIMP server #{simp_box_flavors}",
           "file://#{vagrantbox_path}",
           utc_z_date,
           utc_z_date,
           box_checksum
         )
-
-        # write box metadata file
-        puts "Writing '#{box_json_path}...'"
-        File.open(box_json_path, 'w') do |f|
-          f.puts JSON.pretty_generate(box_metadata)
-        end
-
-        puts_vagrant_init_message(box_metadata['box_tag'], box_json_path)
-      end
-
-      # construct a relevant `vagrant init`
-      def puts_vagrant_init_message(box_tag, box_json_path)
-        require 'pathname'
-        pn = Pathname.new(box_json_path)
-        vf_box_url = if pn.absolute?
-                       "file://#{pn.realpath}"
-                     elsif pn.realpath.relative_path_from(Pathname.getwd).to_s =~ %r{^\..}
-                       "file://#{pn.realpath}"
-                     else
-                       "file://./#{pn}"
-                     end
-        puts "vagrant init #{box_tag} #{vf_box_url}"
+        box_metadata
       end
 
       # Returns a versioned box metadata data structure used by sevices like
@@ -106,7 +90,10 @@ module Simp
         box_metadata
       end
 
-      def infer_simp_version(vars_json_data)
+      # Most of the methods below this line is effing magic used to infer
+      # properties about a SIMP box based on the vars.json that was used to
+      # build it.
+      def infer_simp_flavors(vars_json_data)
         box_simp_release = vars_json_data['box_simp_release']
         fragment = semver_fragment(box_simp_release)
         if (simphack_fragment = semver_simpbox_hack_checks(vars_json_data))
@@ -117,7 +104,7 @@ module Simp
 
       # Magic method to get the ACTUAL SIMP ISO version out of the vars.json
       #
-      # This hack is necessary because of the strange data that currenlty comes
+      # This hack is necessary because of the strange data that currently comes
       # back with the simp-metadata-based ISO builds.
       #
       def semver_simpbox_hack_checks(vars_json_data)
@@ -190,5 +177,3 @@ module Simp
     end
   end
 end
-
-
