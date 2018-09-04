@@ -1,4 +1,7 @@
 #!/bin/bash
+
+set -e
+
 # TODO, just make this a module and install it.
 export PATH=$PATH:/opt/puppetlabs/bin
 packerdir="/var/local/simp"
