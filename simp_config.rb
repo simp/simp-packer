@@ -163,7 +163,7 @@ default_settings = {
   'disk_encrypt'        => '',
   'big_sleep'           => '',
   'headless'            => 'true',
-  'iso_dist_dir'        => '/srv/thanos/ISO',
+  'iso_dist_dir'        => '/net/ISO/Distribution_ISOs',
   'root_umask'          => '0077'
 }
 
