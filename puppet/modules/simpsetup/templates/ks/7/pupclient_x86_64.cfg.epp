@@ -1,3 +1,8 @@
+<%- | String $ipaddress,
+      String $linuxdist,
+      String $majver,
+      Boolean $fips,
+| -%>
 #
 # Replace the following strings in this file
 # #BOOTPASS# - Your SHA-512 hashed bootloader password
@@ -42,7 +47,7 @@ skipx
 text
 keyboard --xlayouts=us
 lang en_US
-url --noverifyssl --url https://<%= $simpsetup::ks::ipaddress %>/yum/<%= $simpsetup::ks::linuxdist %>/<%= $simpsetup::ks::majver %>/x86_64
+url --noverifyssl --url https://<%= $ipaddress %>/yum/<%= $linuxdist %>/<%= $majver %>/x86_64
 
 %include /tmp/part-include
 
@@ -61,7 +66,7 @@ dhclient
 # dracut
 ## Uncomment the previous line and comment out the line below to disable
 ## checking FIPS compliance at boot.
-<% if $simpsetup::ks::fips { -%>
+<% if $fips { -%>
 dracut-fips
 <% } else { -%>
 dracut
@@ -139,7 +144,7 @@ udftools
 %end
 
 %pre
-ksserver="<%= $simpsetup::ks::ipaddress %>"
+ksserver="<%= $ipaddress %>"
 wget --no-check-certificate -O /tmp/diskdetect.sh https://$ksserver/ks/diskdetect.sh;
 chmod 750 /tmp/diskdetect.sh;
 /tmp/diskdetect.sh;
@@ -199,17 +204,17 @@ fi
 %end
 
 %post
-ostype="<%= $simpsetup::ks::linuxdist %>"
+ostype="<%= $linuxdist %>"
 if [ $ostype == "CentOS" ]; then
   sed -i -e '/enabled=/d' -e '/^\[.*\]/a enabled=0' /etc/yum.repos.d/CentOS-*.repo;
 fi
-ksserver="<%= $simpsetup::ks::ipaddress %>"
+ksserver="<%= $ipaddress %>"
 
 ## Comment out/delete the following block of commands if you want to disable FIPS compliance. ##
 ### START FIPS ###
 
 # In case you need a working fallback
-<% if $simpsetup::ks::fips { -%>
+<% if $fips { -%>
 BOOTDEV=`df /boot | tail -1 | cut -f1 -d' '`
 DEFAULT_KERNEL_INFO=`/sbin/grubby --default-kernel`
 DEFAULT_INITRD=`/sbin/grubby --info=${DEFAULT_KERNEL_INFO} | grep initrd | cut -f2 -d'='`
