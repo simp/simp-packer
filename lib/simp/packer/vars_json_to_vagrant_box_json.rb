@@ -11,7 +11,7 @@ module Simp
       def vagrant_box_json(vagrantbox_path, _box_json_path = 'boxname.json')
         utc_time         = Time.now.utc
         utc_z_date       = utc_time.strftime('%Y-%m-%dT%H:%M:%S.%3NZ')
-        #utc_hhmmss_hms   = utc_time.strftime('%Y%m%d.%H%M%S')
+        # utc_hhmmss_hms   = utc_time.strftime('%Y%m%d.%H%M%S')
         box_z_date       = File.mtime(vagrantbox_path).strftime('%Y-%m-%dT%H:%M:%S.%3NZ')
         box_z_hhmmss_hms = File.mtime(vagrantbox_path).strftime('%Y%m%d.%H%M%S')
         simp_box_flavors = infer_simp_flavors(@vars_json_data)

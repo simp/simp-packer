@@ -28,16 +28,16 @@ module Simp
           # Below this line: local file stuff
           mkdir_p box_dir, verbose: @verbose
           box_data['versions'].first['providers'].first['url'] = "file://#{box_file_dest}"
-          if copy
-            migrate = lambda{ |src,dst,verbose=true| FileUtils::cp src, dst, verbose: verbose }
-          else
-            migrate = lambda{ |src,dst,verbose=true| FileUtils::mv src, dst, verbose: verbose }
-          end
-          src_path = box_file_src.sub(%r{^file://},'')
+          migrate = if copy
+                      ->(src, dst, verbose = true) { FileUtils.cp src, dst, verbose: verbose }
+                    else
+                      ->(src, dst, verbose = true) { FileUtils.mv src, dst, verbose: verbose }
+                    end
+          src_path = box_file_src.sub(%r{^file://}, '')
           migrate.call src_path, box_file_dest
 
           # copy Vagrantfile erb templates (use with `vagrant init BOX --template VAGRANT_ERB_FILE`)
-          Dir[File.expand_path('../Vagrantfile*.erb',src_path)].each do |v|
+          Dir[File.expand_path('../Vagrantfile*.erb', src_path)].each do |v|
             migrate.call v, File.dirname(box_file_dest), @verbose
           end
           write_box_json(box_json_dest, box_data)

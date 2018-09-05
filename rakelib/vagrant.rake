@@ -31,7 +31,7 @@ like VagrantCloud/Atlus' box API, and generates a
 MSG
     task :local, [:tree_dir, :simp_iso_json_file, :box_path, :copy] do |_t, args|
       args.with_defaults(:copy => 'move')
-      unless ['move','copy'].include?(args.copy.to_s)
+      unless %w[move copy].include?(args.copy.to_s)
         raise "\nERROR: :copy was '#{args.copy}'; must be one of: 'move', 'copy'\n\n"
       end
       converter = Simp::Packer::VarsJsonToVagrantBoxJson.new(args.simp_iso_json_file)
