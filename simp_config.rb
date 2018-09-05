@@ -227,7 +227,7 @@ FileUtils.mkdir_p("#{top_output}/testfiles")
 # Write out the Vagrantfile + Vagrantfile templates
 {
   'Vagrantfile'     => 'Vagrantfile.erb',
-  'Vagrantfile.erb' => 'vagrantfiles/Vagrantfile.erb.erb',
+  'Vagrantfile.erb' => 'vagrantfiles/Vagrantfile.erb.erb'
 }.each do |vagrantfile, template_path|
   vfile_contents = VagrantfileTemplate.new(
     basedir,
@@ -235,7 +235,7 @@ FileUtils.mkdir_p("#{top_output}/testfiles")
     simpconfig['cli::network::ipaddress'],
     updated_json_hash['mac_address'],
     updated_json_hash['host_only_network_name'],
-    File.expand_path( "templates/#{template_path}", basedir)
+    File.expand_path("templates/#{template_path}", basedir)
   ).render
 
   vagrantfile_path = File.join top_output, vagrantfile
