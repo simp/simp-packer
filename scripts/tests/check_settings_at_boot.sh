@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/bin/sh
 
 set -e
 
@@ -40,4 +40,3 @@ case ${SIMP_PACKER_fips:-} in
 esac
 
 echo "Exiting $0"
-exit 0

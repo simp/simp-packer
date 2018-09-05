@@ -359,25 +359,6 @@
       "puppet_bin_dir": "/opt/puppetlabs/bin"
     },
 
-    // Upload OS DVD ISO
-    {
-      "type": "file",
-      "source":"{{user `iso_dist_dir`}}/{{user `box_distro_release`}}",
-      "destination": "/var/local/simp/{{user `box_distro_release`}}"
-    },
-    // Unpack DVD
-    {
-      "type": "shell",
-      "remote_path": "/var/local/simp/inline-unpackdvd.sh",
-      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
-      "inline" : [
-        "if [ -f /var/local/simp/{{user `box_distro_release`}} ]; then",
-          "/usr/local/bin/unpack_dvd /var/local/simp/{{user `box_distro_release`}}",
-          "rm /var/local/simp/{{user `box_distro_release`}}",
-        "fi"
-      ]
-    },
-
     // Add some shortcuts to root's .bashrc (to help get around)
     {
       "type": "shell",
@@ -390,21 +371,6 @@
       ]
     },
 
-    // Install Virtualbox Guest Additions
-    {
-      "type": "shell",
-      "remote_path": "/var/local/simp/inline-vbox.sh",
-      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
-      "inline" : [
-        "yum install -q -y kernel-devel",
-        "yum install -q -y gcc",
-        "rm -f /lib/modules/`uname -r`/build ; ln -s /usr/src/kernels/`rpm -q kernel-devel --queryformat %{VERSION}-%{RELEASE}.%{ARCH}`/ /lib/modules/`uname -r`/build",
-        "mkdir /mnt/vmtools",
-        "mount -o loop -t iso9660 /var/local/simp/VBoxGuestAdditions.iso /mnt/vmtools",
-        "sh /mnt/vmtools/VBoxLinuxAdditions.run --nox11; true",
-        "umount /mnt/vmtools; rmdir /mnt/vmtools"
-      ]
-    },
     {
       "type": "shell",
       "remote_path": "/var/local/simp/inline-simp-done.sh",
