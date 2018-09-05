@@ -8,12 +8,12 @@
 #
 
 class VagrantfileTemplate
-  def initialize(dir, name, ip, mac, nw)
+  def initialize(_dir, name, ip, mac, nw, template_path)
     @name = name
     @ipaddress = ip
     @mac = mac
     @nw = nw
-    @template = File.read("#{dir}/templates/Vagrantfile.erb")
+    @template = File.read(template_path)
   end
 
   def render
@@ -221,23 +221,31 @@ File.open("#{workingdir}/vars.json", 'w') do |h|
   h.close
 end
 
-# Write out the Vagrantfile
-template = VagrantfileTemplate.new(
-  basedir,
-  updated_json_hash['vm_description'],
-  simpconfig['cli::network::ipaddress'],
-  updated_json_hash['mac_address'],
-  updated_json_hash['host_only_network_name']
-)
-vfile_contents = template.render
-
 top_output = settings['output_directory']
 FileUtils.mkdir_p("#{top_output}/testfiles")
 
-File.open("#{top_output}/Vagrantfile", 'w') do |h|
-  h.write(vfile_contents)
-  h.close
+# Write out the Vagrantfile + Vagrantfile templates
+{
+  'Vagrantfile'     => 'Vagrantfile.erb',
+  'Vagrantfile.erb' => 'vagrantfiles/Vagrantfile.erb.erb',
+}.each do |vagrantfile, template_path|
+  vfile_contents = VagrantfileTemplate.new(
+    basedir,
+    updated_json_hash['vm_description'],
+    simpconfig['cli::network::ipaddress'],
+    updated_json_hash['mac_address'],
+    updated_json_hash['host_only_network_name'],
+    File.expand_path( "templates/#{template_path}", basedir)
+  ).render
+
+  vagrantfile_path = File.join top_output, vagrantfile
+  FileUtils.mkdir_p(File.dirname(vagrantfile_path))
+  File.open(vagrantfile_path, 'w') do |h|
+    h.write(vfile_contents)
+    h.close
+  end
 end
+
 # Copy the setup files to the output dir for reference
 FileUtils.cp("#{testdir}/vars.json", "#{top_output}/testfiles/vars.json")
 FileUtils.cp("#{testdir}/simp_conf.yaml", "#{top_output}/testfiles/simp_conf.yaml")
