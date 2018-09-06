@@ -1,4 +1,3 @@
-require 'simp/rake/pupmod/helpers'
-require 'puppet-strings/tasks'
+# NOTE: Do not include simp/rake/pupmod/helpers for top-level simp-packer tasks
 
-Simp::Rake::Pupmod::Helpers.new(File.dirname(__FILE__))
+$LOAD_PATH << File.expand_path('../lib',__FILE__)

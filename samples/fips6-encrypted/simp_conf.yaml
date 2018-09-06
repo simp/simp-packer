@@ -61,7 +61,7 @@ cli::simp::scenario: simp
 # The value entered is used to set the GRUB password and to generate a hash
 # stored in grub::password.
 # P@ssw0rdP@ssw0rd
-grub::password: grub.pbkdf2.sha512.10000.8F118DB47AD1B075CAD2A930A21B6ACE328868B5279B65012C26EC6EF42CCEB62FED27421D3EDB13549EB5AC55EB167FB0C112F6829B52D2A5564A6EA14F11D5.E4641524BDDBF57E57A725E4F88612572B1B74B3CC0FF8EBEBD52D2C72EF9D54E8AB03360010BF33CB61A0FC5360CCCA2C377B4C97102EBA61AD96752F680E1D
+grub::password: "$6$nPtYfEt.Xpq3AW54$ZAs2ZjLM5dguxg7KkHQRZje.Y2olmIjbz/yR/am3EK96jdGnPI2Fa6tziK/qtXpdjb1TBmWa2fkMcdyttagMb/"
 
 # === puppetdb::master::config::puppetdb_port ===
 # The PuppetDB server port number.

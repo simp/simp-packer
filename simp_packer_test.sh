@@ -18,7 +18,7 @@
 #            that is writeable and has enough space for packer to
 #            create the disk for the machine.
 #
-#  Example usage   TMPDIR=/var/tmp ./simp_packer_test.sh /var/jmg/packer/nofips 
+#  Example usage   TMPDIR=/var/tmp ./simp_packer_test.sh /var/jmg/packer/nofips
 #
 #  Where I have copied the sample directory nofips to /var/jmg/packer and
 #  have edited the packer and vars files to point to my iso.  I also
@@ -28,78 +28,86 @@
 #
 #
 
-function cleanup () {
+cleanup() {
   exitcode=${1:0}
 
-  cd $TESTDIR
+  # shellcheck disable=SC2164
+  cd "${TESTDIR}"
 
-  case $SIMP_PACKER_save_WORKINGDIR in
-  "yes" )
+  case "${SIMP_PACKER_save_WORKINGDIR:-no}" in
+    yes)
       ;;
-   *)
-      rm -rf $WORKINGDIR
+    *)
+       rm -rf "${WORKINGDIR}"
       ;;
-   esac
+  esac
 
-  exit $exitcode
-
+  exit "${exitcode}"
 }
 
-# Basedir should be the simp-packer directory where this executable is.
-# Test dir should be the directory where the test files exist.  It
+# BASEDIR should be the simp-packer directory where this executable is.
+# TESTDIR should be the directory where the test files exist.  It
 # should be writable. The working directory will be (re-)created under here.
 # The working directory will be removed when finished so don't put output there.
-SCRIPT=$(readlink -f $0)
+SCRIPT=$(readlink -f "$0")
 # Absolute path this script is in.
-BASEDIR=`dirname $SCRIPT`
-TESTDIR=$1
-DATE=`date +%y%m%d%H%M%S`
+BASEDIR=$(dirname "${SCRIPT}")
+TESTDIR=$(ruby -e "print File.expand_path('${1}')")
+DATE=$(date +%y%m%d%H%M%S)
 
-if [[ ! -d $TESTDIR ]]; then
-  echo "$TESTDIR not found"
+if [[ ! -d "${TESTDIR}" ]]; then
+  echo "${TESTDIR} not found"
   exit -1
 fi
 
 WORKINGDIR="${TESTDIR}/working.${DATE}"
-logfile=${TESTDIR}/${DATE}.`basename $0`.log
-if [[ -d $WORKINGDIR ]]; then
-   rm -rf ./$WORKINGDIR
+logfile="${TESTDIR}/${DATE}.$(basename "$0").log"
+if [ -d "${WORKINGDIR}" ]; then
+   rm -rf "./${WORKINGDIR}"
 fi
-mkdir $WORKINGDIR
+mkdir "${WORKINGDIR}"
 
-if [[ ! -f $TESTDIR/packer.yaml ]]; then
+if [ ! -f "${TESTDIR}/packer.yaml" ]; then
   echo "${TESTDIR}/packer.yaml not found"
   cleanup -1
 fi
 
-if [[ ! -f $TESTDIR/simp_conf.yaml ]]; then
+if [ ! -f "${TESTDIR}/simp_conf.yaml" ]; then
   echo "${TESTDIR}/simp_conf.yaml  not found"
   cleanup -1
 fi
 
-if [[ ! -f $TESTDIR/vars.json ]]; then
+if [ ! -f "${TESTDIR}/vars.json" ]; then
   echo "${TESTDIR}/vars.json Not found"
   cleanup -1
 fi
 
-for dir in "files" "manifests" "scripts"; do
-   if [[ -d $BASEDIR/$dir ]]; then
-     cp -Rp $BASEDIR/$dir $WORKINGDIR/
+for dir in "files" "puppet" "scripts"; do
+   if [ -d "${BASEDIR}/${dir}" ]; then
+     cp -Rp "${BASEDIR}/${dir}" "${WORKINGDIR}/"
   fi
 done
 
-cd $WORKINGDIR
+# shellcheck disable=SC2164
+cd "${WORKINGDIR}"
 
 # Update config files with packer.yaml setting and copy to working dir
-$BASEDIR/simp_config.rb $WORKINGDIR $TESTDIR
+"${BASEDIR}"/simp_config.rb "${WORKINGDIR}" "${TESTDIR}"
 
 #If you use debug you must set header to true or you won't see the debug.
-#PACKER_LOG=1 PACKER_LOGPATH=/tmp/packer.log.$DATE packer build -var-file=$WORKINGDIR/vars.json $WORKINGDIR/simp.json >& $logfile
 echo "Logs will be written to ${logfile}"
-packer build -var-file=$WORKINGDIR/vars.json $WORKINGDIR/simp.json >& $logfile
 
-if [[ $? -ne 0 ]]; then
-  mv $logfile ${logfile}.errors
+set -x
+# shellcheck disable=SC2086
+PACKER_LOG="${PACKER_LOG:-1}" \
+  PACKER_LOGPATH="${PACKER_LOGPATH:-/tmp/packer.log.$DATE}" \
+  packer build -var-file="${WORKINGDIR}/vars.json" ${EXTRA_SIMP_PACKER_ARGS} "${WORKINGDIR}/simp.json" \
+  |& tee "${logfile}"
+set +x
+
+# shellcheck disable=SC2181
+if [ $? -ne 0 ]; then
+  mv "${logfile}" "${logfile}.errors"
   echo "ERROR: packer build failed. Check ${logfile}.errors"
   cleanup -1
 else

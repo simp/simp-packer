@@ -1,0 +1,10 @@
+fixtures:
+    symlinks:
+      simpsetup: "#{source_dir}"
+    repositories:
+      stdlib:
+        repo: https://github.com/puppetlabs/puppetlabs-stdlib.git
+        ref: 4.19.0
+      concat:
+        repo: https://github.com/simp/puppetlabs-concat
+        ref:  5eadf453a12a3df723380de1b80a2edc9ed10956

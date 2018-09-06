@@ -1,33 +1,70 @@
-# The testing matrix considers ruby/puppet versions supported by SIMP and PE:
+# The testing matrix **for simp-packer** only considers ruby/puppet versions
+# supported by SIMP:
 # ------------------------------------------------------------------------------
-#  release    pup   ruby      eol
-# PE 2016.4   4.7   2.1.9  TBD (LTS)
-# PE 2016.5   4.8   2.1.9  2017-10-31
-# SIMP6.0.0   4.8   2.1.9  TBD
-# PE 2017.1   4.9   2.1.9  2017-10-31
-# PE 2017.2   4.10  2.1.9  TBD
+#  release    pup   ruby   eol
+# SIMP 6.0    4.8   2.1.9  TBD***
+# SIMP 6.2    4.10  2.1.9  TBD
+#
+# *** = Modules created for SIMP 6.2+ are not required to support Puppet < 4.10
 ---
 language: ruby
-sudo: false
 cache: bundler
-before_script:
-- bundle update
-bundler_args: "--without development system_tests"
-before_install: rm Gemfile.lock || true
-script:
-- bundle exec rake test
+sudo: false
+bundler_args: --without development system_tests --path .vendor
 notifications:
   email: false
-rvm:
-- 2.1.9
-env:
-  global:
-  - STRICT_VARIABLES=yes
-  matrix:
-  - PUPPET_VERSION="~> 4.8.2"
-  - PUPPET_VERSION="~> 4.10.0"
-  - PUPPET_VERSION="~> 4.9.2"
-  - PUPPET_VERSION="~> 4.7.0"
-matrix:
-  fast_finish: true
 
+stages:
+  - validation
+  - 'Puppet (SIMP versions)'
+  - name: deploy
+    if: 'fork = false AND tag = true'
+
+before_install:
+  - rm -f Gemfile.lock
+  - gem update --system
+
+jobs:
+  allow_failures:
+    - name: 'Latest Puppet 5.x (allowed to fail)'
+
+  include:
+    - stage:  validation
+      name:   Rubocop
+      script: bundle exec rake test:rubocop
+
+    - stage: validation
+      name:  Shellcheck
+      script: bundle exec rake test:shellcheck
+
+    - stage:  'Puppet (SIMP versions)'
+      name:   'Puppet 4.8 (SIMP 6.0–6.1)'
+      rvm:    2.1.9
+      env:    'PUPPET_VERSION="~> 4.8.2"'
+      script: bundle exec rake test:puppet
+
+    - stage:  'Puppet (SIMP versions)'
+      name:   'Puppet 4.10 (SIMP 6.2+)'
+      rvm:    2.1.9
+      env:
+        - 'PUPPET_VERSION="~> 4.10.4"'
+      script: bundle exec rake test:puppet
+
+    - stage:  'Puppet (SIMP versions)'
+      name:   'Latest Puppet 5.x (allowed to fail)'
+      rvm:    2.4.4
+      env:
+        - 'PUPPET_VERSION="~> 5.0"'
+      script: bundle exec rake test:puppet
+
+    - stage: deploy
+      script:
+        - true
+      deploy:
+        - provider: releases
+          on:
+            tags: true
+            condition: '($SKIP_FORGE_PUBLISH != true)'
+          skip_cleanup: true
+          api_key:
+            secure: "pjgpw5TbhG8JNEH8CEY06dUrBUtmi3D4uKS9PXrF03ejFG2TStY9qPC7hEUiEJVVSXhWdkSeVXn+/6vlDcKWKybVcI7sfzWGosXchlROxKwUSCWW4OUXqIYix+ek8rGLfSsojrX6ZiUcecq4a/cnbBZ3Ni+RUnkv5kSFFsT2u5L4xIBmSWxaTTTTlLc6Stk2NXDsF7ygMkIf9bbL9U10boa6g3EyYoPoNlSARfdDLBLQFMs9k2mfBax9b6XWSXi8gtGItyd9BbHT/4Z1KXa63pN7V+pOM5hG4ulJdwNWM73ChhuVYZxXbtsKQYAZxtf1P55DnjOf0VdArFf3LCO25s7/CtuMs7HrdgTgbqr7aNV+OZcD/YyWz7Oy+AcbUOfHRo/mT93qxoEsO9v7AbJKqTs1xM2cM10JI2CP19414VfxaMPxWITEIx6WVaLiLCfhQQJIPb7UvGgNxT2+MTDlW5a+Ly0C+rYvcpVikN5H4dQ/Kmrp7g/uBu2kRrR1IXZRtd3EgD7YTkvobgCxcTZ7qmYnO73BokLDmnpM6nZRVSeLKLGLA9dnPlqBiZogK750TNWTciua/LLmLi4HcWE52dPs6pH2SAXeJrzOgbqQNPDR/AUca4ZQqQ5/MFC6Xyy1QxrmTQLAlNXC3cck6D2lt6aTpi7u6oqYNladX6jH8rU="

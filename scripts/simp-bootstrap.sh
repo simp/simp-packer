@@ -22,5 +22,3 @@
   echo "Configuring simp user"
   echo "**********************"
   /var/local/simp/scripts/puppet-usersetup.sh
-
-  exit 0
