@@ -21,6 +21,9 @@ group :test do
   gem 'simp-rake-helpers', ENV.fetch('SIMP_RAKE_HELPERS_VERSION', '~> 3.5')
   gem 'rubocop', '~> 0.57.0' # supports ruby 2.1
   gem 'rubocop-rspec'
+  gem 'yard'
+  gem 'redcarpet'
+  gem 'github-markup'
 end
 
 group :development do
