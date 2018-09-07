@@ -12,16 +12,19 @@ namespace :simp do
 
     BOXNAME_DESCRIPTION
     task :matrix do |task, args|
-      unless args.extras
+      if args.extras.empty?
         t = task.application.tasks.select { |x| x.name == task.name }.first
         raise ArgumentError, <<FAIL
 
 --------------------------------------------------------------------------------
-ERROR: must provide a matrix in task arguments:
+ERROR: Task arguments must provide a matrix string
 --------------------------------------------------------------------------------
 
-rake #{t.name_with_args}[MATRIX]
-#{t.full_comment}
+Usage:
+
+  rake #{t.name_with_args}[MATRIX]
+
+#{t.full_comment.sub(%r{^#{t.comment}}, '').strip}
 
 --------------------------------------------------------------------------------
 
