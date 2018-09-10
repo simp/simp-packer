@@ -47,14 +47,14 @@ module Simp
           when :move
             migrate = ->(src, dst, verbose = true) { FileUtils.mv src, dst, verbose: verbose }
           when :hardlink
-            migrate = ->(src, dst, verbose = true) do
+            migrate = lambda do |src, dst, verbose = true|
               FileUtils.ln src, dst, verbose: verbose, force: ENV['SIMP_PACKER_publish_force'] == 'yes'
             end
           else
             raise 'ERROR: `action` must be :copy, :move, or :hardlink'
           end
           src_path = box_file_src.sub(%r{^file://}, '')
-          puts "\nPlacing (action: #{action.to_s}) box file at path:\n  #{box_file_dest}"
+          puts "\nPlacing (action: #{action}) box file at path:\n  #{box_file_dest}"
           migrate.call src_path, box_file_dest
 
           # copy Vagrantfile erb templates (use with `vagrant init BOX --template VAGRANT_ERB_FILE`)
@@ -77,7 +77,6 @@ module Simp
           File.open(box_json_path, 'w') do |f|
             f.puts JSON.pretty_generate(box_metadata)
           end
-
         end
 
         # construct a relevant usage message for the new box
@@ -85,16 +84,16 @@ module Simp
           require 'pathname'
           pn = Pathname.new(box_json_path)
           vf_json_url = if pn.absolute?
-                         "file://#{pn.realpath}"
-                       elsif pn.realpath.relative_path_from(Pathname.getwd).to_s =~ %r{^\..}
-                         "file://#{pn.realpath}"
-                       else
-                         "file://./#{pn}"
-                       end
-          box_path = box_data['versions'].first['providers'].first['url'].sub(%r(^file://),'')
+                          "file://#{pn.realpath}"
+                        elsif pn.realpath.relative_path_from(Pathname.getwd).to_s =~ %r{^\..}
+                          "file://#{pn.realpath}"
+                        else
+                          "file://./#{pn}"
+                        end
+          box_path = box_data['versions'].first['providers'].first['url'].sub(%r{^file://}, '')
           vagrant_template_path = File.join(File.dirname(box_path), 'Vagrantfile.erb')
           extra = File.file?(vagrant_template_path) ? "--template '#{vagrant_template_path}'" : ''
-          puts '', "You can use the new box by running:", ''
+          puts '', 'You can use the new box by running:', ''
           puts '  ' + "vagrant box add #{vf_json_url}", ''
           puts 'or:', ''
           puts '  ' + "vagrant init #{box_data['tag']} #{vf_json_url} #{extra}".strip, ''

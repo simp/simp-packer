@@ -18,7 +18,7 @@ namespace :vagrant do
     file = "#{data['name']}.json"
     puts "Writing file '#{file}'..."
     puts JSON.pretty_generate(data)
-    File.open(file, 'w'){|f| f.puts JSON.pretty_generate(data)}
+    File.open(file, 'w') { |f| f.puts JSON.pretty_generate(data) }
   end
 
   namespace :publish do
