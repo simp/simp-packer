@@ -11,7 +11,7 @@ namespace :simp do
         rake simp:packer:matrix[os=el6:el7,fips=on:off]
 
     BOXNAME_DESCRIPTION
-    task :matrix do |task, args|
+    task :matrix => [:clean] do |task, args|
       if args.extras.empty?
         t = task.application.tasks.select { |x| x.name == task.name }.first
         raise ArgumentError, <<FAIL
