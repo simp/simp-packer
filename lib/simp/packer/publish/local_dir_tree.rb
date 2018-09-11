@@ -48,7 +48,7 @@ module Simp
             migrate = ->(src, dst, verbose = true) { FileUtils.mv src, dst, verbose: verbose }
           when :hardlink
             migrate = lambda do |src, dst, verbose = true|
-              FileUtils.ln src, dst, verbose: verbose, force: ENV['SIMP_PACKER_publish_force'] == 'yes'
+              FileUtils.ln src, dst, verbose: verbose, force: (ENV['SIMP_PACKER_publish_force'] == 'yes')
             end
           else
             raise 'ERROR: `action` must be :copy, :move, or :hardlink'
