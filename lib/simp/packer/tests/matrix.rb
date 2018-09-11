@@ -78,12 +78,17 @@ module Simp
             vm_description =  "SIMP#{vars_data['box_simp_release']}-#{os_name.upcase}-#{fips ? 'FIPS' : 'NOFIPS'}"
             vm_description += '-ENCRYPTED' if encryption
 
-            puts "\n==== Iteration #{iteration_number}/#{iteration_total}: #{iteration_summary}"
+            puts "\n"*5
+            puts '='*80
+            puts "==== Iteration #{iteration_number}/#{iteration_total}: #{iteration_summary}"
+            puts '='*80
             puts "vm_description:        #{vm_description}"
             puts "DIR_NAME:              #{iteration_dir}"
             puts "SIMP_ISO_FILE:         #{simp_iso_file}"
             puts "SIMP_ISO_JSON:         #{simp_iso_json}"
             puts "PACKER_CONFIGS_DIR:    #{@packer_configs_dir}"
+            puts '='*80
+            puts "\n"*2
 
             raise "ERROR: no .iso file at #{simp_iso_file}" unless File.exist?(simp_iso_file)
             raise "ERROR: no .json file at #{simp_iso_json}" unless File.exist?(simp_iso_json)
