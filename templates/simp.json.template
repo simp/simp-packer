@@ -214,6 +214,8 @@
       "remote_path": "/var/local/simp/inline-simp-config.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -i '{{.Path}}'",
       "inline" : [
+         // SIMP-4482 workaround when building SIMP 6.1.0 boxes
+         "[[ \"$(cat /etc/simp/simp.version)\" =~ ^6\\.1\\.0- ]] && { echo \"SIMP-4482 workaround: umask 0022\"; umask 0022; }",
          "echo 'umask:'",
          "umask",
          "echo 'Running simp config...'",
