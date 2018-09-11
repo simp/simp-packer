@@ -37,8 +37,9 @@ tree, if it doesn't already exist.
 MSG
     task :local, [:tree_dir, :simp_iso_json_file, :box_path, :copy] do |_t, args|
       args.with_defaults(:copy => 'hardlink')
-      unless %w[hardlink move copy].include?(args.copy.to_s)
-        raise "\nERROR: :copy was '#{args.copy}'; must be one of: 'move', 'copy'\n\n"
+      copy_words = %w[hardlink move copy]
+      unless copy_words.include?(args.copy.to_s)
+        raise "\nERROR: :copy was '#{args.copy}'; must be one of: '#{copy_words.join("', '")}'\n\n"
       end
       converter = Simp::Packer::VarsJsonToVagrantBoxJson.new(args.simp_iso_json_file)
       box_data  = converter.vagrant_box_json(args.box_path)
