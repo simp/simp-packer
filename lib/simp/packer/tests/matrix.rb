@@ -107,7 +107,9 @@ module Simp
                  time bash -e simp_packer_test.sh "#{File.expand_path iteration_dir}" \\\n\
                  |& tee -a "#{log}")
 
-            sh %(rake "vagrant:publish:local["#{@box_dir}",#{local_vars_json},#{File.expand_path("#{iteration_dir}/OUTPUT/#{vm_description}.box", File.dirname(__FILE__))},hardlink] |& tee -a #{log})
+            new_box = File.expand_path("#{iteration_dir}/OUTPUT/#{vm_description}.box")
+            vars_json_path = File.expand_path(local_vars_json, iteration_dir)
+            sh %(rake vagrant:publish:local["#{@box_dir}","#{vars_json_path}","#{new_box}",hardlink] |& tee -a #{log})
             sh "date > '#{log}'"
           end
         end
