@@ -23,11 +23,13 @@ module Simp
           @simp_iso_dir       = ENV['SIMP_ISO_DIR']       || File.join(@iso_dir, 'simp', 'prereleases')
           @simp_iso_json_template = ENV['SIMP_ISO_JSON'] || \
                                     File.join(@simp_iso_dir, 'SIMP-6.2.0-RC1.%OS%-CentOS-%OS_MAJ_VER%.?-x86_64.json')
+          validate_simp_json_template
+
           @packer_configs_dir = ENV['SIMP_PACKER_CONFIGS_DIR'] || File.join(@files_dir, 'configs')
           @tmp_dir            = ENV['TMP_DIR'] || File.join(Dir.pwd, 'tmp')
         end
 
-        def run(label = 'build_' + Time.now.utc.strftime('%Y%m%d_%H%M%S'))
+        def run(label = (ENV['MATRIX_LABEL'] || 'build') + Time.now.utc.strftime('_%Y%m%d_%H%M%S'))
           iteration_total = @iterations.size
           iteration_number = 0
           @iterations.each do |cfg|
@@ -138,6 +140,22 @@ module Simp
           vars_data['iso_url'] = simp_iso_file
           File.open(local_vars_json, 'w') { |f| f.puts JSON.pretty_generate(vars_data) }
           local_vars_json
+        end
+
+        def validate_simp_json_template
+          return true if @simp_iso_json_template =~ %r{\.json$}i
+          line = '-' * 80
+          raise <<-JSON_SUFFIX_MSG.gsub(%r{^ {14}}, '')
+
+            #{line}
+            ERROR: simp_iso_json_template does not end with `.json`:
+
+                #{@simp_iso_json_template}
+
+            Should SIMP_ISO_JSON be set to something else?
+            #{line}
+
+          JSON_SUFFIX_MSG
         end
       end
     end
