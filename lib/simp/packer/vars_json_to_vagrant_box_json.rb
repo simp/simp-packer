@@ -72,7 +72,7 @@ module Simp
             'created_at'           => created_at,
             'updated_at'           => updated_at,
             'providers'            => [{
-              'checksum_type' => 'sha256sum',
+              'checksum_type' => 'sha256',
               'checksum'      => box_checksum,
               'name'          => options[:provider_name] || 'virtualbox',
               'url'           => File.expand_path(vagrantbox_path)
