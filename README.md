@@ -408,6 +408,7 @@ To see a list of development-related tasks available for this project, run:
   script and clean it up.
 - [ ] Delete the Virtualbox host-only network if we created it
 - [x] `rake clean` should delete symlinks that will break packer.
+- [ ] Fix builds from SIMP-6.1.0-0 ISOs
 
 [simp]:                    https://github.com/NationalSecurityAgency/SIMP
 [simp-contrib]:            https://simp.readthedocs.io/en/master/contributors_guide/
