@@ -41,10 +41,6 @@ module Simp
             os_name    = "centos#{Regexp.last_match(1)}" if os =~ %r{^el([\d])$}
             fips       = (cfg[:fips] || 'on') == 'on'
             encryption = (cfg[:encryption] || 'off') == 'on'
-            iteration_dir  = "#{label}__#{os}_#{fips ? 'fips' : 'nofips'}"
-            iteration_dir += '_encryption' if encryption
-            iteration_summary = "os=#{os} fips=#{fips ? 'on' : 'off'}"
-            iteration_summary = ' encryption=on' if encryption
 
             # FIXME: the pattern matching of the files my not line up with the
             # iteration os.  This workaround uses the .json to find a match
@@ -75,20 +71,24 @@ module Simp
               warn "INFO: falling back to ISO at same path/naming scheme as json file:\n  Using ISO '#{simp_iso_file}'"
             end
 
+            iteration_dir  = "#{label}__#{vars_data['box_simp_release']}__#{os}_#{fips ? 'fips' : 'nofips'}"
+            iteration_dir += '_encryption' if encryption
+            iteration_summary = "os=#{os} fips=#{fips ? 'on' : 'off'}"
+            iteration_summary = ' encryption=on' if encryption
             vm_description =  "SIMP#{vars_data['box_simp_release']}-#{os_name.upcase}-#{fips ? 'FIPS' : 'NOFIPS'}"
             vm_description += '-ENCRYPTED' if encryption
 
-            puts "\n"*5
-            puts '='*80
-            puts "==== Iteration #{iteration_number}/#{iteration_total}: #{iteration_summary}"
-            puts '='*80
+            puts "\n" * 5
+            puts '=' * 80
+            puts "==== Iteration #{iteration_number}/#{iteration_total}: #{vars_data['box_simp_release']} #{iteration_summary}"
+            puts '=' * 80
             puts "vm_description:        #{vm_description}"
             puts "DIR_NAME:              #{iteration_dir}"
             puts "SIMP_ISO_FILE:         #{simp_iso_file}"
             puts "SIMP_ISO_JSON:         #{simp_iso_json}"
             puts "PACKER_CONFIGS_DIR:    #{@packer_configs_dir}"
-            puts '='*80
-            puts "\n"*2
+            puts '=' * 80
+            puts "\n" * 2
 
             raise "ERROR: no .iso file at #{simp_iso_file}" unless File.exist?(simp_iso_file)
             raise "ERROR: no .json file at #{simp_iso_json}" unless File.exist?(simp_iso_json)
@@ -117,10 +117,11 @@ module Simp
             new_box = File.expand_path("#{iteration_dir}/OUTPUT/#{vm_description}.box")
             vars_json_path = File.expand_path(local_vars_json, iteration_dir)
             sh %(rake vagrant:publish:local["#{@box_dir}","#{vars_json_path}","#{new_box}",hardlink] |& tee -a #{log})
-            sh "date > '#{log}'"
+            sh "date >> '#{log}'"
           end
         end
 
+        # Subsititute keywords in matrix template names
         def matrix_subs(string, os_shortcode, os_maj_ver)
           string.to_s.gsub('%OS%', os_shortcode).gsub('%OS_MAJ_VER%', os_maj_ver)
         end
