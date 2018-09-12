@@ -25,7 +25,7 @@ File.open(filename.to_s, 'w') do |h|
   h.write puppetyaml.to_yaml
   h.close
 end
-FileUtils.chmod 0640, filename
+FileUtils.chmod 0o0640, filename
 FileUtils.chown 'root', 'puppet', filename
 
 # create hiera file for the workstations host group.
@@ -43,5 +43,5 @@ File.open(wsfilename.to_s, 'w') do |h|
   h.write wshash.to_yaml
   h.close
 end
-FileUtils.chmod 0640, wsfilename
+FileUtils.chmod 0o0640, wsfilename
 FileUtils.chown 'root', 'puppet', wsfilename

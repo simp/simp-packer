@@ -25,8 +25,6 @@ if [[ "$(cat /etc/simp/simp.version)" =~ ^6\.1\.0- ]]; then
  ### sed -i -e "s/puppetdb::globals::version: .*$/puppetdb::globals::version: '2.3.8-1.el${el_ver}'/" "$yaml_file"
 fi
 
-echo "SIMP VERSION: '${simp_version}'"
-
 # run bootstrap
 echo "**********************"
 echo "Running Simp Bootstrap"
