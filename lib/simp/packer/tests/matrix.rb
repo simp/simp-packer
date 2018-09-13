@@ -51,7 +51,9 @@ module Simp
               j['box_distro_release'] =~ %r{#{os.sub(%r{^el}, 'CentOS-')}}
             end
             if simp_iso_json.size > 1
-              raise "Multiple versions found for '#{os}':\n#{simp_iso_json.map { |x| "  - #{x}" }.join("\n")}"
+              raise "ERROR: Multiple versions found for '#{os}':\n#{simp_iso_json.map { |x| "  - #{x}" }.join("\n")}"
+            elsif simp_iso_json.size == 0
+              raise "ERROR: No match for '#{resolved_json}'"
             end
             simp_iso_json = simp_iso_json.first
             vars_data = JSON.parse(File.read(simp_iso_json))
