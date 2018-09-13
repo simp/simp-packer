@@ -13,3 +13,4 @@ packer_cache
 dist
 puppet/modules/*/spec/fixtures
 /doc/
+build_*/
