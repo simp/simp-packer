@@ -373,6 +373,19 @@
       ]
     },
 
+    // Remove /etc/udev/rules.d/70-persistent-net.rules
+    // These can be troublesome on on el6 VMs
+    {
+      "type": "shell",
+      "remote_path": "/var/local/simp/clear-udev-net-persistent-rules.sh",
+      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
+      "inline" : [
+        "if [ -f /etc/udev/rules.d/70-persistent-net.rules ]; then",
+          "rm -f /etc/udev/rules.d/70-persistent-net.rules",
+        "fi"
+      ]
+    },
+
     {
       "type": "shell",
       "remote_path": "/var/local/simp/inline-simp-done.sh",
