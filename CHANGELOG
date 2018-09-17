@@ -1,3 +1,6 @@
+Mon Sep 17 2018 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - UNRELEASED
+- Fixed error in tftpboot erb in simpsetup.
+
 Wed Aug 30 2018 Chris Tessmer <chris.tessmer@onyxpoint.com> - UNRELEASED
 
 - Cleaned up scripts and manifests:

@@ -5,7 +5,7 @@
 #   By default, this uses HTTP and the host's *primary* IP address.
 #
 class site::tftpboot (
-  Simplib::URI $kickstart_server_uri = "http://${facts['ipaddress']}/ks"
+  Simplib::URI $kickstart_server_uri = "https://${facts['ipaddress']}/ks"
 ){
   include '::tftpboot'
 
@@ -14,7 +14,7 @@ class site::tftpboot (
       tftpboot::linux_model { 'el7_x86_64':
         kernel => 'centos-7-x86_64/vmlinuz',
         initrd => 'centos-7-x86_64/initrd.img',
-        ks     => "https://${kickstart_server_uri}/pupclient_x86_64.cfg",
+        ks     => "${kickstart_server_uri}/pupclient_x86_64.cfg",
         extra  => "inst.noverifyssl ksdevice=bootif\nipappend 2"
       }
     }
@@ -22,7 +22,7 @@ class site::tftpboot (
       tftpboot::linux_model { 'el6_x86_64':
         kernel => 'centos-6-x86_64/vmlinuz',
         initrd => 'centos-6-x86_64/initrd.img',
-        ks     => "https://${kickstart_server_uri}/pupclient_x86_64.cfg",
+        ks     => "${kickstart_server_uri}/pupclient_x86_64.cfg",
         extra  => "noverifyssl ksdevice=bootif\nipappend 2"
       }
     }
