@@ -12,17 +12,17 @@ module Simp
         # @param matrix [Array] matrix of things
         def initialize(matrix)
           simp_iso_json_files = ENV['SIMP_ISO_JSON_FILES']
-          @simp_iso_json_files = simp_iso_json_files.split(%r{[,:]})
-          full_matrix = ["json=#{@simp_iso_json_files.join(':')}"] + matrix
-          @iterations = simp_json_filter(unroll(full_matrix))
-          @box_dir = ENV['VAGRANT_BOX_DIR'] || "/opt/#{ENV['USER']}/vagrant"
-          @files_dir = ENV['SAMPLE_DIR'] || File.join(
+          files_dir           = ENV['SAMPLE_DIR'] || File.join(
             File.dirname(File.dirname(__FILE__)), 'files'
           )
 
-          @dir_name           = ENV['DIR_NAME'] || 'test'
-          @packer_configs_dir = ENV['SIMP_PACKER_CONFIGS_DIR'] || File.join(@files_dir, 'configs')
-          @tmp_dir            = ENV['TMP_DIR'] || File.join(Dir.pwd, 'tmp')
+          @vagrant_box_dir     = ENV['VAGRANT_BOX_DIR'] || "/opt/#{ENV['USER']}/vagrant"
+          @simp_iso_json_files = simp_iso_json_files.split(%r{[,:]})
+          full_matrix          = ["json=#{@simp_iso_json_files.join(':')}"] + matrix
+          @iterations          = simp_json_iteration_filter(unroll(full_matrix))
+          @tmp_dir             = ENV['TMP_DIR'] || File.join(Dir.pwd, 'tmp')
+          @dir_name            = ENV['DIR_NAME'] || 'test'
+          @packer_configs_dir  = ENV['SIMP_PACKER_CONFIGS_DIR'] || File.join(files_dir, 'configs')
         end
 
         def run(label = (ENV['MATRIX_LABEL'] || 'build') + Time.now.utc.strftime('_%Y%m%d_%H%M%S'))
@@ -31,10 +31,9 @@ module Simp
           @iterations.each do |cfg|
             iteration_number += 1
             simp_iso_json = cfg[:json]
-            vars_data = JSON.parse(File.read(simp_iso_json))
-            m = infer_os_from_name(File.basename(vars_data['iso_url']))
+            vars_data     = JSON.parse(File.read(simp_iso_json))
+            m             = infer_os_from_name(File.basename(vars_data['iso_url']))
 
-            os         = cfg[:el]
             os_name    = "#{m[:os]}#{m[:el]}".downcase
             fips       = (cfg[:fips] || 'on') == 'on'
             encryption = (cfg[:encryption] || 'off') == 'on'
@@ -49,9 +48,9 @@ module Simp
               warn "INFO: falling back to ISO at same path/naming scheme as json file:\n  Using ISO '#{simp_iso_file}'"
             end
 
-            iteration_dir  = "#{label}__#{vars_data['box_simp_release']}__#{os}_#{fips ? 'fips' : 'nofips'}"
+            iteration_dir  = "#{label}__#{vars_data['box_simp_release']}__#{os_name}_#{fips ? 'fips' : 'nofips'}"
             iteration_dir += '_encryption' if encryption
-            iteration_summary = "os=#{os} fips=#{fips ? 'on' : 'off'}"
+            iteration_summary = "os=#{os_name} fips=#{fips ? 'on' : 'off'}"
             iteration_summary = ' encryption=on' if encryption
             vm_description =  "SIMP#{vars_data['box_simp_release']}-#{os_name.upcase}-#{fips ? 'FIPS' : 'NOFIPS'}"
             vm_description += '-ENCRYPTED' if encryption
@@ -94,7 +93,7 @@ module Simp
 
             new_box = File.expand_path("#{iteration_dir}/OUTPUT/#{vm_description}.box")
             vars_json_path = File.expand_path(local_vars_json, iteration_dir)
-            sh %(rake vagrant:publish:local["#{@box_dir}","#{vars_json_path}","#{new_box}",hardlink] |& tee -a #{log})
+            sh %(rake vagrant:publish:local["#{@vagrant_box_dir}","#{vars_json_path}","#{new_box}",hardlink] |& tee -a #{log})
             sh "date >> '#{log}'"
           end
         end
@@ -121,7 +120,7 @@ module Simp
           local_vars_json
         end
 
-        def simp_json_filter(unrolled_matrix)
+        def simp_json_iteration_filter(unrolled_matrix)
           json_files = unrolled_matrix.map { |c| c[:json] }.uniq
           actual_json_files = {}
           json_files.each do |f|
