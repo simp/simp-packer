@@ -8,23 +8,19 @@ module Simp
       class Matrix
         include MatrixUnroller
         include FileUtils
+
         # @param matrix [Array] matrix of things
         def initialize(matrix)
-          @iterations = unroll matrix
-
-          @iso_dir = ENV['ISO_DIR'] || "/opt/#{ENV['USER']}/ISO"
-          @src_dir = ENV['SRC_DIR'] || "/opt/#{ENV['USER']}/src"
-          @box_dir = ENV['BOX_DIR'] || "/opt/#{ENV['USER']}/vagrant"
+          simp_iso_json_files = ENV['SIMP_ISO_JSON_FILES']
+          @simp_iso_json_files = simp_iso_json_files.split(%r{[,:]})
+          full_matrix = ["json=#{@simp_iso_json_files.join(':')}"] + matrix
+          @iterations = simp_json_filter(unroll(full_matrix))
+          @box_dir = ENV['VAGRANT_BOX_DIR'] || "/opt/#{ENV['USER']}/vagrant"
           @files_dir = ENV['SAMPLE_DIR'] || File.join(
             File.dirname(File.dirname(__FILE__)), 'files'
           )
 
-          @dir_name           = ENV['DIR_NAME']           || 'test'
-          @simp_iso_dir       = ENV['SIMP_ISO_DIR']       || File.join(@iso_dir, 'simp', 'prereleases')
-          @simp_iso_json_template = ENV['SIMP_ISO_JSON'] || \
-                                    File.join(@simp_iso_dir, 'SIMP-6.2.0-RC1.%OS%-CentOS-%OS_MAJ_VER%.?-x86_64.json')
-          validate_simp_json_template
-
+          @dir_name           = ENV['DIR_NAME'] || 'test'
           @packer_configs_dir = ENV['SIMP_PACKER_CONFIGS_DIR'] || File.join(@files_dir, 'configs')
           @tmp_dir            = ENV['TMP_DIR'] || File.join(Dir.pwd, 'tmp')
         end
@@ -34,37 +30,17 @@ module Simp
           iteration_number = 0
           @iterations.each do |cfg|
             iteration_number += 1
-            os         = cfg[:os]
-            os_maj_ver = os.sub(%r{^.*(\d+)(?:\.\d+)?$}, '\1')
+            simp_iso_json = cfg[:json]
+            vars_data = JSON.parse(File.read(simp_iso_json))
+            m = infer_os_from_name(File.basename(vars_data['iso_url']))
 
-            # TODO: will eventually need a more robust check for rhel, oel
-            os_name    = "centos#{Regexp.last_match(1)}" if os =~ %r{^el([\d])$}
+            os         = cfg[:el]
+            os_name    = "#{m[:os]}#{m[:el]}".downcase
             fips       = (cfg[:fips] || 'on') == 'on'
             encryption = (cfg[:encryption] || 'off') == 'on'
 
-            # FIXME: the pattern matching of the files my not line up with the
-            # iteration os.  This workaround uses the .json to find a match
-            # based on the os major version number
-            resolved_json = matrix_subs(@simp_iso_json_template, os, os_maj_ver)
-            simp_iso_json = Dir[resolved_json].select do |x|
-              j = JSON.parse(File.read(x))
-              j['box_distro_release'] =~ %r{#{os.sub(%r{^el}, 'CentOS-')}}
-            end
-            if simp_iso_json.size > 1
-              raise "ERROR: Multiple versions found for '#{os}':\n#{simp_iso_json.map { |x| "  - #{x}" }.join("\n")}"
-            elsif simp_iso_json.size == 0
-              raise "ERROR: No match for '#{resolved_json}'"
-            end
-            simp_iso_json = simp_iso_json.first
-            vars_data = JSON.parse(File.read(simp_iso_json))
-
             same_patt = Dir[simp_iso_json.gsub(%r{\.json$}, '.iso')].first
-            subbed_env_var = matrix_subs(ENV['SIMP_ISO_FILE'].to_s, os, os_maj_ver)
-            if File.file?(subbed_env_var)
-              simp_iso_file = subbed_env_var
-              vars_data['iso_url'] = simp_iso_file
-              warn "INFO: ISO found at ENV['SIMP_ISO_FILE']:\n  Using ISO '#{simp_iso_file}'"
-            elsif File.file?(vars_data['iso_url'])
+            if File.file?(vars_data['iso_url'])
               simp_iso_file = vars_data['iso_url']
               warn "INFO: ISO found at iso_url in '#{simp_iso_json}':\n  Using ISO '#{simp_iso_file}'"
             elsif File.file?(same_patt)
@@ -123,11 +99,6 @@ module Simp
           end
         end
 
-        # Subsititute keywords in matrix template names
-        def matrix_subs(string, os_shortcode, os_maj_ver)
-          string.to_s.gsub('%OS%', os_shortcode).gsub('%OS_MAJ_VER%', os_maj_ver)
-        end
-
         def generate_packer_yaml(vm_description, os_name, fips, encryption)
           local_packer_yaml = 'packer.yaml'
           packer_yaml_lines = File.read(File.join(@packer_configs_dir, os_name, 'packer.yaml')).split(%r{\n})
@@ -150,20 +121,28 @@ module Simp
           local_vars_json
         end
 
-        def validate_simp_json_template
-          return true if @simp_iso_json_template =~ %r{\.json$}i
-          line = '-' * 80
-          raise <<-JSON_SUFFIX_MSG.gsub(%r{^ {14}}, '')
+        def simp_json_filter(unrolled_matrix)
+          json_files = unrolled_matrix.map { |c| c[:json] }.uniq
+          actual_json_files = {}
+          json_files.each do |f|
+            begin
+              actual_json_files[f] = JSON.parse(File.read(f))
+            rescue Errno::ENOENT
+              warn("WARNING: File not found: '#{f}'")
+            rescue JSON::ParserError
+              warn("WARNING: Not a JSON file: '#{f}'")
+            end
+          end
 
-            #{line}
-            ERROR: simp_iso_json_template does not end with `.json`:
+          filtered_matrix = unrolled_matrix.select { |x| actual_json_files.key?(x[:json]) }
+          filtered_matrix.select do |cfg|
+            iso_name = File.basename(actual_json_files[cfg[:json]]['iso_url'])
+            infer_os_from_name(iso_name)[:el] == cfg[:el]
+          end
+        end
 
-                #{@simp_iso_json_template}
-
-            Should SIMP_ISO_JSON be set to something else?
-            #{line}
-
-          JSON_SUFFIX_MSG
+        def infer_os_from_name(name)
+          name.match(%r{(?<os>CentOS)-(?<el>\d+)})
         end
       end
     end
