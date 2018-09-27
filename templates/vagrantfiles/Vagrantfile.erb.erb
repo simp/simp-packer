@@ -1,9 +1,19 @@
+<%
+  # NOTE: YES, this file is intended to end with `.erb.erb`! :)
+  #
+  # This template is used by simp-packer to _create_ a propoerly-configured
+  # Vagrantfile.erb to provide to the `--template` flag in `vagrant init`:
+  #
+  #   vagrant init BOX --template VAGRANT_ERB_FILE
+  #
+  # All the double-precent marks will be processed into single-percent marks in
+  # the final template file.
+-%>
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 #
 #
-# Usage:  vagrant init --template THIS_TEMPLATE boxname 
-
+# Usage:  vagrant init --template THIS_TEMPLATE boxname
 
 Vagrant.configure("2") do |config|
   config.ssh.insert_key = false
