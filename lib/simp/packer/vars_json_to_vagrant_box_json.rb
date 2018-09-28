@@ -108,7 +108,7 @@ module Simp
         end
       end
 
-      # Make SURE a String is SemVer (but if it's alredy SemVer, leave it alone)
+      # Make SURE a String is SemVer (but if it's already SemVer, leave it alone)
       #
       # @note This ought to be a last resort, as it translates things like "6.X"
       #       into "6.0.0-X".   If you have any more tricks up your sleeve that
@@ -127,7 +127,7 @@ module Simp
         fragment
       end
 
-      # Return as much of valid SemVer (including suffixes for pre-relase and
+      # Return as much of valid SemVer (including suffixes for pre-release and
       #   build metadata as possible) as a String contains
       #
       # SemVer 2.0.0 regex, tested at http://rubular.com/r/s9QAkciFhz
