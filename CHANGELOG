@@ -1,48 +1,66 @@
-Mon Sep 17 2018 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - UNRELEASED
-- Fixed error in tftpboot erb in simpsetup.
+Fri Sep 28 2018 Chris Tessmer <chris.tessmer@onyxpoint.com> - 2.2.0
 
-Wed Aug 30 2018 Chris Tessmer <chris.tessmer@onyxpoint.com> - UNRELEASED
+* Added:
+  - Initial build matrix support
+  - Rake tasks:
+    - `rake simp:packer:matrix[]` (experimental)
+      - Iterates through a matrix of conditions to run `simp_packer_test.sh`
+    - `rake vagrant:publish:local[]`
+      - Install vagrant box into a local directory tree
+      - Generates versioned metadata
+  - YARD support
+* Changed:
+  - Improved vagrant box tree logic and code documentation
+  - Fixed broken SIMP 6.1.0 support
+    - (SIMP-5350) Fixed el6/udev/eth1 VM cloning bug
+    - (SIMP-4482) Added umask to 6.1.0 `simp bootstrap`
+  - Fixed box name bug in `Vagrantfile.erb.erb`
 
-- Cleaned up scripts and manifests:
-  - Code conforms to common lint checks
-  - Fixed minor bugs
-  - Added meaningful tests:
+
+Mon Sep 17 2018 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 2.1.1
+
+* Changed:
+  - Fixed error in tftpboot erb in simpsetup.
+
+Wed Aug 30 2018 Chris Tessmer <chris.tessmer@onyxpoint.com> - 2.1.0
+
+* Added:
+  - Tests:
     - Shell scripts are linted by shellcheck.
     - Ruby code is linted by rubocop.
-    - Added spec tests to the `simpsetup` Puppet module
-  - Restructured puppet code:
-    - Puppet code is now under `puppet/modules/` and `puppet/profiles/`.
-    - Added module metadata and development files to `simpsetup`.
-    - Unused manifest files have been given the suffix `.UNUSED`.
-  - Added `rakelib/` directory for rake tasks
-  - Added `lib/` directory for ruby code (prep for spec tests)
+    - rspec-puppet tests check the `simpsetup` Puppet module
+  - Rake tasks:
+    - `bundle exec rake test`: Runs all tests (rubocop, shellcheck, rspec)
+    - `bundle exec rake clean`: Removes packer-breaking symlinks and fixtures
+    - `bundle exec rake vagrant:boxname[]`: (experimental) Generates a JSON file
+       that Vagrantfiles and beaker nodesets can use to compare box versions
+* Changed:
+  - Fixed/rewrote the Travis CI pipeline
+  - Cleaned up scripts and manifests:
+    - Code conforms to common lint checks
+    - Restructured puppet code:
+      - Puppet code is now under `puppet/modules/` and `puppet/profiles/`.
+      - Added module metadata and development files to `simpsetup`.
+      - Unused manifest files have been given the suffix `.UNUSED`.
+    - Added `rakelib/` directory for rake tasks
+    - Added `lib/` directory for ruby code (prep for spec tests)
+    - Fixed minor bugs
+  - README:
+    - Restructured and expanded documentation
+    - Added a diagram of the basic workflow and directory structure.
+    - Added a troubleshooting section.
+    - Converted `samples/README` to markdown and linked from the top-level
+      `README.md`.
+    - Added TODO checklist for upcoming tasks.
+    - Documented important environment variables.
+    - Automated Markdown TOC with `mzlogin/vim-markdown-toc` (vim plugin).
+  - Cleaned up `simp.json.template`
+    - Added RHEL support, new variables, minor fixes for bugs and logic
+    - Moved to `templates/`
+    - Expanded comments and converted them into `//`-format, so text editors can
+      use JavaScript syntax highlighting rules to correctly render the whole file.
 
-- README love:
-  - Restructured and expanded documentation;
-  - Added a diagram of the basic workflow and directory structure.
-  - Added a troubleshooting section.
-  - Converted `samples/README` to markdown and linked from the top-level
-    `README.md`.
-  - Added TODO checklist for upcoming tasks.
-  - Documented important environment variables.
-  - Automated Markdown TOC with `mzlogin/vim-markdown-toc` (vim plugin).
-
-- Cleaned up `simp.json.template`
-  - Added RHEL support, new variables, minor fixes for bugs and logic
-  - Moved to `templates/`
-  - Expanded comments and converted them into `//`-format, so text editors can
-    use JavaScript syntax highlighting rules to correctly render the whole file.
-
-- Added Rake tasks.  Notable examples:
-  - `bundle exec rake test`: Runs all tests
-  - `bundle exec rake clean`: Removes packer-breaking symlinks and fixtures
-  - `bundle exec rake vagrant:boxname[]`: (experimental) Generates a JSON file
-    that Vagrantfiles and beaker nodesets can use to compare box versions
-
-- Added a functional Travis CI pipeline.
-
-
-Wed Jul 11 2018 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 2.0.0-0
+Wed Jul 11 2018 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 2.0.0
 - Removed old code and moved simp-testing to the main directory
 - Updated the code to work with packer version 1.2.4
 - Updated manifests/scripts to work with SIMP 6.2 changes
@@ -50,8 +68,8 @@ Wed Jul 11 2018 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 2.0.0-0
   have not implemented UEFI code yet.
 - Updated simpsetup to use primary network interface instead of hardcoded interface.
 
-Wed Mar 14 2018 Liz Nemsick <lnemsick.simp@gmail.com> - 0.1.0-0
-- simp-testing updates:
+Wed Mar 14 2018 Liz Nemsick <lnemsick.simp@gmail.com> - 0.1.0
+* simp-testing updates:
   - Added ability to set root's umask prior to running 'simp config'.
     This allows testing of the fix to the SIMP 6.1.0 problem in which
     SIMP failed to bootstrap on a system on which root's umask has
@@ -61,6 +79,15 @@ Wed Mar 14 2018 Liz Nemsick <lnemsick.simp@gmail.com> - 0.1.0-0
   - Minor code refactor/documentation updates.
   - Checked in more example configurations.
 
-Tue Jun 27 2017 Jeanne Greulich <jeanne.greulich@onyxpoint.com> 0.1.0-0
-- Created functioning tests and infrastructure to run them in simp-testing/.
+Tue Jun 27 2017 Jeanne Greulich <jeanne.greulich@onyxpoint.com> 0.1.0
+* Created functioning tests and infrastructure to run them in simp-testing/.
   When the tests succeed a bootstrapped, SIMP vbox is created.
+
+Thu Oct 2016 Lucas Yamanishi <lucas.yamanishi@onyxpoint.com> 0.0.3
+* Packer configures SIMP boxes more
+
+Tue Jul 14 2016 Nick Miller <nick.miller@onyxpoint.com> 0.0.2
+* Packer configures SIMP boxes
+
+Fri Jan 29 2016 Chris Tessmer <chris.tessmer@onyxpoint.com> - 0.0.1
+* Packer builds SIMP boxes
