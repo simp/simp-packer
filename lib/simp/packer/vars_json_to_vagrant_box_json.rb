@@ -31,7 +31,14 @@ module Simp
       # Convert the data from a simp-packer `vars.json` to Vagrant-consumable
       #   metadata that includes version information and box location
       #
-      # @param vagrant_path [String] path to Vagrant .box file
+      # @param vagrantbox_path [String] path to Vagrant .box file
+      # @param options [Hash] optional metadata overrides
+      #
+      # @option options [String]  :version       Defaults to the `.box` file's File.mtime (%Y%m%d.%H%M%S)
+      # @option options [String]  :status        (active)
+      # @option options [Boolean] :is_private    (false)
+      # @option options [Integer] :downloads     (0)
+      # @option options [String]  :provider_name (virtualbox)
       #
       # @see https://www.vagrantup.com/docs/boxes/format.html#box-metadata
       #   Vagrant Box Metadata structure
