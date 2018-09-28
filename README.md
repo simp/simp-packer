@@ -15,9 +15,10 @@
   * [Running a build](#running-a-build)
     * [Output](#output)
 * [Reference](#reference)
+  * [Project structure](#project-structure)
   * [The Packer file](#the-packer-file)
-    * [The Build Section](#the-build-section)
-    * [The Provisioning Section](#the-provisioning-section)
+    * [Build Section](#build-section)
+    * [Provisioning Section](#provisioning-section)
   * [The Vagrantfile](#the-vagrantfile)
   * [Default SIMP server environment](#default-simp-server-environment)
 * [Troubleshooting & common problems](#troubleshooting--common-problems)
@@ -127,9 +128,39 @@ See [samples/README.md](samples/README.md) for more information.
 
 ## Reference
 
+
+### Project structure
+
+```
+.
+├── assets/ ................ Images used by README.md
+├── lib/                     Ruby libraries
+├── metadata.json
+├── puppet/                  ‡Puppet code (run inside VM)
+│   └── modules/               ‡ contains `simpsetup::`
+├── rakelib/ ............... Rake tasks
+├── README.md
+├── samples/
+│   └── README.md
+├── scripts/................ ‡ Shell scripts (run inside VM)
+│   ├── config/                 ‡ scripts that configure the VM
+│   ├── tests/                  ‡ VM tests
+├── simp_config.rb*
+├── simp_packer_test.sh* ...
+├── templates/
+│   ├── simp.json.template
+│   └── Vagrantfile.erb
+└── test.sh
+```
+
+‡ = Used inside VMs when simp-packer builds boxes
+
+
 ### The Packer file
 
-#### The Build Section
+The packer file is generated from `simp.json.template`
+
+#### Build Section
 
 - Installs the ISO
 - Adds the `vagrant` user
@@ -139,7 +170,7 @@ See [samples/README.md](samples/README.md) for more information.
 - Updates the `sudoers` file so `simp` user can sudo without a password and
   without a tty
 
-#### The Provisioning Section
+#### Provisioning Section
 
 Runs a suite of tests:
 
@@ -356,11 +387,20 @@ To see a list of development-related tasks available for this project, run:
 - [ ] Don't fail if `packer.yaml` doesn't exist (it should be able to run with
       all the defaults).
 - [ ] Compose `simp-packer.json` from JSON snippets
+- [ ] Save a version metadata for a `.box` file in Vagrant Cloud API format.
+- [ ] Scaffold and maintain a local directory tree (structured like the Vagrant
+      Cloud API, and consumable by local `vagrant init` and `vagrant up`
+      commands) of `.box` and `.json` version metadata files
 
 ### Cleanup
 
 - [ ] Restructure project to place puppet code in one place, ruby another, etc
-  - [ ] right now some Puppet code is embedded as bash heredocs
+  - [x] ruby
+    - [x] rake tasks
+    - [ ] simp_config.rb
+  - [ ] puppet
+    - [x] modules
+    - [ ] right now some Puppet code is embedded as bash heredocs
 - [ ] Change the `packer.yaml` settings to match the names used in the
   `simp.json` file to make things more consistent and will allow code
   simplification.
@@ -368,6 +408,7 @@ To see a list of development-related tasks available for this project, run:
   script and clean it up.
 - [ ] Delete the Virtualbox host-only network if we created it
 - [x] `rake clean` should delete symlinks that will break packer.
+- [ ] Fix builds from SIMP-6.1.0-0 ISOs
 
 [simp]:                    https://github.com/NationalSecurityAgency/SIMP
 [simp-contrib]:            https://simp.readthedocs.io/en/master/contributors_guide/

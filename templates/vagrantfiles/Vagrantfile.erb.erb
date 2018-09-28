@@ -1,10 +1,24 @@
+<%
+  # NOTE: YES, this file is intended to end with `.erb.erb`! :)
+  #
+  # This template is used by simp-packer to _create_ a propoerly-configured
+  # Vagrantfile.erb to provide to the `--template` flag in `vagrant init`:
+  #
+  #   vagrant init BOX --template VAGRANT_ERB_FILE
+  #
+  # All the double-precent marks will be processed into single-percent marks in
+  # the final template file.
+-%>
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
+#
+#
+# Usage:  vagrant init --template THIS_TEMPLATE boxname
 
 Vagrant.configure("2") do |config|
-  c.ssh.insert_key = false
-  c.vm.define 'puppetserver' do |v|
-    v.vm.box = "<%%= box_name %>"
+  config.ssh.insert_key = false
+  config.vm.define 'puppetserver' do |v|
+    v.vm.box = "<%= @name %>"
     <%% if box_version -%>
     v.vm.box_version = "<%%= box_version %>"
     <%% end -%>
@@ -34,4 +48,5 @@ Vagrant.configure("2") do |config|
       vb.customize ['modifyvm', :id, '--vrde', 'on']
       vb.customize ['modifyvm', :id, '--vrdeauthtype', 'null']
     end
+  end
 end

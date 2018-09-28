@@ -1,7 +1,7 @@
 #! /usr/bin/env ruby
 # Test to see if expect partitions exist, fail if they don't
 EXPECTED_PARTITIONS = ['/var', '/var/log', '/var/log/audit', '/'].sort
-puts %x(findmnt --df)
+puts %x(df -h | grep -v tmpfs)
 
 mounts = %x(findmnt --noheadings --raw).split("\n").map { |line| line.split(' ')[0] }
 
