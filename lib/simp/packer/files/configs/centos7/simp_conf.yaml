@@ -219,8 +219,6 @@ sssd::domains:
 # not referenced in your Puppet configuration.
 svckill::mode: enforcing
 
-#### uncomment to troubleshoot via the console after `simp bootstrap`:
-###
-### useradd::securetty:
-###   - tty0
-###   - tty1
+useradd::securetty:
+  - tty0
+  - tty1
