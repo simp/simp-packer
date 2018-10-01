@@ -1,3 +1,12 @@
+Mon Oct 01 2018 Chris Tessmer <chris.tessmer@onyxpoint.com> - UNRELEASED
+
+* Changed:
+
+  - Reverted bug in `useradd::securetty`
+  - Fixed bug in `Vagrantfile.erb.erb`
+  - Improved matrix `json=` handling
+  - Updated matrix docs
+
 Fri Sep 28 2018 Chris Tessmer <chris.tessmer@onyxpoint.com> - 2.2.0
 
 * Added:
