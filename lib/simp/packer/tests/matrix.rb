@@ -12,9 +12,9 @@ module Simp
         # @param matrix [Array] matrix of things
         def initialize(matrix)
           env_json_files    = parse_glob_list(ENV['SIMP_ISO_JSON_FILES'])
-          matrix_json_files = matrix.select{|x| x =~ /^json=/}.map{|x| parse_glob_list(x.sub(/^json=/,''))}.flatten
+          matrix_json_files = matrix.select { |x| x =~ %r{^json=} }.map { |x| parse_glob_list(x.sub(%r{^json=}, '')) }.flatten
           json_str          = "json=#{(env_json_files + matrix_json_files).uniq.join(':')}"
-          full_matrix       = [json_str] +  matrix.delete_if{|x| x =~ /^json=/}
+          full_matrix       = [json_str] + matrix.delete_if { |x| x =~ %r{^json=} }
           @iterations          = simp_json_iteration_filter(unroll(full_matrix))
 
           files_dir            = ENV['SAMPLE_DIR'] || File.join(
@@ -142,19 +142,16 @@ module Simp
         # Filter unrolled matrix down to iterations with valid SIMP ISO json
         #   files that match their os
         def simp_json_iteration_filter(unrolled_matrix)
-          json_data = actual_json_files(unrolled_matrix.map{|c| c[:json]}.uniq)
+          json_data = actual_json_files(unrolled_matrix.map { |c| c[:json] }.uniq)
           unrolled_matrix.select do |i|
             next unless json_data.key?(i[:json])
-            cfg = json_data[i[:json]]
-            el = i[:os].sub(/^el/,'')
-                        puts "el = '#{el}'"
+            el = i[:os].sub(%r{^el}, '')
+            puts "el = '#{el}'"
             iso_name = File.basename(json_data[i[:json]]['iso_url'])
             puts "iso_name = '#{iso_name}'"
             infer_os_from_name(iso_name)[:el] == el
           end
         end
-
-
 
         def actual_json_files(json_files)
           files = {}
