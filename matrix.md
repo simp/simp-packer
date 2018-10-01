@@ -11,13 +11,6 @@ same time. A rake task, `simp:packer:matrix` has been provided for this purpose.
 ```sh
 MATRIX_LABEL=build_6.2.0RC1_ \
 VAGRANT_BOX_DIR="$PATH_TO_VAGRANT_BOX_TREE" \
-bundle exec rake simp:packer:matrix[os=el6:el7,fips=on:off]
-
-#### Path globbing
-
-```sh
-MATRIX_LABEL=build_6.2.0RC1_ \
-VAGRANT_BOX_DIR="$PATH_TO_VAGRANT_BOX_TREE" \
 SIMP_ISO_JSON_FILES='${PATH_TO_ISO_JSON_FILES}/SIMP-6.2.0-0.el*.json' \
 bundle exec rake simp:packer:matrix[os=el6:el7,fips=on:off]
 ```
