@@ -11,18 +11,37 @@ module Simp
 
         # @param matrix [Array] matrix of things
         def initialize(matrix)
-          simp_iso_json_files = ENV['SIMP_ISO_JSON_FILES']
-          files_dir           = ENV['SAMPLE_DIR'] || File.join(
+          env_json_files    = parse_glob_list(ENV['SIMP_ISO_JSON_FILES'])
+          matrix_json_files = matrix.select{|x| x =~ /^json=/}.map{|x| parse_glob_list(x.sub(/^json=/,''))}.flatten
+          json_str          = "json=#{(env_json_files + matrix_json_files).uniq.join(':')}"
+          full_matrix       = [json_str] +  matrix.delete_if{|x| x =~ /^json=/}
+          @iterations          = simp_json_iteration_filter(unroll(full_matrix))
+
+          files_dir            = ENV['SAMPLE_DIR'] || File.join(
             File.dirname(File.dirname(__FILE__)), 'files'
           )
+          @packer_configs_dir  = ENV['SIMP_PACKER_CONFIGS_DIR'] || File.join(files_dir, 'configs')
 
           @vagrant_box_dir     = ENV['VAGRANT_BOX_DIR'] || "/opt/#{ENV['USER']}/vagrant"
-          @simp_iso_json_files = simp_iso_json_files.split(%r{[,:]})
-          full_matrix          = ["json=#{@simp_iso_json_files.join(':')}"] + matrix
-          @iterations          = simp_json_iteration_filter(unroll(full_matrix))
           @tmp_dir             = ENV['TMP_DIR'] || File.join(Dir.pwd, 'tmp')
           @dir_name            = ENV['DIR_NAME'] || 'test'
-          @packer_configs_dir  = ENV['SIMP_PACKER_CONFIGS_DIR'] || File.join(files_dir, 'configs')
+        end
+
+        # - list of paths or path globs to SIMP ISO .json files
+        # - delimited by `:` or `,`
+        # - Non-existent paths will be discarded with a warning message
+        def parse_glob_list(str)
+          globs = str.split(%r{[,:]})
+          list = []
+          globs.each do |glob|
+            files = Dir[glob]
+            if files.empty?
+              warn "WARNING: '#{glob}' did not match any files; discarding"
+              next
+            end
+            list += files
+          end
+          list
         end
 
         def run(label = (ENV['MATRIX_LABEL'] || 'build') + Time.now.utc.strftime('_%Y%m%d_%H%M%S'))
@@ -120,24 +139,35 @@ module Simp
           local_vars_json
         end
 
+        # Filter unrolled matrix down to iterations with valid SIMP ISO json
+        #   files that match their os
         def simp_json_iteration_filter(unrolled_matrix)
-          json_files = unrolled_matrix.map { |c| c[:json] }.uniq
-          actual_json_files = {}
+          json_data = actual_json_files(unrolled_matrix.map{|c| c[:json]}.uniq)
+          unrolled_matrix.select do |i|
+            next unless json_data.key?(i[:json])
+            cfg = json_data[i[:json]]
+            el = i[:os].sub(/^el/,'')
+                        puts "el = '#{el}'"
+            iso_name = File.basename(json_data[i[:json]]['iso_url'])
+            puts "iso_name = '#{iso_name}'"
+            infer_os_from_name(iso_name)[:el] == el
+          end
+        end
+
+
+
+        def actual_json_files(json_files)
+          files = {}
           json_files.each do |f|
             begin
-              actual_json_files[f] = JSON.parse(File.read(f))
+              files[f] = JSON.parse(File.read(f))
             rescue Errno::ENOENT
               warn("WARNING: File not found: '#{f}'")
             rescue JSON::ParserError
               warn("WARNING: Not a JSON file: '#{f}'")
             end
           end
-
-          filtered_matrix = unrolled_matrix.select { |x| actual_json_files.key?(x[:json]) }
-          filtered_matrix.select do |cfg|
-            iso_name = File.basename(actual_json_files[cfg[:json]]['iso_url'])
-            infer_os_from_name(iso_name)[:el] == cfg[:el]
-          end
+          files
         end
 
         def infer_os_from_name(name)
