@@ -1,9 +1,12 @@
+
 [![License][license-badge]][license-url]
 [![Build Status][travis-badge]][travis-project]
 [![SIMP compatibility][simp-badge]][simp-badge]
 
-[Packer][packer] tooling to create Beaker-capable [Vagrant][vagrant] boxes from
-[SIMP][simp] ISOs for the purpose of CI-testing full SIMP installations.
+# simp-packer
+
+[Packer][packer]-based tooling to build [Beaker][beaker]-ready
+[Vagrant][vagrant] boxes from [SIMP ISO files][simp-iso-downloads].
 
 
 <!-- vim-markdown-toc GFM -->
@@ -11,33 +14,33 @@
 * [Overview](#overview)
 * [Setup](#setup)
 * [Usage](#usage)
-  * [Environment variables](#environment-variables)
-  * [Using Packer to test a SIMP environment](#using-packer-to-test-a-simp-environment)
-  * [Defining a packer build](#defining-a-packer-build)
-  * [Running a build](#running-a-build)
-    * [Using the `simp_packer_test.sh` script](#using-the-simp_packer_testsh-script)
-    * [Output](#output)
+  * [Using the `simp_packer_test.sh` script](#using-the-simp_packer_testsh-script)
+    * [Manually creating the configuration files](#manually-creating-the-configuration-files)
+    * [Output file locations](#output-file-locations)
   * [Running a build matrix](#running-a-build-matrix)
     * [Matrix elements](#matrix-elements)
-    * [Environment variables](#environment-variables-1)
+    * [Environment variables for build matrices](#environment-variables-for-build-matrices)
+  * [Environment variables](#environment-variables)
 * [Reference](#reference)
   * [Project structure](#project-structure)
   * [Supported SIMP releases](#supported-simp-releases)
   * [The Packer file](#the-packer-file)
     * [Build Section](#build-section)
     * [Provisioning Section](#provisioning-section)
+      * [The `simpsetup::` module](#the-simpsetup-module)
   * [The Vagrantfile](#the-vagrantfile)
   * [Default SIMP server environment](#default-simp-server-environment)
-* [Troubleshooting & common problems](#troubleshooting--common-problems)
-  * [Building the boxes](#building-the-boxes)
-    * [`fatal error: runtime: out of memory`](#fatal-error-runtime-out-of-memory)
-    * [`Post-processor failed:` ... `no space left on device`](#post-processor-failed--no-space-left-on-device)
+  * [Troubleshooting & common problems](#troubleshooting--common-problems)
+    * [Building the boxes](#building-the-boxes)
+      * [`fatal error: runtime: out of memory`](#fatal-error-runtime-out-of-memory)
+      * [`Post-processor failed:` ... `no space left on device`](#post-processor-failed--no-space-left-on-device)
 * [Development](#development)
   * [Contributing to `simp-packer`](#contributing-to-simp-packer)
   * [Travis pipeline](#travis-pipeline)
 * [TODO](#todo)
   * [Documentation](#documentation)
   * [Tests](#tests)
+  * [Box roles](#box-roles)
   * [Features](#features)
   * [Cleanup](#cleanup)
 
@@ -49,6 +52,7 @@
 
 * `simp-packer` supports SIMP >= 6.0.0-0.
 * The Vagrant boxes use the Virtualbox hypervisor, and are built using the Vagrant's [virtualbox-iso][vagrant-virtualbox-iso] builder.
+* See the [roadmap](#roadmap)
 
 [simp-packer-basics]: assets/simp-packer-basics.png
 
@@ -75,22 +79,39 @@ Requirements:
 
 ## Usage
 
-### Environment variables
+There are two ways to run simp-packer:
 
-* The [Environment Variables for Packer][packer-env-vars] are useful to customize builds.
-* Other important variables:
+1. [Using the `simp_packer_test.sh` script](#using-the-simp_packer_testsh-script)
 
-| Variable | Description |
-| -------- | ----------- |
-| **`TMP_DIR`**               | This is a **critical** [packer variable][packer-env-vars] that deserves special mention: this location _must_ be able to store over 4GB as the box is built.  The default location is `/tmp`, which on many systems is unable to store that much data.  |
-| **`EXTRA_SIMP_PACKER_ARGS`** | Extra CLI arguments when running `packer build` |
-| **`SIMP_PACKER_verbose`**   |  When `yes`, some simp-packer logic produces more detailed output (default: `no`).|
+   - Creates _unversioned_ Vagrant boxes
+   - Requires [manually creating the configuration
+    files](#manually-creating-the-configuration-files)
 
+2. [Running a build matrix](#running-a-build-matrix)
 
+   - Creates and publishes 1–n Vagrant boxes, based on a matrix of configurations
+   - Configured by environment variables and rake task arguments
+   - Publishes Vagrant boxes to a local directory tree along with JSON files
+     to describe **_versioned_** metadata about each box.
+     - Beaker and `vagrant init` can use this JSON metadata to request, compare,
+       and upgrade Vagrant boxes.
 
-### Using Packer to test a SIMP environment
+### Using the `simp_packer_test.sh` script
 
-### Defining a packer build
+The most basic was to use simp-packer is by running the `simp_packer_test.sh`
+script:
+
+```sh
+TMPDIR=/some/tmp/dir ./simp_packer_test.sh /path/to/test/directory
+```
+
+- `simp_packer_test.sh` creates a Vagrant box _without version metadata_.  The
+  script must be run from the top level of the `simp-packer` directory,
+- `packer` uses around twice the space of the virtual image footprint when
+  building, so ensure that `TMPDIR` has sufficient space.  `TMPDIR` defaults to
+  `/tmp` which is not (usually) large enough.
+
+#### Manually creating the configuration files
 
 Create a **test directory**, and include the following files:
 
@@ -110,33 +131,18 @@ Create a **test directory**, and include the following files:
 
 See [samples/README.md](samples/README.md) for more information.
 
-### Running a build
+#### Output file locations
 
-
-#### Using the `simp_packer_test.sh` script
-
-```sh
-TMPDIR=/some/tmp/dir ./simp_packer_test.sh /path/to/test/directory
-```
-
-- `simp_packer_test.sh` must be run from the top level of the `simp-packer`
-  directory.
-- `packer` uses around twice the space of the virtual image footprint when
-  building, so ensure `TMPDIR` has sufficient space.  `TMPDIR` defaults to
-  `/tmp` which is not (usually) large enough.
-
-
-#### Output
-
-- A working directory will be created under the test directory, where all the
+- A **working directory** will be created under the test directory, where all the
   scripts, manifests, and files are kept. It is erased on completion of the
   test, but can be preserved with `SIMP_PACKER_save_WORKINGDIR=true`.
-- A time-stamped log file is created in the top level of the test directory and
+- A time-stamped **log file** is created in the top level of the test directory and
   all the log output from `packer` is copied there. If the `packer` build
   fails, it is renamed from `<date>.log` to `<date>.log.errors`.
-- A Vagrant box with its VagrantFile will be located in the directory defined
-  by the `packer.yaml file` `output_directory` (default is
-  `<testdirectory>/OUTPUT`).
+- A **Vagrant box file** (`*.box`) with its `Vagrantfile` and `Vagrantfile.erb`
+  will be located in the directory defined by the `packer.yaml file`
+  `output_directory` (default is `<testdirectory>/OUTPUT`).
+
 
 
 ### Running a build matrix
@@ -151,6 +157,7 @@ same time. A rake task, `simp:packer:matrix` has been provided for this purpose:
 A typical example would look like:
 
 ```sh
+TMPDIR="$PWD/tmp" \
 MATRIX_LABEL=build_6.2.0RC1_ \
 VAGRANT_BOX_DIR="$PATH_TO_VAGRANT_BOX_TREE" \
 SIMP_ISO_JSON_FILES='${PATH_TO_ISO_JSON_FILES}/SIMP-6.2.0-0.el*.json' \
@@ -192,13 +199,25 @@ Matrix elements are delimited by colons (`:`)
   included in the matrix—and the `el7` file would not be used.
 
 
-#### Environment variables
+#### Environment variables for build matrices
 
 | Environment variable  | Description                     |
 | --------------------- | ------------------------------- |
 | `VAGRANT_BOX_DIR`     | Path to top of Vagrant box tree |
 | `SIMP_ISO_JSON_FILES` | List of absolute paths/globs to SIMP ISO `.json` files to consider (delimiters: `:`, `,`).  This variable can be used as an alternative to the matrix entry `json=`.  Non-existent paths will be discarded with a warning message |
 | `MATRIX_LABEL`        | Label for this matrix run that will prefix each iteration's directory name (default: `build`) |
+
+### Environment variables
+
+* The [Environment Variables for Packer][packer-env-vars] are useful to customize builds.
+* Other important variables:
+
+| Variable                     | Description |
+| ---------------------------- | ----------- |
+| [**`TMPDIR`**][TMPDIR]       | This is a POSIX environment variable that is often **critical to set** when running packer: the directory _must_ be able to store over 4GB as the box is being built.  The default location is `/tmp`, which on many systems is unable to store that much data. |
+| **`EXTRA_SIMP_PACKER_ARGS`** | Extra CLI arguments when running `packer build` |
+| **`SIMP_PACKER_verbose`**    |  When `yes`, some simp-packer logic produces more detailed output (default: `no`).|
+
 
 
 ## Reference
@@ -259,7 +278,10 @@ The packer file is generated from the file `templates/simp.json.template`.
 
 #### Provisioning Section
 
-Runs a suite of tests:
+Runs a suite of configurations and tests while packer is provisioning the new
+box:
+
+Configurations:
 
 - Checks that FIPS was enabled/disabled per configuration.
 - Runs `simp config` and `simp bootstrap`.
@@ -267,6 +289,9 @@ Runs a suite of tests:
   ssh` once the box is built, configures `simp` user so `packer` can continue
   working
 - Reboots and runs Puppet a couple of times.
+
+Tests:
+
 - Ensures that the build of the puppetserver is successful and the puppetserver
   is up and running and listening on the ports configured in `simp_conf.yaml`.
 - Verifies that FIPS is setting match across the `simp_conf.yaml`, the
@@ -277,6 +302,9 @@ Runs a suite of tests:
 - Verifies that `/`, `/var/`,`/var/audit` are separate partitions.
 - Checks that the port in `puppet.conf` file matches the port in
   `simp_conf.yaml`
+
+
+##### The `simpsetup::` module
 
 If the tests pass, it will configure the Puppet server.  The `simpsetup`
 module is applied using `puppet apply`.  It is run once so that if you make
@@ -309,11 +337,10 @@ output directory.
   hostonly network exists; you will have to ensure the network exists before
   running `vagrant up`.
 - You can change the network name in the Vagrant file.
-   - [ ]  FIXME: verify that this is not a problem with beaker
 - The Vagrantfile does not configure the machine to _use_ its IP address.
   You can turn it on, but changing the IP address will mess up the puppet
   server.
-- Directory sharing is enabled.
+- [Synced folders][vagrant-synced-folders] are disabled.
 
 
 ### Default SIMP server environment
@@ -323,9 +350,10 @@ output directory.
   through `server29.domain.name`, and `ws31.domain.name` to `ws39.domain.name`.
   - Each host's IP and MAC will match the hostname's number: e.g., `server21`
     will have the IP `X.X.X.21` and the MAC address `XX:XX:XX:XX:XX:21`.
-- FIXME: (verify what everything means) The default password for everything is `P@ssw0rdP@ssw0rd`. You can change the
-  default in `vars.json` with `new_password`.  However, at this time, there is
-  no mechanism to change the LDAP Password.
+- The default password for the `root` and `simp` user accounts is
+  `P@ssw0rdP@ssw0rd`.
+  - You can override this in `vars.json` by setting `new_password`.
+  - At this time, there is no mechanism to change the LDAP Password.
 - The SIMP server is configured to be an LDAP server:
   - The `basedn` will match the `packer.yaml`'s `domain` (or use the default).
   - Basic LDAP users are included: `user1`, `user2`, `admin1`, `admin2`
@@ -333,11 +361,11 @@ output directory.
 - The default distribution's ISO path is `/net/ISO/Distribution_ISOs`. This is
   currently hard-coded in `simp.json.template`.
 
-## Troubleshooting & common problems
+### Troubleshooting & common problems
 
-### Building the boxes
+#### Building the boxes
 
-#### `fatal error: runtime: out of memory`
+##### `fatal error: runtime: out of memory`
 
 This error is generally encountered during the OS ISO upload, and it means what it
 says: the host machine that is building the VM has run out of available RAM
@@ -360,7 +388,7 @@ _64-DVD-1708.iso
 ```
 
 
-#### `Post-processor failed:` ... `no space left on device`
+##### `Post-processor failed:` ... `no space left on device`
 
 `simp_config.rb` configures the vagrant post-processor to write the `.box` file
 into the `<testingdirectory>/OUTPUT` directory, or the path of
@@ -429,12 +457,12 @@ To see a list of development-related tasks available for this project, run:
 
 ### Documentation
 
-- [ ] Verify documentation
-  - [ ] FIXME comments in `README.md`
+- [x] Verify documentation
 - [x] Environment Variables
 - [ ] What does `simp_config.rb` do?
 - [ ] The purpose of simp-packer
 - [x] Contribution/Development
+- [ ] Roadmap
 
 ### Tests
 
@@ -446,10 +474,10 @@ To see a list of development-related tasks available for this project, run:
   - [x] Update the Travis CI pipeline to run asset tests
 - [ ] Asset tests _(phase 2—more complete)_:
   - [ ] Tests (at least linting) for any non-module puppet manifests?
-  - [ ] Validate [packer JSON _schema_][packer-schema]
+  - [ ] Validate `simp.json.template` creates a parseable JSON file
+  - [ ] Validate `simp.json` using the [packer JSON _schema_][packer-schema]
   - [ ] Spec tests for ruby code (after refactoring into testable components)
         under `lib/`)
-  - [ ] Validate packer JSON
   - [ ] Update the GitLab CI pipeline to run asset tests
     - `test:shellcheck` will need a `shellcheck`-capable CI Runner
 - [ ] Integration tests during `packer build`:
@@ -461,23 +489,63 @@ To see a list of development-related tasks available for this project, run:
     Since all services including DNS should be set up, nothing should change at
     that point.)
 
+###  Box roles
+
+After [SIMP-5238][SIMP-5238] is complete, simp-packer is intended to create a
+family of different SIMP box configurations to support automated integration
+tests for the entire SIMP Pre-Release checklist:
+
+![simp-packer roadmap](assets/simp-packer-box-roadmap.png)
+
+The following family of box roles can be used to automate integration tests for
+an ISO-based SIMP release:
+
+- [x] **`simp-server`** — a freshly-installed SIMP server, with `simp config` and `simp bootstrap` already applied
+- [ ] **`simp-server-noconfig`** — a freshly-install `simp-server`, but _before_ running `simp config`
+- [ ] **`empty`** — a completely [empty vagrant box][empty-vagrant-box], used to test PXE boots and kickstarts
+- [ ] **`simp-client`** — a pre-seeded SIMP client
+- [ ] **`simp-wsclient`** — a pre-seeded SIMP workstation client
+- [ ] **`linux-min`** — a SIMP installation using the `linux-min` boot option
+
+Non-ISO installations can be also be configured and tested, and they would be
+able to re-use most of the Beaker suites designed for use with the
+`simp-server` box role in [simp-integration_tests][simp-integration_tests].
+
+- [ ] Alternative `simp-server` boxes:
+  - [ ] **`yumbuilt-simp-server`** — a freshly-installed SIMP server, built
+    from a fresh OS install using the [Installing SIMP From A
+    Repository][simp-doc-install-from-repo] procedure.
+  - [ ] **`r10kbuilt-simp-server`** — a freshly-installed SIMP server, built
+    from a fresh OS install using the [r10k/Code Manager
+    Installation][simp-doc-install-from-r10k] procedure.
+
 ### Features
 
+- [ ] Compose `simp-packer.json` from JSON snippets ([SIMP-5238][SIMP-5238])
 - [ ] Move the packer build into a rake task
+- [x] `simp:packer:matrix` matrix build
 - [x] Refactor reusable host-side ruby code into a `lib/` directory
-- [ ] Add an Environment variable in to allow it to create the box even if tests
+- [ ] Add an Environment variable in to allow it to create the box, even if tests
       fail.
 - [ ] Kickstart a server and client to go with the box.
-- [ ] Make the location of the distribution ISO configurable.  Right now it is
-      hardcoded to be `/net/ISO/Distribution_ISOs`
+- [x] Make the location of the distribution ISO configurable.  ~~Right now it is
+      hard-coded to be `/net/ISO/Distribution_ISOs`~~ _(Now provided by
+      `vars.json` > `iso_url`)_
 - [ ] Validate input from `packer.yaml`
 - [ ] Don't fail if `packer.yaml` doesn't exist (it should be able to run with
       all the defaults).
-- [ ] Compose `simp-packer.json` from JSON snippets
-- [ ] Save a version metadata for a `.box` file in Vagrant Cloud API format.
-- [ ] Scaffold and maintain a local directory tree (structured like the Vagrant
-      Cloud API, and consumable by local `vagrant init` and `vagrant up`
-      commands) of `.box` and `.json` version metadata files
+- [x] Save version metadata for a `.box` file in Vagrant Cloud API format
+     (`rake vagrant:boxname`)
+- [ ] Scaffold and maintain a local Vagrant box directory tree of `.box` and
+  `.json` version metadata files.  The `.json` files must be consumable by
+  local `vagrant init` and `vagrant up` commands.
+     - [x] ~~Scaffold tree~~ (`rake vagrant:publish:local`)
+     - [x] ~~Add boxes to tree~~ (`rake vagrant:publish:local`)
+     - [ ] Remove boxes from tree
+     - [ ] List boxes in tree
+     - [ ] Find/search boxes in tree
+     - [ ] Refresh top-level box metadata to include all versions of each box
+     - [ ] Prune older box versions from tree
 
 ### Cleanup
 
@@ -495,7 +563,8 @@ To see a list of development-related tasks available for this project, run:
   script and clean it up.
 - [ ] Delete the Virtualbox host-only network if we created it
 - [x] `rake clean` should delete symlinks that will break packer.
-- [ ] Fix builds from SIMP-6.1.0-0 ISOs
+- [x] Fix builds from SIMP-6.1.0-0 ISOs
+
 
 [simp]:                    https://github.com/NationalSecurityAgency/SIMP
 [simp-contrib]:            https://simp.readthedocs.io/en/master/contributors_guide/
@@ -504,10 +573,20 @@ To see a list of development-related tasks available for this project, run:
 [packer-schema]:           https://github.com/lostintangent/packer-schema
 [vagrant]:                 https://www.vagrantup.com
 [vagrant-virtualbox-iso]:  https://www.packer.io/docs/builders/virtualbox-iso.html
+[vagrant-synced-folders]:  https://www.vagrantup.com/docs/synced-folders/
 [packer-env-vars]:         https://www.packer.io/docs/other/environment-variables.html
+[beaker]:                  https://github.com/puppetlabs/beaker
 [rubocop]:                 https://github.com/rubocop-hq/rubocop
 [shellcheck]:              https://github.com/koalaman/shellcheck
 [simp-iso-downloads]:      https://download.simp-project.com/simp/ISO/
+[simp-integration_tests]:  https://github.com/op-ct/simp-integration_tests
+[empty-vagrant-box]:       https://github.com/op-ct/simp-pxe-vagrantfile/blob/master/empty_box/packer/packer__empty_box.json
+[TMPDIR]:                  https://en.wikipedia.org/wiki/TMPDIR
+
+<!-- SIMP issues and procedures -->
+[SIMP-5238]:                  https://simp-project.atlassian.net/browse/SIMP-5238
+[simp-doc-install-from-repo]: https://simp.readthedocs.io/en/latest/getting_started_guide/Installation_Options/Repository/Installing_SIMP_From_A_Repository.html
+[simp-doc-install-from-r10k]: https://simp.readthedocs.io/en/latest/getting_started_guide/Installation_Options/r10k/index.html
 
 <!-- badges and badge links -->
 [license-badge]:  http://img.shields.io/:license-apache-blue.svg
