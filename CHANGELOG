@@ -1,20 +1,25 @@
 Mon Oct 02 2018 Chris Tessmer <chris.tessmer@onyxpoint.com> - UNRELEASED
 
-This release is primarily a README update:
+This release is primarily a documentation update:
 
 * Added:
-  - "Supported SIMP releases" section in README
-  - "Running a build matrix" section in README
-  - New environment variable: `SIMP_PACKER_verbose=yes`
-  - Add 'Puppet 5.5 (SIMP 6.3+)' to Travis CI stages
+  - README sections:
+    - "Supported SIMP releases"
+    - "Running a build matrix"
+    - "TODO > Box roles"
+    - Detailed sub-steps for "TODO > Features > Vagrant box directory tree"
+    - SIMP GitHub badges
+  - Environment variable: `SIMP_PACKER_verbose=yes`
+  - Travis CI stage: 'Puppet 5.5 (SIMP 6.3+)'
 * Changed:
-  - Documentation cleanup:
+  - README/documentation cleanup:
     - Cleaned up project structure
+    - Rewrote most of the "Usage" section
+      - Merged `matrix.md` documentation
     - Minor clarifications throughout the document
-    - Merged `matrix.md` documentation into main README
 * Removed:
   - Top-level `metadata.json` file
-  - Separate `matrix.md` documentation file
+  - `matrix.md` file
 
 
 Mon Oct 01 2018 Chris Tessmer <chris.tessmer@onyxpoint.com> - 2.2.1
