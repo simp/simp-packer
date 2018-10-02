@@ -1,7 +1,9 @@
-# simp-packer
+[![License][license-badge]][license-url]
+[![Build Status][travis-badge]][travis-project]
+[![SIMP compatibility][simp-badge]][simp-badge]
 
-[Packer][packer] tooling to create Beaker-capable [Vagrant][vagrant] `.box`es from
-[SIMP][simp] ISOs for the purpose of CI testing full SIMP installations.
+[Packer][packer] tooling to create Beaker-capable [Vagrant][vagrant] boxes from
+[SIMP][simp] ISOs for the purpose of CI-testing full SIMP installations.
 
 
 <!-- vim-markdown-toc GFM -->
@@ -13,9 +15,14 @@
   * [Using Packer to test a SIMP environment](#using-packer-to-test-a-simp-environment)
   * [Defining a packer build](#defining-a-packer-build)
   * [Running a build](#running-a-build)
+    * [Using the `simp_packer_test.sh` script](#using-the-simp_packer_testsh-script)
     * [Output](#output)
+  * [Running a build matrix](#running-a-build-matrix)
+    * [Matrix elements](#matrix-elements)
+    * [Environment variables](#environment-variables-1)
 * [Reference](#reference)
   * [Project structure](#project-structure)
+  * [Supported SIMP releases](#supported-simp-releases)
   * [The Packer file](#the-packer-file)
     * [Build Section](#build-section)
     * [Provisioning Section](#provisioning-section)
@@ -51,7 +58,7 @@ Requirements:
 
 * [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
 * [Vagrant](https://www.vagrantup.com/downloads.html)
-* [Packer](https://www.packer.io/downloads.html) is distributed as a binary.
+* [Packer](https://www.packer.io/downloads.html) (distributed as a binary).
 
   - Ensure the binary is in your `$PATH` and comes before any other packer
     executables on the system (e.g., `export PATH="/path/to/packer:$PATH"`).
@@ -75,9 +82,9 @@ Requirements:
 
 | Variable | Description |
 | -------- | ----------- |
-| **`EXTRA_SIMP_PACKER_ARGS`** | Injects extra CLI arguments during `packer build` |
-| **`TMP_DIR`**               | This is a critical [packer variable][packer-env-vars] that deserves special mention: this location _must_ be able to store over 4GB as the box is built.  The default location is `/tmp`, which on many systems is unable to store that much data.  |
-
+| **`TMP_DIR`**               | This is a **critical** [packer variable][packer-env-vars] that deserves special mention: this location _must_ be able to store over 4GB as the box is built.  The default location is `/tmp`, which on many systems is unable to store that much data.  |
+| **`EXTRA_SIMP_PACKER_ARGS`** | Extra CLI arguments when running `packer build` |
+| **`SIMP_PACKER_verbose`**   |  When `yes`, some simp-packer logic produces more detailed output (default: `no`).|
 
 
 
@@ -105,7 +112,12 @@ See [samples/README.md](samples/README.md) for more information.
 
 ### Running a build
 
-`TMPDIR=/some/tmp/dir ./simp_packer_test.sh /path/to/test/directory`
+
+#### Using the `simp_packer_test.sh` script
+
+```sh
+TMPDIR=/some/tmp/dir ./simp_packer_test.sh /path/to/test/directory
+```
 
 - `simp_packer_test.sh` must be run from the top level of the `simp-packer`
   directory.
@@ -126,39 +138,114 @@ See [samples/README.md](samples/README.md) for more information.
   by the `packer.yaml file` `output_directory` (default is
   `<testdirectory>/OUTPUT`).
 
-## Reference
 
+### Running a build matrix
+
+Often, it is desirable to build several 'flavors' of simp-packer boxes at the
+same time. A rake task, `simp:packer:matrix` has been provided for this purpose:
+
+```sh
+[ENV_VAR=value ...] bundle exec rake simp:packer:matrix[MATRIX_ELEMENTS ...]
+```
+
+A typical example would look like:
+
+```sh
+MATRIX_LABEL=build_6.2.0RC1_ \
+VAGRANT_BOX_DIR="$PATH_TO_VAGRANT_BOX_TREE" \
+SIMP_ISO_JSON_FILES='${PATH_TO_ISO_JSON_FILES}/SIMP-6.2.0-0.el*.json' \
+bundle exec rake simp:packer:matrix[os=el6:el7,fips=on:off]
+```
+
+Assuming the glob `${PATH_TO_ISO_JSON_FILES}/SIMP-6.2.0-0.el*.json` matched two
+files (one for `el6` and one for `el7`), this would result in four back-to-back
+simp-packer builds:
+
+* (`os=el6`, `fips=on`)  SIMP-6.2.0-0.el6 with FIPS mode enabled
+* (`os=el7`, `fips=on`)   SIMP-6.2.0-0.el7 with FIPS mode enabled
+* (`os=el6`, `fips=off`) SIMP-6.2.0-0.el6 with FIPS mode disabled
+* (`os=el7`, `fips=off`) SIMP-6.2.0-0.el7 with FIPS mode disabled
+
+#### Matrix elements
+
+Matrix elements are delimited by colons (`:`)
+
+| Matrix args   | Supported | Default |  Description |
+| ------------- | :-------: | :-----: | ------------ |
+| `os=`         | `el6:el7` | `el6:el7` | OSes to include in the matrix.  JSON files will be filtered out if their data doesn't match one of these OS. |
+| `fips=`       | `on:off` | `on` |  Build SIMP Vagrant box with FIPS mode enabled |
+| `encryption=` | `on:off` | `off`| _(experimental)_ Build SIMP Vagrant box with disk encryption |
+| `json=`       | _filepaths_ | N/A | _(optional, if `SIMP_ISO_JSON_FILES` is set)_ List of absolute paths/globs to SIMP ISO `.json` files to consider |
+
+
+**NOTE:** `.json` files (specified by `json=` and/or the environment variable
+`SIMP_ISO_JSON_FILES`) are _filtered_ based on whether their data matches the
+`os=` matrix argument.
+
+* If `os=el6` and the glob `${PATH_TO_ISO_JSON_FILES}/SIMP-6.2.0-0.el*.json`
+  matched two files (one with data for `el6` and one for `el7`), only the file
+  with data for `el6` would be included in the matrix (and the `el7` file would
+  not be used).
+* If `os=el6:el7` and the glob
+  `${PATH_TO_ISO_JSON_FILES}/SIMP-6.2.0-0.el*.json` matched two files (one with
+  data for `el6` and one for `el7`), only the file with data for `el6` would be
+  included in the matrix—and the `el7` file would not be used.
+
+
+#### Environment variables
+
+| Environment variable  | Description                     |
+| --------------------- | ------------------------------- |
+| `VAGRANT_BOX_DIR`     | Path to top of Vagrant box tree |
+| `SIMP_ISO_JSON_FILES` | List of absolute paths/globs to SIMP ISO `.json` files to consider (delimiters: `:`, `,`).  This variable can be used as an alternative to the matrix entry `json=`.  Non-existent paths will be discarded with a warning message |
+| `MATRIX_LABEL`        | Label for this matrix run that will prefix each iteration's directory name (default: `build`) |
+
+
+## Reference
 
 ### Project structure
 
 ```
-.
+./
 ├── assets/ ................ Images used by README.md
 ├── lib/                     Ruby libraries
-├── metadata.json
 ├── puppet/                  ‡Puppet code (run inside VM)
-│   └── modules/               ‡ contains `simpsetup::`
+│   └── modules/                ‡ contains `simpsetup::`
 ├── rakelib/ ............... Rake tasks
-├── README.md
 ├── samples/
 │   └── README.md
 ├── scripts/................ ‡ Shell scripts (run inside VM)
 │   ├── config/                 ‡ scripts that configure the VM
 │   ├── tests/                  ‡ VM tests
+├── templates/.............. Templates
+│   ├── simp.json.template      Annotated JSON Packer template
+│   ├── Vagrantfile.erb         Vagrantfile generated along with `.box` files
+│   └── Vagrantfile.erb.erb     Vagrantfile.erb (for `vagrant init --template`)
+├── README.md
 ├── simp_config.rb*
-├── simp_packer_test.sh* ...
-├── templates/
-│   ├── simp.json.template
-│   └── Vagrantfile.erb
-└── test.sh
+└── simp_packer_test.sh* ... Main shell script
 ```
 
-‡ = Used inside VMs when simp-packer builds boxes
+‡ = Executed inside VMs as simp-packer is building them
+
+
+### Supported SIMP releases
+
+In order to supportintegration-tested upgrades, simp-packer maintains support
+for older releases of SIMP.  The following release versions are currently
+supported:
+
+| SIMP ISO               | CentOS 7 | CentOS 6 |  Notes        |
+| ---------------------- | -------- | -------- |  ------------ |
+| 6.1.0-0                | ✔️        | ✔️        |
+| _6.2.0-RC1_            | ✔️        | ✔️        |
+| 6.2.0-0                | ✔️        | ✔️        | Final Puppet 4.x release |
+| _6.3.0_ _(dev builds)_ | ✔️        | :x:      |
 
 
 ### The Packer file
 
-The packer file is generated from `simp.json.template`
+The packer file is generated from the file `templates/simp.json.template`.
 
 #### Build Section
 
@@ -420,3 +507,11 @@ To see a list of development-related tasks available for this project, run:
 [packer-env-vars]:         https://www.packer.io/docs/other/environment-variables.html
 [rubocop]:                 https://github.com/rubocop-hq/rubocop
 [shellcheck]:              https://github.com/koalaman/shellcheck
+[simp-iso-downloads]:      https://download.simp-project.com/simp/ISO/
+
+<!-- badges and badge links -->
+[license-badge]:  http://img.shields.io/:license-apache-blue.svg
+[license-url]:    http://www.apache.org/licenses/LICENSE-2.0.html
+[simp-badge]:     https://img.shields.io/badge/SIMP%20compatibility-6.*-orange.svg
+[travis-badge]:   https://travis-ci.org/simp/simp-packer.svg?branch=master
+[travis-project]: https://travis-ci.org/simp/simp-packer
