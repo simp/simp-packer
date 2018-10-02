@@ -1,11 +1,28 @@
+Mon Oct 02 2018 Chris Tessmer <chris.tessmer@onyxpoint.com> - UNRELEASED
+
+* Added:
+  - New "Supported SIMP releases" section to README
+  - New environment variable: `SIMP_PACKER_verbose=yes`
+* Changed:
+  - Reverted bug in `useradd::securetty`
+  - Fixed bug in `Vagrantfile.erb.erb`
+  - Improved build matrix `json=` handling
+  - Documentation cleanup:
+    - Updated matrix doc examples
+    - Cleaned up project structure
+    - Minor clarifications throughout the document
+* Removed:
+  - Top-level `metadata.json` file
+
+
 Mon Oct 01 2018 Chris Tessmer <chris.tessmer@onyxpoint.com> - 2.2.1
 
 * Changed:
-
   - Reverted bug in `useradd::securetty`
   - Fixed bug in `Vagrantfile.erb.erb`
   - Improved matrix `json=` handling
   - Updated matrix docs
+
 
 Fri Sep 28 2018 Chris Tessmer <chris.tessmer@onyxpoint.com> - 2.2.0
 
