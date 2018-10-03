@@ -17,6 +17,7 @@ This release is primarily a documentation update:
     - Rewrote most of the "Usage" section
       - Merged `matrix.md` documentation
     - Minor clarifications throughout the document
+  - Fixed redundant sudo bug in `templates/simp.json.template`
 * Removed:
   - Top-level `metadata.json` file
   - `matrix.md` file

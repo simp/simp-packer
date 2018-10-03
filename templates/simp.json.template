@@ -229,7 +229,7 @@
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
       "inline" : [
         "if [ $(/opt/puppetlabs/puppet/bin/facter os.family) == 'RedHat' ] && [ $(/opt/puppetlabs/puppet/bin/facter os.distro.release.major) = \"7\" ] ; then",
-          "sudo systemctl disable NetworkManager",
+          "systemctl disable NetworkManager",
         "fi"
       ]
     },
