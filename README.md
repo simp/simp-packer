@@ -84,8 +84,7 @@ There are two ways to run simp-packer:
 1. [Using the `simp_packer_test.sh` script](#using-the-simp_packer_testsh-script)
 
    - Creates _unversioned_ Vagrant boxes
-   - Requires [manually creating the configuration
-    files](#manually-creating-the-configuration-files)
+   - Requires [manually creating the configuration files](#manually-creating-the-configuration-files)
 
 2. [Running a build matrix](#running-a-build-matrix)
 
