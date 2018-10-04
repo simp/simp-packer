@@ -1,11 +1,36 @@
+Mon Oct 02 2018 Chris Tessmer <chris.tessmer@onyxpoint.com> - UNRELEASED
+
+This release is primarily a documentation update:
+
+* Added:
+  - README sections:
+    - "Supported SIMP releases"
+    - "Running a build matrix"
+    - "TODO > Box roles"
+    - Detailed sub-steps for "TODO > Features > Vagrant box directory tree"
+    - SIMP GitHub badges
+  - Environment variable: `SIMP_PACKER_verbose=yes`
+  - Travis CI stage: 'Puppet 5.5 (SIMP 6.3+)'
+* Changed:
+  - README/documentation cleanup:
+    - Cleaned up project structure
+    - Rewrote most of the "Usage" section
+      - Merged `matrix.md` documentation
+    - Minor clarifications throughout the document
+  - Fixed redundant sudo bug in `templates/simp.json.template`
+* Removed:
+  - Top-level `metadata.json` file
+  - `matrix.md` file
+
+
 Mon Oct 01 2018 Chris Tessmer <chris.tessmer@onyxpoint.com> - 2.2.1
 
 * Changed:
-
   - Reverted bug in `useradd::securetty`
   - Fixed bug in `Vagrantfile.erb.erb`
   - Improved matrix `json=` handling
   - Updated matrix docs
+
 
 Fri Sep 28 2018 Chris Tessmer <chris.tessmer@onyxpoint.com> - 2.2.0
 

@@ -1,11 +1,13 @@
 # The testing matrix **for simp-packer** only considers ruby/puppet versions
 # supported by SIMP:
 # ------------------------------------------------------------------------------
-#  release    pup   ruby   eol
-# SIMP 6.0    4.8   2.1.9  TBD***
-# SIMP 6.2    4.10  2.1.9  TBD
+#  release    pup   ruby     eol
+# SIMP 6.0+   4.8   2.1.9    TBD***
+# SIMP 6.2    4.10  2.1.9    TBD
+# SIMP 6.3    5.5‡‡ 2.4.4‡‡  TBD
 #
 # *** = Modules created for SIMP 6.2+ are not required to support Puppet < 4.10
+# ‡‡  = Projected component versions for a future release of SIMP
 ---
 language: ruby
 cache: bundler
@@ -44,10 +46,17 @@ jobs:
       script: bundle exec rake test:puppet
 
     - stage:  'Puppet (SIMP versions)'
-      name:   'Puppet 4.10 (SIMP 6.2+)'
+      name:   'Puppet 4.10 (SIMP 6.2)'
       rvm:    2.1.9
       env:
         - 'PUPPET_VERSION="~> 4.10.4"'
+      script: bundle exec rake test:puppet
+
+    - stage:  'Puppet (SIMP versions)'
+      name:   'Puppet 5.5 (SIMP 6.3+)'
+      rvm:    2.4.4
+      env:
+        - 'PUPPET_VERSION="~> 5.5.6"'
       script: bundle exec rake test:puppet
 
     - stage:  'Puppet (SIMP versions)'

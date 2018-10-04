@@ -11,7 +11,7 @@ module Simp
         attr_accessor :verbose
         def initialize(base_dir)
           @base_dir = base_dir
-          @verbose  = false
+          @verbose  = ((ENV['SIMP_PACKER_verbose'] || 'no') == 'yes')
         end
 
         # Install vagrant box into a local directory tree, generate version metadata
