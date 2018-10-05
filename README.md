@@ -522,11 +522,16 @@ able to re-use most of the Beaker suites designed for use with the
 
 - [ ] Compose `simp-packer.json` from JSON snippets ([SIMP-5238][SIMP-5238])
 - [ ] Move the packer build into a rake task
+- [ ] Support move to Hiera 5 when building SIMP 6.3+ boxes:
+  - [ ] New system installs for SIMP >= 6.3+ use Hiera 5
+  - [ ] New system installs for SIMP <= 6.2.x must still use Hiera 3
+  - [ ] After upgrading SIMP <= 6.2.x to 6.3+, legacy Hiera 3 systems must still work
+    - This is mostly a concern for `simp-integration_tests`
 - [x] `simp:packer:matrix` matrix build
 - [x] Refactor reusable host-side ruby code into a `lib/` directory
 - [ ] Add an Environment variable in to allow it to create the box, even if tests
       fail.
-- [ ] Kickstart a server and client to go with the box.
+- [ ] Kickstart a client to go with the box _(see: [Box roles](#box-roles))_
 - [x] Make the location of the distribution ISO configurable.  ~~Right now it is
       hard-coded to be `/net/ISO/Distribution_ISOs`~~ _(Now provided by
       `vars.json` > `iso_url`)_
