@@ -1,6 +1,10 @@
 Fri Oct 05 2018 Chris Tessmer <chris.tessmer@onyxpoint.com> - UNRELEASED
 
+* Added:
+  - `Simp::Packer::Publish::LocalDirTree.publish`
+
 * Changed:
+  - Matrix builds stop on failures in `simp_packer_test.sh`
   - Forced environment in `scripts/puppet-usersetup.sh` to permit `vagrant`
     sudo access on boxes that don't run `scripts/simp-bootstrap.sh`
   - Add a longer `big_sleep` by default for centos 6 + 7

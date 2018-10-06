@@ -91,6 +91,9 @@ module Simp
       # Most of the methods below this line is effing magic used to infer
       # properties about a SIMP box based on the vars.json that was used to
       # build it.
+      #
+      # @todo Add more properties to vars.json in `build:auto`, so the simphack
+      #   fragments aren't needed.
       def infer_simp_flavors(vars_json_data)
         box_simp_release = vars_json_data['box_simp_release']
         fragment = semver_fragment(box_simp_release)
