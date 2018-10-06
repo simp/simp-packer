@@ -1,3 +1,9 @@
+Fri Oct 05 2018 Chris Tessmer <chris.tessmer@onyxpoint.com> - UNRELEASED
+
+* Changed:
+  - Forced environment in `scripts/puppet-usersetup.sh` to permit `vagrant`
+    sudo access on boxes that don't run `scripts/simp-bootstrap.sh`
+
 Mon Oct 02 2018 Chris Tessmer <chris.tessmer@onyxpoint.com> - 2.2.2
 
 This release is primarily a documentation update:
