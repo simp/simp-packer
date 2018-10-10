@@ -103,7 +103,8 @@ module Simp
 
             log = "#{iteration_dir}.log"
             sh "date > '#{log}'"
-            sh %(EXTRA_SIMP_PACKER_ARGS=${EXTRA_SIMP_PACKER_ARGS:--on-error=ask} \\\n\
+            sh %(set -e; set -o pipefail; \\\n\
+                 EXTRA_SIMP_PACKER_ARGS=${EXTRA_SIMP_PACKER_ARGS:--on-error=ask} \\\n\
                  TMP_DIR="#{@tmp_dir}" \\\n\
                  PACKER_LOG=${PACKER_LOG:-1} \\\n\
                  SIMP_PACKER_save_WORKINGDIR=${SIMP_PACKER_save_WORKINGDIR:-yes} \\\n\
@@ -112,7 +113,8 @@ module Simp
 
             new_box = File.expand_path("#{iteration_dir}/OUTPUT/#{vm_description}.box")
             vars_json_path = File.expand_path(local_vars_json, iteration_dir)
-            sh %(rake vagrant:publish:local["#{@vagrant_box_dir}","#{vars_json_path}","#{new_box}",hardlink] |& tee -a #{log})
+
+            Simp::Packer::Publish::LocalDirTree.publish(vars_json_path, new_box, @vagrant_box_dir)
             sh "date >> '#{log}'"
           end
         end

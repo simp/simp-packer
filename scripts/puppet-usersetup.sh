@@ -76,4 +76,4 @@ chmod g+rX "${pupenvdir}/simp/hieradata/default.yaml"
 chown -R root:puppet "${pupenvdir}/simp/modules/site"
 chmod -R g+rX "${pupenvdir}/simp/modules/site/manifests"
 
-puppet apply -e "include site::vagrant"
+puppet apply -e "include site::vagrant" --environment=simp

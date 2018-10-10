@@ -41,10 +41,12 @@ MSG
       unless copy_words.include?(args.copy.to_s)
         raise "\nERROR: :copy was '#{args.copy}'; must be one of: '#{copy_words.join("', '")}'\n\n"
       end
-      converter = Simp::Packer::VarsJsonToVagrantBoxJson.new(args.simp_iso_json_file)
-      box_data  = converter.vagrant_box_json(args.box_path)
-      dir_tree  = Simp::Packer::Publish::LocalDirTree.new(args.tree_dir)
-      dir_tree.publish(box_data, args.copy.to_sym)
+      Simp::Packer::Publish::LocalDirTree.publish(
+        args.simp_iso_json_file,
+        args.box_path,
+        args.tree_dir,
+        args.copy.to_sym
+      )
     end
   end
 end
