@@ -4,6 +4,8 @@ Fri Oct 05 2018 Chris Tessmer <chris.tessmer@onyxpoint.com> - UNRELEASED
   - `Simp::Packer::Publish::LocalDirTree.publish`
 
 * Changed:
+  - Use Puppet 5 Hiera data paths (unless the version of SIMP is less than
+    6.3.0)
   - Matrix builds stop on failures in `simp_packer_test.sh`
   - Forced environment in `scripts/puppet-usersetup.sh` to permit `vagrant`
     sudo access on boxes that don't run `scripts/simp-bootstrap.sh`

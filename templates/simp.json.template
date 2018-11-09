@@ -365,6 +365,9 @@
       "inline" : [
         "if [ -f /var/local/simp/root/.bashrc-extras ]; then",
           "cat /var/local/simp/root/.bashrc-extras >> /root/.bashrc",
+        "fi",
+        "if [[ \"$(cat /etc/simp/simp.version)\" =~ ^6\\.[12]\\. ]]; then",
+          "sed -i -e 's@/data$@/hieradata@' /root/.bashrc",
         "fi"
       ]
     },
