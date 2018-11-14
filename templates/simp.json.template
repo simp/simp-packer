@@ -280,7 +280,7 @@
     // Upload puppet code
     {
       // Pause a little to let the system boot up all the way
-      "pause_before": "300s",
+      "pause_before": "400s",
       "type": "file",
       "source": "./puppet",
       "destination": "/var/local/simp"
