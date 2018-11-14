@@ -121,6 +121,13 @@
         "<wait5>",
         "chkconfig iptables off<enter>",
         "<wait5>",
+        // This should permanently disable the udev persistent net rules.
+        //
+        //   These can be troublesome, particularly on el6 VMs
+        //   See: https://mirrors.edge.kernel.org/pub/linux/utils/kernel/hotplug/udev/udev.html#id429522
+        //
+        "udir=/etc/udev/rules.d net_rules=\"$udir/70-persistent-net.rules\"; gen_rules=\"$udir/75-persistent-net-generator.rules\"; [ -f \"$net_rules\" ] && { service network stop; rm -f \"$net_rules\"; ln -s /dev/null \"$gen_rules\" ; ln -s /dev/null \"$net_rules\"; service network start ; } <enter>",
+        "<wait5>",
         "exit<enter>"
        ],
       "ssh_username": "simp",
@@ -368,19 +375,6 @@
         "fi",
         "if [[ \"$(cat /etc/simp/simp.version)\" =~ ^6\\.[12]\\. ]]; then",
           "sed -i -e 's@/data$@/hieradata@' /root/.bashrc",
-        "fi"
-      ]
-    },
-
-    // Remove /etc/udev/rules.d/70-persistent-net.rules
-    // These can be troublesome on on el6 VMs
-    {
-      "type": "shell",
-      "remote_path": "/var/local/simp/clear-udev-net-persistent-rules.sh",
-      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
-      "inline" : [
-        "if [ -f /etc/udev/rules.d/70-persistent-net.rules ]; then",
-          "rm -f /etc/udev/rules.d/70-persistent-net.rules",
         "fi"
       ]
     },
