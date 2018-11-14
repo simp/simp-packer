@@ -74,17 +74,22 @@ module Simp
             vm_description =  "SIMP#{vars_data['box_simp_release']}-#{os_name.upcase}-#{fips ? 'FIPS' : 'NOFIPS'}"
             vm_description += '-ENCRYPTED' if encryption
 
-            puts "\n" * 5
-            puts '=' * 80
-            puts "==== Iteration #{iteration_number}/#{iteration_total}: #{vars_data['box_simp_release']} #{iteration_summary}"
-            puts '=' * 80
-            puts "vm_description:        #{vm_description}"
-            puts "DIR_NAME:              #{iteration_dir}"
-            puts "SIMP_ISO_FILE:         #{simp_iso_file}"
-            puts "SIMP_ISO_JSON:         #{simp_iso_json}"
-            puts "PACKER_CONFIGS_DIR:    #{@packer_configs_dir}"
-            puts '=' * 80
-            puts "\n" * 2
+
+            msg = []
+            msg << "\n" * 5
+            msg << '=' * 80
+            msg << "==== Iteration #{iteration_number}/#{iteration_total}: #{vars_data['box_simp_release']} #{iteration_summary}"
+            msg << '=' * 80
+            msg << "vm_description:        #{vm_description}"
+            msg << "DIR_NAME:              #{iteration_dir}"
+            msg << "SIMP_ISO_FILE:         #{simp_iso_file}"
+            msg << "SIMP_ISO_JSON:         #{simp_iso_json}"
+            msg << "PACKER_CONFIGS_DIR:    #{@packer_configs_dir}"
+            msg << '=' * 80
+            msg << "\n" * 2
+            msg << ''
+            iterator_header_msg = msg.join("\n")
+            puts iterator_header_msg
 
             raise "ERROR: no .iso file at #{simp_iso_file}" unless File.exist?(simp_iso_file)
             raise "ERROR: no .json file at #{simp_iso_json}" unless File.exist?(simp_iso_json)
@@ -103,6 +108,7 @@ module Simp
 
             log = "#{iteration_dir}.log"
             sh "date > '#{log}'"
+            File.open(log, 'a'){|f| f.puts iterator_header_msg }
             sh %(set -e; set -o pipefail; \\\n\
                  EXTRA_SIMP_PACKER_ARGS=${EXTRA_SIMP_PACKER_ARGS:--on-error=ask} \\\n\
                  TMP_DIR="#{@tmp_dir}" \\\n\

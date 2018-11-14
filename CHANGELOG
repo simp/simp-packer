@@ -2,6 +2,7 @@ Fri Oct 05 2018 Chris Tessmer <chris.tessmer@onyxpoint.com> - UNRELEASED
 
 * Added:
   - `Simp::Packer::Publish::LocalDirTree.publish`
+  - Matrix logs include iteration header
 
 * Changed:
   - Use Puppet 5 Hiera data paths (unless the version of SIMP is less than
