@@ -74,7 +74,6 @@ module Simp
             vm_description =  "SIMP#{vars_data['box_simp_release']}-#{os_name.upcase}-#{fips ? 'FIPS' : 'NOFIPS'}"
             vm_description += '-ENCRYPTED' if encryption
 
-
             msg = []
             msg << "\n" * 5
             msg << '=' * 80
@@ -108,7 +107,7 @@ module Simp
 
             log = "#{iteration_dir}.log"
             sh "date > '#{log}'"
-            File.open(log, 'a'){|f| f.puts iterator_header_msg }
+            File.open(log, 'a') { |f| f.puts iterator_header_msg }
             sh %(set -e; set -o pipefail; \\\n\
                  EXTRA_SIMP_PACKER_ARGS=${EXTRA_SIMP_PACKER_ARGS:--on-error=ask} \\\n\
                  TMP_DIR="#{@tmp_dir}" \\\n\

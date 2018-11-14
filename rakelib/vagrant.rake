@@ -22,8 +22,7 @@ namespace :vagrant do
   end
 
   namespace :tree do
-
-    desc <<-MSG.gsub(/^ {4}/,'')
+    desc <<-MSG.gsub(%r{^ {4}}, '')
     List boxes in a local Vagrant box directory tree
 
     Arguments:
@@ -31,16 +30,13 @@ namespace :vagrant do
                      structure.  (ENV: VAGRANT_BOX_DIR=)
     MSG
     task :list, [:tree_dir] do |_t, args|
-      args.with_defaults(tree_dir: ENV['VAGRANT_BOX_DIR']||nil)
+      args.with_defaults(tree_dir: ENV['VAGRANT_BOX_DIR'] || nil)
       raise "ERROR: :tree_dir '#{args.tree_dir}' not found.  (ENV: VAGRANT_BOX_DIR)" unless File.exist?(args.tree_dir)
       dir_tree = Simp::Packer::Publish::LocalDirTree.new(args.tree_dir)
-      dir_tree.list
-
-require 'pry'; binding.pry
+      puts dir_tree.list_str
     end
 
-
-    desc <<-MSG.gsub(/^ {4}/,'')
+    desc <<-MSG.gsub(%r{^ {4}}, '')
     Install vagrant box into a local directory tree, generate version metadata
 
     This "publishes" a Vagrant .box file into a directory tree that acts
