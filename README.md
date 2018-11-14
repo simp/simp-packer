@@ -539,7 +539,7 @@ able to re-use most of the Beaker suites designed for use with the
 - [ ] Don't fail if `packer.yaml` doesn't exist (it should be able to run with
       all the defaults).
 - [x] Save version metadata for a `.box` file in Vagrant Cloud API format
-     (`rake vagrant:boxname`)
+     (`rake vagrant:json`)
 - [ ] Scaffold and maintain a local Vagrant box directory tree of `.box` and
   `.json` version metadata files.  The `.json` files must be consumable by
   local `vagrant init` and `vagrant up` commands.
