@@ -287,6 +287,11 @@
     // Upload puppet code
     {
       // Pause a little to let the system boot up all the way
+      //
+      // NOTE: (In case you're tempted:) you CAN'T set this with a user variable
+      //
+      //        See: https://github.com/hashicorp/packer/issues/5115
+      //
       "pause_before": "400s",
       "type": "file",
       "source": "./puppet",
