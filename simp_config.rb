@@ -6,21 +6,7 @@
 # to the packer.yaml settings and move them to the working directory.
 # The working directory is what is copied to simp server.
 #
-
-class VagrantfileTemplate
-  def initialize(_dir, name, ip, mac, nw, template_path)
-    @name = name
-    @ipaddress = ip
-    @mac = mac
-    @nw = nw
-    @template = File.read(template_path)
-  end
-
-  def render
-    require 'erb'
-    ERB.new(@template).result(binding)
-  end
-end
+require 'simp/packer/vagrantfile_template'
 
 class Utils
   def self.encrypt_openldap_hash(string, salt = nil)
@@ -224,18 +210,17 @@ end
 top_output = settings['output_directory']
 FileUtils.mkdir_p("#{top_output}/testfiles")
 
-# Write out the Vagrantfile + Vagrantfile templates
+# Write out the Vagrantfile + Vagrantfile.erb template
 {
   'Vagrantfile'     => 'Vagrantfile.erb',
   'Vagrantfile.erb' => 'vagrantfiles/Vagrantfile.erb.erb'
-}.each do |vagrantfile, template_path|
-  vfile_contents = VagrantfileTemplate.new(
-    basedir,
+}.each do |vagrantfile, template_file|
+  vfile_contents = Simp::Packer::VagrantfileTemplate.new(
     updated_json_hash['vm_description'],
     simpconfig['cli::network::ipaddress'],
     updated_json_hash['mac_address'],
     updated_json_hash['host_only_network_name'],
-    File.expand_path("templates/#{template_path}", basedir)
+    File.read(File.expand_path("templates/#{template_file}", basedir))
   ).render
 
   vagrantfile_path = File.join top_output, vagrantfile
