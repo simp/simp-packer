@@ -15,14 +15,6 @@ if [[ "$(cat /etc/simp/simp.version)" =~ ^6\.1\.0- ]]; then
  echo "====================================================="
  echo "====================================================="
  umask 0022
-
- ### Not sure if these are needed, but it's another difference for puppetdb
- ### configuration between simp-packer 0.1.0 and 2.0.0:
- ### --------------------------------
- ### el_ver="$(rpm -q --qf "%{VERSION}" "$(rpm -q --whatprovides redhat-release)" | sed -e 's/^\([0-9]\+\).*$/\1/' )"
- ### env_path="$(puppet config print --section server environmentpath)"
- ### yaml_file="${env_path}/production/hieradata/hosts/$(hostname -f).yaml"
- ### sed -i -e "s/puppetdb::globals::version: .*$/puppetdb::globals::version: '2.3.8-1.el${el_ver}'/" "$yaml_file"
 fi
 
 # run bootstrap

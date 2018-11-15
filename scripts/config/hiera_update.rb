@@ -3,7 +3,13 @@ require 'yaml'
 require 'fileutils'
 require 'socket'
 
-hieradir = '/etc/puppetlabs/code/environments/simp/hieradata'
+hieradir = '/etc/puppetlabs/code/environments/simp/data'
+simp_version = File.read('/etc/simp/simp.version').strip
+simp_version.gsub!(%r{\A(\d+(?:(?:\.\d+)?\.\d+)?).*}, '\1')
+if Gem::Version.new(simp_version) < Gem::Version.new('6.3.0')
+  hieradir = '/etc/puppetlabs/code/environments/simp/hieradata'
+end
+
 time = Time.new
 # Update the puppetservers hiera file to add new classes for
 # kickstart server and install extra modules require by

@@ -28,6 +28,8 @@
 #
 #
 
+set -e
+
 cleanup() {
   exitcode=${1:0}
 

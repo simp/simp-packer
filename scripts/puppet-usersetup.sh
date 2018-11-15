@@ -5,8 +5,21 @@
 export PATH="${PATH}:/opt/puppetlabs/bin"
 
 pupenvdir=$(puppet config print environmentpath)
+hieradata_dir="${pupenvdir}/simp/data"
+
+simp_version="$(cat /etc/simp/simp.version)"
+semver=( ${simp_version//./ } )
+major="${semver[0]}"
+minor="${semver[1]}"
+
+# Use old hieradata path when SIMP < 6.3.0
+if [[ ( "$major" -eq 6  &&  "$minor" -lt 3 ) || "$major" -le 5 ]]; then
+  hieradata_dir="$pupenvdir/simp/hieradata"
+  sed -i -e 's@/data$@/hieradata@g' /root/.bashrc-extras
+fi
 
 echo "The puppet environment directory is: $pupenvdir"
+echo "The hiera data directory is: $hieradata_dir"
 
 if [ ! -d "${pupenvdir}/simp/modules/site/manifests" ]; then
    mkdir -p "${pupenvdir}/simp/modules/site/manifests"
@@ -59,7 +72,9 @@ class site::vagrant {
 }
 EOF
 
-cat << EOF > "${pupenvdir}/simp/hieradata/default.yaml"
+
+
+cat << EOF > "${hieradata_dir}/default.yaml"
 ---
 classes:
   - 'site::vagrant'
@@ -71,8 +86,8 @@ ssh::server::conf::authorizedkeysfile: .ssh/authorized_keys
 simplib::resolv::option_rotate: false
 EOF
 
-chown root:puppet "${pupenvdir}/simp/hieradata/default.yaml"
-chmod g+rX "${pupenvdir}/simp/hieradata/default.yaml"
+chown root:puppet "${hieradata_dir}/default.yaml"
+chmod g+rX "${hieradata_dir}/default.yaml"
 chown -R root:puppet "${pupenvdir}/simp/modules/site"
 chmod -R g+rX "${pupenvdir}/simp/modules/site/manifests"
 
