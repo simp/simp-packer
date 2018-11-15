@@ -6,6 +6,7 @@ AllCops:
     - 'rakelib/*.rake'
     - 'scripts/**/*.rb'
     - 'lib/**/*.rb'
+    - 'spec/**/*.rb'
   Exclude:
     - files/**/*
     - vendor/**/*
@@ -548,3 +549,9 @@ RSpec/FilePath:
 
 Naming/UncommunicativeMethodParamName:
   AllowedNames: [io, id, to, by, on, in, at, ip, nw]
+
+RSpec/BeforeAfterAll:
+  Enabled: false
+
+RSpec/InstanceVariable:
+  Enabled: false

@@ -24,6 +24,7 @@ group :test do
   gem 'yard'
   gem 'redcarpet'
   gem 'github-markup'
+  gem 'simplecov', require: false
 end
 
 group :development do
