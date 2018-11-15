@@ -47,7 +47,6 @@ module Simp
 
         # @return [Array] list of boxes
         def list
-          puts 'wat'
           data = { orgs: {}, invalid_orgs: [], base_path: @base_dir }
           Dir["#{@base_dir}/*"].each do |org_path|
             org = File.basename(org_path)
