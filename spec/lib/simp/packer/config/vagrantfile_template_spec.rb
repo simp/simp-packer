@@ -1,7 +1,7 @@
-require 'simp/packer/vagrantfile_template'
+require 'simp/packer/config/vagrantfile_writer'
 require 'spec_helper'
 
-describe Simp::Packer::VagrantfileTemplate do
+describe Simp::Packer::Config::VagrantfileWriter do
   describe '#render' do
     before(:all) do
       @rendered_content = described_class.new(
@@ -9,10 +9,10 @@ describe Simp::Packer::VagrantfileTemplate do
         '1.2.3.4',
         'aa:bb:cc:dd:ee:ff',
         'hostonly.tld',
-        File.read('spec/lib/simp/packer/files/vagrantfile_templates/example.vagrantfile.erb.erb')
+        File.read('spec/lib/simp/packer/config/files/vagrantfile_templates/example.vagrantfile.erb.erb')
       ).render
 
-      @expected_content = File.read('spec/lib/simp/packer/files/vagrantfile_templates/example.vagrantfile.erb.rendered')
+      @expected_content = File.read('spec/lib/simp/packer/config/files/vagrantfile_templates/example.vagrantfile.erb.rendered')
     end
 
     it 'renders template as expected' do

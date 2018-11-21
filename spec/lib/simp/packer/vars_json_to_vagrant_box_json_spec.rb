@@ -4,7 +4,7 @@ require 'spec_helper'
 describe Simp::Packer::VarsJsonToVagrantBoxJson do
   before(:all) do
     @obj = described_class.new(
-      'spec/lib/simp/packer/files/vars_json/v0/SIMP-6.2.0-0.el7-CentOS-7.0-x86_64.json',
+      'spec/lib/simp/packer/build/files/vars_json/v0/SIMP-6.2.0-0.el7-CentOS-7.0-x86_64.json',
       {}
     )
   end
