@@ -94,7 +94,11 @@ done
 cd "${WORKINGDIR}"
 
 # Update config files with packer.yaml setting and copy to working dir
-"${BASEDIR}"/simp_config.rb "${WORKINGDIR}" "${TESTDIR}"
+#"${BASEDIR}"/simp_config.rb "${WORKINGDIR}" "${TESTDIR}"
+echo +DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
+bundle exec ruby -I "$BASEDIR/lib" -r simp/packer/config/prepper -e \
+  "Simp::Packer::Config::Prepper.new('$WORKINGDIR', '$TESTDIR', __dir__).run"
+echo +DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
 
 #If you use debug you must set header to true or you won't see the debug.
 echo "Logs will be written to ${logfile}"

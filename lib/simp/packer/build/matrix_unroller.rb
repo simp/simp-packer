@@ -1,6 +1,6 @@
 module Simp
   module Packer
-    module Tests
+    module Build
       module MatrixUnroller
         # Returns matrix, unrolled as an Array of Hashes with symbolized keys
         def unroll(matrix)

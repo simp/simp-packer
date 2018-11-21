@@ -1,10 +1,12 @@
-require 'simp/packer/tests/matrix_unroller'
+require 'simp/packer/build/matrix_unroller'
+require 'simp/packer/build/runner'
 require 'fileutils'
 require 'rake/file_utils'
 
 module Simp
   module Packer
-    module Tests
+    module Build
+      # Run a matrix of simp-packer builds
       class Matrix
         include MatrixUnroller
         include FileUtils
@@ -107,14 +109,22 @@ module Simp
 
             log = "#{iteration_dir}.log"
             sh "date > '#{log}'"
+            packer_build_runner = Simp::Packer::Build::Runner.new(
+              File.expand_path(iteration_dir)
+            )
+
             File.open(log, 'a') { |f| f.puts iterator_header_msg }
-            sh %(set -e; set -o pipefail; \\\n\
-                 EXTRA_SIMP_PACKER_ARGS=${EXTRA_SIMP_PACKER_ARGS:--on-error=ask} \\\n\
-                 TMP_DIR="#{@tmp_dir}" \\\n\
-                 PACKER_LOG=${PACKER_LOG:-1} \\\n\
+            packer_build_runner.run(
+              log_file: log,
+              tmp_dir:  @tmp_dir,
+              extra_packer_args: ENV['SIMP_PACKER_extra_args'] || '--on-error=ask'
+            )
+            cmd = %(set -e; set -o pipefail; \\\n\
                  SIMP_PACKER_save_WORKINGDIR=${SIMP_PACKER_save_WORKINGDIR:-yes} \\\n\
                  time bash -e simp_packer_test.sh "#{File.expand_path iteration_dir}" \\\n\
                  |& tee -a "#{log}")
+            puts '-' * 80, cmd, '-' * 80
+            sh cmd
 
             new_box = File.expand_path("#{iteration_dir}/OUTPUT/#{vm_description}.box")
             vars_json_path = File.expand_path(local_vars_json, iteration_dir)
