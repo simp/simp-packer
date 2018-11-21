@@ -16,3 +16,4 @@ puppet/modules/*/spec/fixtures
 build_*/
 /coverage
 /.yardoc
+simp-packer-build-*

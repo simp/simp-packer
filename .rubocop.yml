@@ -555,3 +555,7 @@ RSpec/BeforeAfterAll:
 
 RSpec/InstanceVariable:
   Enabled: false
+
+# Not sure how else to stub Kernel#:`
+RSpec/AnyInstance:
+  Enabled: false

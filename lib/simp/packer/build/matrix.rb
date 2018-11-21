@@ -119,16 +119,10 @@ module Simp
               tmp_dir:  @tmp_dir,
               extra_packer_args: ENV['SIMP_PACKER_extra_args'] || '--on-error=ask'
             )
-            cmd = %(set -e; set -o pipefail; \\\n\
-                 SIMP_PACKER_save_WORKINGDIR=${SIMP_PACKER_save_WORKINGDIR:-yes} \\\n\
-                 time bash -e simp_packer_test.sh "#{File.expand_path iteration_dir}" \\\n\
-                 |& tee -a "#{log}")
-            puts '-' * 80, cmd, '-' * 80
-            sh cmd
+            next if ENV.fetch('SIMP_PACKER_dry_run', 'no') == 'yes'
 
             new_box = File.expand_path("#{iteration_dir}/OUTPUT/#{vm_description}.box")
             vars_json_path = File.expand_path(local_vars_json, iteration_dir)
-
             Simp::Packer::Publish::LocalDirTree.publish(vars_json_path, new_box, @vagrant_box_dir)
             sh "date >> '#{log}'"
           end

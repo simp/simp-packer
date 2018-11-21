@@ -1,0 +1,48 @@
+Name:            vboxnet0
+GUID:            deadbeef-beef-0000-beef-beefeebeef00
+DHCP:            Disabled
+IPAddress:       10.10.0.1
+NetworkMask:     255.255.0.0
+IPV6Address:     
+IPV6NetworkMaskPrefixLength: 0
+HardwareAddress: de:ad:be:ef:00:00
+MediumType:      Ethernet
+Status:          Up
+VBoxNetworkName: HostInterfaceNetworking-vboxnet0
+
+Name:            vboxnet1
+GUID:            deadbeef-beef-0010-beef-beefeebeef01
+DHCP:            Disabled
+IPAddress:       192.168.103.1
+NetworkMask:     255.255.255.0
+IPV6Address:     
+IPV6NetworkMaskPrefixLength: 0
+HardwareAddress: de:ad:be:ef:00:01
+MediumType:      Ethernet
+Status:          Up
+VBoxNetworkName: HostInterfaceNetworking-vboxnet1
+
+Name:            vboxnet2
+GUID:            deadbeef-beef-0020-beef-beefeebeef02
+DHCP:            Disabled
+IPAddress:       192.168.0.1
+NetworkMask:     255.255.0.0
+IPV6Address:     
+IPV6NetworkMaskPrefixLength: 0
+HardwareAddress: de:ad:be:ef:00:02
+MediumType:      Ethernet
+Status:          Down
+VBoxNetworkName: HostInterfaceNetworking-vboxnet2
+
+Name:            vboxnet3
+GUID:            deadbeef-beef-0030-beef-beefeebeef03
+DHCP:            Disabled
+IPAddress:       192.168.101.1
+NetworkMask:     255.255.255.0
+IPV6Address:     
+IPV6NetworkMaskPrefixLength: 0
+HardwareAddress: de:ad:be:ef:00:03
+MediumType:      Ethernet
+Status:          Up
+VBoxNetworkName: HostInterfaceNetworking-vboxnet3
+

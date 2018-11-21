@@ -1,4 +1,5 @@
 require 'simp/packer/config/vagrantfile_writer'
+require 'simp/packer/config/vbox_net_utils'
 require 'json'
 require 'yaml'
 require 'fileutils'
@@ -15,6 +16,8 @@ module Simp
       #
       class Prepper
         attr_accessor :verbose
+
+        include Simp::Packer::Config::VBoxNetUtils
 
         def initialize(workingdir, testdir, basedir = File.expand_path(
           "#{__dir__}/../../.."
@@ -62,75 +65,152 @@ module Simp
           json
         end
 
-        def validate_settings(settings)
-          validated = settings
+        def sanitize_settings(settings)
+          sanitized = settings.dup
           case settings['firmware']
           when 'bios', 'efi'
-            validated['firmware'] = settings['firmware']
+            sanitized['firmware'] = settings['firmware']
           else
-            validated['firmware'] = 'bios'
+            sanitized['firmware'] = 'bios'
           end
 
           case settings['headless']
           when %r{[Yy][Ee][Ss]}, true, 'true', %r{[Yy]}
-            validated['headless'] = 'true'
+            sanitized['headless'] = 'true'
           when %r{[Nn][Oo]?}, 'false', false
-            validated['headless'] = 'false'
+            sanitized['headless'] = 'false'
           else
-            validated['headless'] = 'true'
+            sanitized['headless'] = 'true'
             puts "Invalid setting for Headless #{settings['headless']} using 'true'"
           end
 
           case settings['disk_encrypt']
           when 'simp_crypt_disk', 'simp_disk_crypt'
-            validated['disk_encrypt'] = 'simp_crypt_disk'
+            sanitized['disk_encrypt'] = 'simp_crypt_disk'
           else
-            validated['disk_encrypt'] = ''
+            sanitized['disk_encrypt'] = ''
           end
 
-          validated
+          sanitized
         end
 
         # Update the vars.json file with the settings from packer.yaml
-        # @return [Hash] Updated packer vars data structure
-        def update_hash(json_hash, settings)
+        # @return [Hash] Updated vars data
+        def configure_vars(vars_data, settings)
           time = Time.new
-          json_hash = json_hash.merge(settings)
-          json_hash['postprocess_output'] = settings['output_directory']
-          json_hash['output_directory'] = settings['output_directory'] + '/' + time.strftime('%Y%m%d%H%M')
-          json_hash['host_only_network_name'] = getvboxnetworkname(settings['host_only_gateway'])
-          if json_hash['host_only_network_name'].nil?
-            raise "Error: could not create or find a virtualbox network for #{settings['host_only_gateway']}"
+          vars_data = vars_data.merge(settings)
+          vars_data['postprocess_output'] = settings['output_directory']
+          vars_data['output_directory'] = settings['output_directory'] + '/' + time.strftime('%Y%m%d%H%M')
+          vars_data['host_only_network_name'] = vboxnet_for_network(settings['host_only_gateway'])
+          if vars_data['host_only_network_name'].nil?
+            raise "ERROR: could not create or find a virtualbox network for #{settings['host_only_gateway']}"
           end
-          json_hash
+          vars_data
         end
 
-        # and write a copy to the working directory
-        # @return [Hash] Updated packer vars data structure
-        def update_packer_vars(vars_json_file, settings)
-          vars_json = File.read(vars_json_file)
-          json_hash = JSON.parse(vars_json)
-          updated_json_hash = update_hash(json_hash, settings)
+        # Construct a complete simp_conf.yaml data structure from settings
+        #
+        #   This includes:
+        #   * correct network settings for the VM
+        #   * settings from simp-packer's packer.yaml
+        #
+        #   The data returned can be used to populate `simp_conf.yaml`
+        #
+        # @note This will override the original `simp_conf.yaml`'s settings
+        #   for thigns like fips and LDAP.
+        #
+        # @param [Hash] settings     simp-packer settings
+        # @param [Hash] simp_config  simp_conf data (or partial data)
+        def configure_simp_conf(settings, simp_conf)
+          # I set the address of the puppet server to 7 in the network.
+          network      = settings['host_only_gateway'].split('.')[0, 3].join('.')
+          puppet_fqdn  = settings['puppetname'] + '.' + settings['domain']
+          puppet_ip    = network + '.7'
+          ldap_base_dn = 'dc=' + settings['domain'].split('.').join(',dc=')
 
-          File.open("#{@workingdir}/vars.json", 'w') do |h|
-            h.write(updated_json_hash.to_json)
-            h.close
-          end
-          updated_json_hash
+          simp_conf.merge(
+            'cli::network::gateway'        => settings['host_only_gateway'],
+            'simp_options::dns::servers'   => [puppet_ip],
+            'cli::network::ipaddress'      => puppet_ip,
+            'simp_options::puppet::server' => puppet_fqdn,
+            'cli::network::hostname'       => puppet_fqdn,
+            'simp_options::puppet::ca'     => puppet_fqdn,
+            'cli::network::interface'      => settings['host_only_interface'],
+            'cli::network::netmask'        => '255.255.255.0',
+            'simp_options::dns::search'    => [settings['domain']],
+            'simp_options::trusted_nets'   => network + '.0/24',
+            'simp_options::ldap::base_dn'  => ldap_base_dn,
+            'simp_options::fips'           => settings['fips'].eql?('fips=1'),
+            'simp_options::ntpd::servers'  => [settings['host_only_gateway']]
+          )
         end
 
-        # Write box-specific Vagrantfile and Vagrantfile.erb files
-        def write_vagrantfiles(updated_json_hash, simpconfig, top_output)
-          # Write out the Vagrantfile + Vagrantfile.erb template
+        # @param [Hash]   settings   simp-packer settings
+        # @param [String] src_file   Path to initial vars.json file
+        # @param [String] dest_file  Path to write updated vars.json file
+        # @return [Hash]  Updated vars data
+        def generate_vars_json(
+          settings,
+          src_file = "#{@testdir}/vars.json",
+          dest_file = "#{@workingdir}/vars.json"
+        )
+          json = File.read(src_file)
+          base_data = JSON.parse(json)
+          data = configure_vars(base_data, settings)
+          File.open(dest_file, 'w') do |f|
+            f.write JSON.pretty_generate(data)
+            f.close
+          end
+          data
+        end
+
+        # @param [Hash]   settings   simp-packer settings
+        # @param [String] src_file   Path to initial simp_conf.yaml file
+        # @param [String] dest_file  Path to write updated simp_conf.yaml file
+        # @return [Hash]  Updated simp_conf data
+        def generate_simp_conf_yaml(
+          settings,
+          src_file = "#{@testdir}/simp_conf.yaml",
+          dest_file = "#{@workingdir}/files/simp_conf.yaml"
+        )
+          data = configure_simp_conf(settings, YAML.load_file(src_file))
+          File.open(dest_file, 'w') do |f|
+            f.write(data.to_yaml)
+            f.close
+          end
+          data
+        end
+
+        # Get rid of the comments in the simp.json file and copy to the working directory.
+        def self.generate_simp_json(json_template, simp_json)
+          File.open(simp_json, 'w') do |f|
+            f.write read_and_strip_comments_from_file(json_template)
+            f.close
+          end
+        end
+
+        # Generate files
+        #   - <workingdir>/simp.json
+        #   - <workingdir>/simp_conf.yaml
+        def generate_files(settings)
+          json_template = File.join(@basedir, 'templates', 'simp.json.template')
+          simpconfig_data = generate_simp_conf_yaml(settings)
+          vars_data       = generate_vars_json(settings)
+          Simp::Packer::Config::Prepper.generate_simp_json(json_template, "#{@workingdir}/simp.json")
+          generate_vagrantfiles(vars_data, simpconfig_data, settings['output_directory'])
+        end
+
+        # Write out box-specific Vagrantfile + Vagrantfile.erb files
+        def generate_vagrantfiles(vars_data, simpconfig_data, top_output)
           {
             'Vagrantfile'     => 'Vagrantfile.erb',
             'Vagrantfile.erb' => 'vagrantfiles/Vagrantfile.erb.erb'
           }.each do |vagrantfile, template_file|
             vfile_contents = Simp::Packer::Config::VagrantfileWriter.new(
-              updated_json_hash['vm_description'],
-              simpconfig['cli::network::ipaddress'],
-              updated_json_hash['mac_address'],
-              updated_json_hash['host_only_network_name'],
+              vars_data['vm_description'],
+              simpconfig_data['cli::network::ipaddress'],
+              vars_data['mac_address'],
+              vars_data['host_only_network_name'],
               File.read(File.expand_path("templates/#{template_file}", @basedir))
             ).render
 
@@ -141,96 +221,6 @@ module Simp
               h.close
             end
           end
-        end
-
-        def getvboxnetworkname(network)
-          vboxnet = nil
-          hostonlylist = {}
-          name = nil
-          ipaddr = nil
-
-          # Get the list of virtual box networks
-          list = %x(VBoxManage list hostonlyifs).split("\n\n")
-          list.each do |x|
-            nw = x.split("\n")
-            nw.each do |y|
-              entry = y.split(':')
-              case entry[0]
-              when 'Name'
-                name = entry[1].strip
-              when 'IPAddress'
-                ipaddr = entry[1].strip
-              end
-            end
-            hostonlylist[name] = ipaddr
-          end
-          # Check if the network exists and return it name if it does
-          hostonlylist.each { |net_name, ip| return(net_name) if ip.eql?(network) }
-
-          # Network does not exist, create it and return the name
-          puts "creating new Virtualbox hostonly network for #{network}"
-          newnet = %x(VBoxManage hostonlyif create)
-          if newnet.include? 'was successfully created'
-            x = newnet.split("'")
-            vboxnet = x[1]
-            unless system("VBoxManage hostonlyif ipconfig #{vboxnet} --ip #{network}  --netmask 255.255.255.0")
-              return vboxnet
-            end
-            puts "Error:  Failure to configure #{vboxnet} --ip #{network}. "
-          else
-            puts "Creation of network unsuccesful. #{newnet}"
-          end
-          nil
-        end
-
-        # input the sample simp_conf.yaml and update the network
-        # settings and any settings from the packer.yaml file.
-        # (Right now this will override the simp_conf.yaml
-        # with default setting also such as fips and the LDAP
-        # settings. )
-        def construct_simpconfig(settings)
-          simpconfig = YAML.load_file("#{@testdir}/simp_conf.yaml")
-          # I set the address of the puppet server to 7 in the network.
-          network     = settings['host_only_gateway'].split('.')[0, 3].join('.')
-          puppet_fqdn = settings['puppetname'] + '.' + settings['domain']
-          puppet_ip   = network + '.7'
-
-          simpconfig['cli::network::gateway'] = settings['host_only_gateway']
-          simpconfig['simp_options::dns::servers'] = [puppet_ip]
-          simpconfig['cli::network::ipaddress'] = puppet_ip
-          simpconfig['simp_options::puppet::server'] = puppet_fqdn
-          simpconfig['cli::network::hostname'] = simpconfig['simp_options::puppet::server']
-          simpconfig['simp_options::puppet::ca'] = simpconfig['simp_options::puppet::server']
-          simpconfig['cli::network::interface'] = settings['host_only_interface']
-          simpconfig['cli::network::netmask'] = '255.255.255.0'
-          simpconfig['simp_options::dns::search'] = [settings['domain']]
-          simpconfig['simp_options::trusted_nets'] = network + '.0/24'
-          simpconfig['simp_options::ldap::base_dn'] = 'dc=' + settings['domain'].split('.').join(',dc=')
-          simpconfig['simp_options::fips'] = settings['fips'].eql?('fips=1')
-          simpconfig['simp_options::ntpd::servers'] = [simpconfig['cli::network::gateway']]
-          simpconfig
-        end
-
-        def self.generate_simp_json(json_template, simp_json)
-          File.open(simp_json, 'w') do |f|
-            f.puts read_and_strip_comments_from_file json_template
-          end
-        end
-
-        # Generates files
-        #   - <workingdir>/simp_conf.yaml
-        #   - <workingdir>/simp.json.yaml
-        def generate_files(settings)
-          simpconfig = construct_simpconfig(settings)
-          simp_conf = "#{@workingdir}/files/simp_conf.yaml"
-          File.open(simp_conf, 'w') { |h| h.puts simpconfig.to_yaml }
-
-          # Get rid of the comments in the simp.json file and copy to the working directory.
-          json_template = File.join(@basedir, 'templates', 'simp.json.template')
-          Simp::Packer::Config::Prepper.generate_simp_json(json_template, "#{@workingdir}/simp.json")
-
-          updated_json_hash = update_packer_vars("#{@testdir}/vars.json", settings)
-          write_vagrantfiles(updated_json_hash, simpconfig, settings['output_directory'])
         end
 
         def copy_output_files(settings)
@@ -248,7 +238,7 @@ module Simp
         def run
           # input packer.yaml and merge with default settings
           in_settings = YAML.load_file("#{@testdir}/packer.yaml")
-          settings    = validate_settings(default_settings.merge(in_settings))
+          settings    = sanitize_settings(default_settings.merge(in_settings))
           generate_files(settings)
           copy_output_files(settings)
         end

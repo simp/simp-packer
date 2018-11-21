@@ -3,11 +3,11 @@
 # ------------------------------------------------------------------------------
 #  release    pup   ruby     eol
 # SIMP 6.0+   4.8   2.1.9    TBD***
-# SIMP 6.2    4.10  2.1.9    TBD
-# SIMP 6.3    5.5‡‡ 2.4.4‡‡  TBD
+# SIMP 6.2    4.10  2.1.9    TBD###
+# SIMP 6.3+   5.5   2.4.4    TBD
 #
 # *** = Modules created for SIMP 6.2+ are not required to support Puppet < 4.10
-# ‡‡  = Projected component versions for a future release of SIMP
+# ### = Modules created for SIMP 6.3+ are not required to support Puppet < 5.3
 ---
 language: ruby
 cache: bundler
@@ -18,52 +18,90 @@ notifications:
 
 stages:
   - validation
-  - 'Puppet (SIMP versions)'
+  - 'Spec tests'
   - name: deploy
-    if: 'fork = false AND tag = true'
+    if: 'tag IS present'
 
 before_install:
   - rm -f Gemfile.lock
-  - gem update --system
+  - gem update --system --no-document
 
 jobs:
   allow_failures:
     - name: 'Latest Puppet 5.x (allowed to fail)'
+    - name: 'Latest Puppet 6.x (allowed to fail)'
 
   include:
     - stage:  validation
       name:   Rubocop
       script: bundle exec rake test:rubocop
 
-    - stage: validation
-      name:  Shellcheck
+    - stage:  validation
+      name:   Shellcheck
       script: bundle exec rake test:shellcheck
 
-    - stage:  'Puppet (SIMP versions)'
+    - stage:  validation
+      name:   'Validate simp.json (packer 1.2.5)'
+      env:
+        - 'ver=1.2.5'
+        - 'PATH="$PWD/packer-bin/${ver}:${PATH}"'
+      before_script:
+        - 'test -f "packer-bin/${ver}/packer" || { wget -c "https://releases.hashicorp.com/packer/${ver}/packer_${ver}_linux_amd64.zip" -O packer.zip && mkdir -p "packer-bin/${ver}" && cd "packer-bin/${ver}" && unzip ../../packer.zip ; cd - ; }'
+        - 'packer --version'
+      script: bundle exec rake packer:validate
+
+    - stage:  validation
+      name:   'Validate simp.json (packer 1.3.2)'
+      env:
+        - 'ver=1.3.2'
+        - 'PATH="$PWD/packer-bin/${ver}:${PATH}"'
+      before_script:
+        - 'test -f "packer-bin/${ver}/packer" || { wget -c "https://releases.hashicorp.com/packer/${ver}/packer_${ver}_linux_amd64.zip" -O packer.zip && mkdir -p "packer-bin/${ver}" && cd "packer-bin/${ver}" && unzip ../../packer.zip ; cd - ; }'
+        - 'packer --version'
+      script: bundle exec rake packer:validate
+
+    - stage: 'Spec tests'
+      rvm:    2.1.9
+      name:  'Ruby unit tests (Ruby 2.1.9)'
+      script: bundle exec rake spec
+
+    - stage: 'Spec tests'
+      rvm:    2.4.4
+      name:  'Ruby unit tests (Ruby 2.4.4)'
+      script: bundle exec rake spec
+
+    - stage:  'Spec tests'
       name:   'Puppet 4.8 (SIMP 6.0–6.1)'
       rvm:    2.1.9
       env:    'PUPPET_VERSION="~> 4.8.2"'
       script: bundle exec rake test:puppet
 
-    - stage:  'Puppet (SIMP versions)'
+    - stage:  'Spec tests'
       name:   'Puppet 4.10 (SIMP 6.2)'
       rvm:    2.1.9
       env:
         - 'PUPPET_VERSION="~> 4.10.4"'
       script: bundle exec rake test:puppet
 
-    - stage:  'Puppet (SIMP versions)'
+    - stage:  'Spec tests'
       name:   'Puppet 5.5 (SIMP 6.3+)'
       rvm:    2.4.4
       env:
         - 'PUPPET_VERSION="~> 5.5.6"'
       script: bundle exec rake test:puppet
 
-    - stage:  'Puppet (SIMP versions)'
+    - stage:  'Spec tests'
       name:   'Latest Puppet 5.x (allowed to fail)'
       rvm:    2.4.4
       env:
         - 'PUPPET_VERSION="~> 5.0"'
+      script: bundle exec rake test:puppet
+
+    - stage:  'Spec tests'
+      name:   'Latest Puppet 6.x (allowed to fail)'
+      rvm:    2.5.1
+      env:
+        - 'PUPPET_VERSION="~> 6.0"'
       script: bundle exec rake test:puppet
 
     - stage: deploy

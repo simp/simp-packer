@@ -59,27 +59,8 @@ module Simp
           cp packer_yaml, File.join(@test_dir, 'packer.yaml'), verbose: @verbose
         end
 
-        # @param opts [Hash] optional
-        # @option opts [String] :working_dir
-        # @option opts [String] :vars_json
-        # @option opts [String] :packer_yaml
-        # @option opts [String] :simp_conf_yaml
-        # @option opts [String] :dry_run
-        def run(opts = {})
-          date              = opts[:date_time]      || Time.now.strftime('%Y%m%d-%H%M%S')
-          working_dir       = opts[:working_dir]    || File.join(@test_dir, "working.#{date}")
-          log_file          = opts[:log_file]       || File.join(@test_dir, "#{date}.simp-packer.log")
-          plog_file         = opts[:plog_file]      || ENV['PACKER_LOGPATH'] || File.join(@test_dir, "#{date}.packer.log")
-          extra_packer_args = opts[:extra_packer_args] || ENV['SIMP_PACKER_extra_args'] || ''
-          tmp_dir           = opts[:tmp_dir]        || nil
-          dry_run           = opts[:dry_run]        || false
-          # The files are currently needed by Simp::Packer::Config::Prepper (the
-          # old simp_config.rb).  They have to exist before this method is called.
-          packer_yaml       = opts[:packer_yaml]    || File.join(@test_dir,
-                                                                 'packer.yaml')
-          simp_conf_yaml    = opts[:simp_conf_yaml] || File.join(@test_dir, 'simp.conf.yaml')
-          vars_json         = opts[:vars_json]      || File.join(@test_dir, 'vars.json')
-
+        # Raise a decriptive error if any build requirements are missing
+        def fail_without_prereqs(packer_yaml, simp_conf_yaml, vars_json)
           raise "ERROR: Test dir not found at '#{@test_dir}'" unless File.directory?(@test_dir)
           if @verbose
             STDERR.puts(
@@ -89,8 +70,31 @@ module Simp
           end
           # TODO: we shouldn't handle these files, we should accept data
           raise "ERROR: packer.yaml not found at '#{packer_yaml}'" unless File.file?(packer_yaml)
-          raise "ERROR: simp.conf.yaml not found at '#{simp_conf_yaml}'" unless File.file?(packer_yaml)
+          raise "ERROR: simp.conf.yaml not found at '#{simp_conf_yaml}'" unless File.file?(simp_conf_yaml)
           raise "ERROR: vars.json not found at '#{vars_json}'" unless File.file?(vars_json)
+        end
+
+        # @param opts [Hash] optional
+        # @option opts [String] :working_dir
+        # @option opts [String] :vars_json
+        # @option opts [String] :packer_yaml
+        # @option opts [String] :simp_conf_yaml
+        # @option opts [String] :dry_run
+        def run(opts = {})
+          date              = opts[:date_time]      || Time.now.strftime('%Y%m%d-%H%M%S')
+          working_dir       = opts[:working_dir]    || File.join(@test_dir, "working.#{date}")
+          opts[:log_file] ||= File.join(@test_dir, "#{date}.simp-packer.log")
+          opts[:plog_file] || ENV['PACKER_LOGPATH'] || File.join(@test_dir, "#{date}.packer.log")
+          opts[:tmp_dir]   ||= nil
+          opts[:dry_run]   ||= ENV.fetch('SIMP_PACKER_dry_run', 'no') == 'yes'
+          # The files are currently needed by Simp::Packer::Config::Prepper (the
+          # old simp_config.rb).  They have to exist before this method is called.
+          opts[:packer_yaml]       ||= File.join(@test_dir, 'packer.yaml')
+          opts[:simp_conf_yaml]    ||= File.join(@test_dir, 'simp_conf.yaml')
+          opts[:vars_json]         ||= File.join(@test_dir, 'vars.json')
+          opts[:extra_packer_args] ||= ENV['SIMP_PACKER_extra_args'] || ''
+
+          fail_without_prereqs(opts[:packer_yaml], opts[:simp_conf_yaml], opts[:vars_json])
 
           # scaffold working directory
           rm_rf(working_dir, verbose: @verbose) if File.exist?(working_dir)
@@ -104,20 +108,21 @@ module Simp
           simp_packer_config.verbose = @verbose
           simp_packer_config.run
 
-          puts "Logs will be written to #{log_file}"
+          Dir.chdir working_dir do |_dir|
+            puts "Logs will be written to #{opts[:log_file]}" if @verbose
+            cmd = <<-CMD.gsub(%r{ {10}}, '')
+              set -e; set -o pipefail;
+              #{opts[:tmp_dir] ? "TMP_DIR=#{opts[:tmp_dir]} " : ''}PACKER_LOG="#{ENV['PACKER_LOG'] || 1}" \
+                PACKER_LOG_PATH="#{opts[:plog_file]}" \
+                packer build -var-file="#{working_dir}/vars.json" #{opts[:extra_packer_args]} "#{working_dir}/simp.json" \
+                |& tee "#{opts[:log_file]}"
+            CMD
 
-          cmd = <<-CMD.gsub(%r{ {10}}, '')
-            set -e; set -o pipefail;
-            #{tmp_dir ? "TMP_DIR=#{tmp_dir} " : ''}PACKER_LOG="#{ENV['PACKER_LOG'] || 1}" \
-              PACKER_LOGPATH="#{plog_file}" \
-              packer build -var-file="#{working_dir}/vars.json" #{extra_packer_args} "#{working_dir}/simp.json" \
-              |& tee "#{log_file}"
-          CMD
-
-          if dry_run
-            puts cmd
-          else
-            sh cmd
+            if opts[:dry_run]
+              puts cmd if @verbose
+            else
+              sh cmd
+            end
           end
         end
       end

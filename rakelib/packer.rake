@@ -32,6 +32,7 @@ namespace :packer do
       File.open(simp_json, 'w') { |f| f.puts text }
       extra_args = "-var 'iso_url=#{dir}' -var 'iso_checksum_type=sha256' -var 'iso_checksum=x'"
       extra_args = "-var-file '#{args.vars_file}'" if args.vars_file
+      sh 'packer --version'
       sh "packer validate #{extra_args} '#{simp_json}'"
     end
   end
