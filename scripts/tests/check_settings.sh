@@ -7,12 +7,21 @@
 
 set -e
 
-export PATH="${PATH}:/opt/puppetlabs/bin"
-packerdir="/var/local/simp"
+ERR_NO_RUBY_EXE=71
+
+for pth in /opt/puppetlabs/puppet/bin /opt/puppetlabs/bin; do
+  if [ -z "$RUBY" ] && [ -x "$pth/ruby" ]; then
+    export PATH="$pth:${PATH}"
+    RUBY="$pth/ruby"
+  fi
+done
+[ -z "$RUBY" ]&& { echo "ERROR: could not find a ruby executable"; exit "${ERR_NO_RUBY_EXE}"; }
+
+packerdir=${VAR_LOCAL_SIMP_DIR:-"/var/local/simp"}
 pupenvdir="$(puppet config print environmentpath)"
 hieradata_dir="${pupenvdir}/simp/data"
 
-simp_version="$(cat /etc/simp/simp.version)"
+simp_version="$(cat "${SIMP_VERSION_FILE:-/etc/simp/simp.version}")"
 semver=( ${simp_version//./ } )
 major="${semver[0]}"
 minor="${semver[1]}"
@@ -23,4 +32,4 @@ if [[ ( "$major" -eq 6  &&  "$minor" -lt 3 ) || "$major" -le 5 ]]; then
 fi
 simp_default="${hieradata_dir}/simp_config_settings.yaml"
 
-"${packerdir}/scripts/tests/check_settings.rb" "${packerdir}/files/simp_conf.yaml" "${simp_default}"
+ruby "${packerdir}/scripts/tests/check_settings.rb" "${packerdir}/files/simp_conf.yaml" "${simp_default}"

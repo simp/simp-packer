@@ -331,7 +331,6 @@
     {
       "type": "shell",
       "remote_path": "/var/local/simp/scripts/inline-run-check_settings-sh.sh",
-//      "execute_command": "sudo chmod +x {{.Path}};sudo {{.Vars}} sh '{{.Path}}'",
       "inline": ["sudo sh /var/local/simp/scripts/tests/check_settings.sh"]
     },
 
@@ -344,20 +343,17 @@
     ////////////////////////////////////////////////////////////////////////////
     {
       "type": "shell",
-//      "execute_command": "sudo chmod +x {{.Path}}; sudo {{.Vars}} sh '{{.Path}}'",
       "remote_path": "/var/local/simp/scripts/inline-run-simpsetup.sh",
       "inline": ["sudo /var/local/simp/scripts/config/simpsetup.sh"]
     },
     {
       "type": "shell",
       "remote_path": "/var/local/simp/scripts/inline-run-sitepp_edit-rb.sh",
-//      "execute_command": "sudo chmod +x {{.Path}}; sudo {{.Vars}} sh '{{.Path}}'",
       "inline": ["sudo {{user `ruby_path`}} /var/local/simp/scripts/config/sitepp_edit.rb"]
     },
     {
       "type": "shell",
       "remote_path": "/var/local/simp/scripts/inline-run-hiera_update-rb.sh",
-//      "execute_command": "sudo chmod +x {{.Path}}; sudo {{.Vars}} sh '{{.Path}}'",
       "inline": ["sudo {{user `ruby_path`}} /var/local/simp/scripts/config/hiera_update.rb"]
     },
 
