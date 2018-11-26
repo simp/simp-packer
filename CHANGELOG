@@ -1,4 +1,6 @@
-Fri Oct 05 2018 Chris Tessmer <chris.tessmer@onyxpoint.com> - UNRELEASED
+Thu Nov 15 2018 Chris Tessmer <chris.tessmer@onyxpoint.com> - 2.3.0
+
+This release supports Puppet 5 and Hiera 5:
 
 * Added:
   - `Simp::Packer::Publish::LocalDirTree.publish`
@@ -13,6 +15,7 @@ Fri Oct 05 2018 Chris Tessmer <chris.tessmer@onyxpoint.com> - UNRELEASED
     sudo access on boxes that don't run `scripts/simp-bootstrap.sh`
   - Add a longer `big_sleep` by default for centos 6 + 7
   - Renamed `rake vagrant:boxname` to `rake vagrant:json`
+
 
 Mon Oct 02 2018 Chris Tessmer <chris.tessmer@onyxpoint.com> - 2.2.2
 
