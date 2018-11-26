@@ -30,7 +30,7 @@ namespace :vagrant do
                      structure.  (ENV: VAGRANT_BOX_DIR=)
     MSG
     task :list, [:tree_dir] do |_t, args|
-      args.with_defaults(tree_dir: ENV['VAGRANT_BOX_DIR'] || nil)
+      args.with_defaults(tree_dir: ENV['VAGRANT_BOX_DIR'] || '')
       raise "ERROR: :tree_dir '#{args.tree_dir}' not found.  (ENV: VAGRANT_BOX_DIR)" unless File.exist?(args.tree_dir)
       dir_tree = Simp::Packer::Publish::LocalDirTree.new(args.tree_dir)
       puts dir_tree.list_str
