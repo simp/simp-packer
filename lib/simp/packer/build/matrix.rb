@@ -1,4 +1,4 @@
-require 'simp/packer/build/matrix_unroller'
+require 'simp/tests/matrix/unroller'
 require 'simp/packer/build/runner'
 require 'fileutils'
 require 'rake/file_utils'
@@ -8,7 +8,7 @@ module Simp
     module Build
       # Run a matrix of simp-packer builds
       class Matrix
-        include MatrixUnroller
+        include Simp::Tests::Matrix::Unroller
         include FileUtils
 
         # @param matrix [Array] matrix of things

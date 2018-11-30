@@ -1,9 +1,9 @@
 module Simp
-  module Packer
-    module Build
-      # The `MatrixUnroller` mixin provides classes with tools to "unroll"
-      #   compact matrix specifications
-      module MatrixUnroller
+  module Tests
+    module Matrix
+      # The `Simp::Tests::Matrix::Unroller` mixin provides classes with tools
+      #   to "unroll" compact matrix specifications
+      module Unroller
         # Expands a list of compact matrix specifications into an
         #   easy-to-iterate list of each `:key => value` combination.
         #
@@ -22,7 +22,7 @@ module Simp
         # @return [Array<Hash>] the unrolled matrix as (symbolized) key/value pairs
         #
         # @example Basic usage
-        #   include Simp::Packer::Build::MatrixUnroller
+        #   include Simp::Tests::Matrix::Unroller
         #
         #   iterations = unroll ['a=on:off', 'b=foo:bar:baz'] #=>
         #   # [
