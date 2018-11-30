@@ -1,9 +1,9 @@
-require 'simp/packer/tests/shellcheck'
+require 'simp/tests/shellcheck'
 
 namespace :test do
   desc 'List shell scripts (requires `shellcheck` executable in path)'
   task :shellcheck do
-    shellcheck_bin = 'shellcheck'
-    Simp::Packer::Tests::Shellcheck.new(shellcheck_bin).run
+    shellcheck_bin = ENV['SHELLCHECK_BIN'] || 'shellcheck'
+    Simp::Tests::Shellcheck.new(shellcheck_bin).run(['scripts/{*,**/*}.sh'])
   end
 end
