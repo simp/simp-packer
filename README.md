@@ -86,7 +86,7 @@ There are a few ways to run simp-packer:
 
 1. [Using `rake simp:packer:matrix`](#using-rake-simppackermatrix)
 
-   - still under development and has been thoroughly tested.
+   - still under development and has not been thoroughly tested.
    - Builds multiple Vagrant boxes based on a matrix of settings.
    - Publishes each box plus JSON files with **_versioned_** metadata to
      a local directory tree.
