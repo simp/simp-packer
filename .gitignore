@@ -1,5 +1,5 @@
 .*.sw?
-/Gemfile.lock
+Gemfile.lock
 .bundle/
 .vagrant/
 /OUTPUT
@@ -12,5 +12,14 @@ packer_cache
 *.orig
 dist
 puppet/modules/*/spec/fixtures
+puppet/modules/*/Gemfile.lock
+puppet/modules/*/.vendor/
+puppet/modules/*/.bundle/
+puppet/modules/*/doc/
+puppet/modules/*/.yardoc
 /doc/
 build_*/
+/coverage
+/.yardoc
+simp-packer-build-*
+.vendor/

@@ -10,6 +10,7 @@ group :test do
   gem 'rake'
   gem 'puppet', puppet_version
   gem 'rspec'
+  gem 'rspec-mocks'
   gem 'rspec-puppet'
   gem 'hiera-puppet-helper'
   gem 'puppetlabs_spec_helper'
@@ -24,6 +25,7 @@ group :test do
   gem 'yard'
   gem 'redcarpet'
   gem 'github-markup'
+  gem 'simplecov', require: false
 end
 
 group :development do

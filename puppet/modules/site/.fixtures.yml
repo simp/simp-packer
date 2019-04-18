@@ -1,0 +1,12 @@
+---
+fixtures:
+  repositories:
+    concat: https://github.com/simp/puppetlabs-concat
+    pam: https://github.com/simp/pupmod-simp-pam
+    sudo: https://github.com/simp/pupmod-simp-sudo
+    simplib: https://github.com/simp/pupmod-simp-simplib
+    stdlib: https://github.com/simp/puppetlabs-stdlib
+  simlinks:
+    site: "#{source_dir}"
+
+

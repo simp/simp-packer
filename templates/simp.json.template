@@ -77,7 +77,6 @@
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
-        "<wait10><wait10><wait10><wait10><wait10><wait10>",
         "<wait10><wait10><wait10><wait10>",
         "{{user `big_sleep`}}",
         // set simp user password
@@ -161,6 +160,13 @@
       "destination": "/var/local/simp/files"
     },
 
+
+    // Copy files from the host to the virtual machine for use later on
+    {
+      "type": "file",
+      "source": "./puppet",
+      "destination": "/var/local/simp/puppet"
+    },
     // TEST:  Check if it booted into fips or not according to the
     //        fips variable set in the boot command.
     //
@@ -214,6 +220,29 @@
       ]
     },
 
+    // FIX ME Set up the initial Environment.  This will eventually be a simp env command
+    //  The script also installs simp-vendored-r10k.
+    {
+     "type": "shell",
+      "remote_path": "/var/local/simp/scripts/config/create_new_environment.sh",
+      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -i '{{.Path}}'",
+      "script" : "scripts/config/create_new_environment.sh"
+    },
+    //  Create the puppet files and install the puppetmodules
+    { "type": "shell",
+      "remote_path": "/var/local/simp/inline-simp-puppet-file.sh",
+      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -i '{{.Path}}'",
+      "inline" : [
+        "cd /etc/puppetlabs/code/environments/simp",
+        "simp puppetfile generate --skeleton > Puppetfile",
+        "simp puppetfile generate > Puppetfile.simp",
+        "chown root:puppet Puppetfile Puppetfile.simp",
+        "chmod 640 Puppetfile Puppetfile.simp",
+        "umask 0027",
+        "sg puppet -c '/usr/share/simp/bin/r10k puppetfile install --puppetfile /etc/puppetlabs/code/environments/simp/Puppetfile --moduledir /etc/puppetlabs/code/environments/simp/modules'"
+      ]
+    },
+
     // Now we run simp using the simp conf yaml file specified in the shell.
     // It should complete successfully.
     {
@@ -227,7 +256,7 @@
          "umask",
          "echo 'Running simp config...'",
          "simp config -a {{user `simp_conf_file`}}"
-       ]
+      ]
     },
     // Disable NetworkManager (may prevent a problem with beaker)
     {
@@ -261,6 +290,7 @@
     // even with -E.
     {
       "type": "shell",
+      "valid_exit_codes": [ 0, 143 ],
       "remote_path": "/var/local/simp/reboot1.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -E bash '{{.Path}}'",
       "expect_disconnect": true,
@@ -292,7 +322,7 @@
       //
       //        See: https://github.com/hashicorp/packer/issues/5115
       //
-      "pause_before": "400s",
+      "pause_before": "300s",
       "type": "file",
       "source": "./puppet",
       "destination": "/var/local/simp"
@@ -331,7 +361,6 @@
     {
       "type": "shell",
       "remote_path": "/var/local/simp/scripts/inline-run-check_settings-sh.sh",
-//      "execute_command": "sudo chmod +x {{.Path}};sudo {{.Vars}} sh '{{.Path}}'",
       "inline": ["sudo sh /var/local/simp/scripts/tests/check_settings.sh"]
     },
 
@@ -344,20 +373,17 @@
     ////////////////////////////////////////////////////////////////////////////
     {
       "type": "shell",
-//      "execute_command": "sudo chmod +x {{.Path}}; sudo {{.Vars}} sh '{{.Path}}'",
       "remote_path": "/var/local/simp/scripts/inline-run-simpsetup.sh",
       "inline": ["sudo /var/local/simp/scripts/config/simpsetup.sh"]
     },
     {
       "type": "shell",
       "remote_path": "/var/local/simp/scripts/inline-run-sitepp_edit-rb.sh",
-//      "execute_command": "sudo chmod +x {{.Path}}; sudo {{.Vars}} sh '{{.Path}}'",
       "inline": ["sudo {{user `ruby_path`}} /var/local/simp/scripts/config/sitepp_edit.rb"]
     },
     {
       "type": "shell",
       "remote_path": "/var/local/simp/scripts/inline-run-hiera_update-rb.sh",
-//      "execute_command": "sudo chmod +x {{.Path}}; sudo {{.Vars}} sh '{{.Path}}'",
       "inline": ["sudo {{user `ruby_path`}} /var/local/simp/scripts/config/hiera_update.rb"]
     },
 

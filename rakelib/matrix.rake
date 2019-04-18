@@ -1,4 +1,4 @@
-require 'simp/packer/tests/matrix'
+require 'simp/packer/build/matrix'
 require 'rake'
 namespace :simp do
   namespace :packer do
@@ -30,7 +30,7 @@ Usage:
 
 FAIL
       end
-      Simp::Packer::Tests::Matrix.new(args.extras).run
+      Simp::Packer::Build::Matrix.new(args.extras).run
     end
   end
 end

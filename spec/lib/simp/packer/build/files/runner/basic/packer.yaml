@@ -1,0 +1,9 @@
+---
+# See the README file in the samples directory for a full list
+# of the variables that can be set and their descriptions.
+nat_interface: 'eth0'
+host_only_interface: 'eth1'
+# TODO: configure sipm-packer masters and clients to use DHCP (SIMP-5333)
+mac_address: 'aabbccaa0007'
+host_only_gateway: '192.168.101.1'
+big_sleep: "<wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10>"

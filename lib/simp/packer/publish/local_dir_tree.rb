@@ -50,7 +50,6 @@ module Simp
           data = { orgs: {}, invalid_orgs: [], base_path: @base_dir }
           Dir["#{@base_dir}/*"].each do |org_path|
             org = File.basename(org_path)
-            puts "== org: '#{org}'"
             unless File.directory?(File.join(org_path, 'boxes'))
               data[:invalid_orgs] << org
               next
@@ -76,7 +75,7 @@ module Simp
             lines << "#{org}/"
             v[:boxes].map do |box, y|
               lines << "  - #{box}:"
-              lines << y[:versions].map { |version| "    - #{version}" }.join("\n")
+              lines << y[:versions].map { |version| "    - #{version}" }.sort.join("\n")
             end
           end
           lines.join("\n")

@@ -150,14 +150,6 @@ class CheckSettings
 
       execute_checks
       result = 0
-    rescue ArgumentError => e
-      # command line error
-      warn "ERROR: #{e.message}"
-      result = 1
-    rescue Psych::SyntaxError
-      # YAML parsing error
-      warn "ERROR: #{e.message}"
-      result = 1
     rescue SettingsError => e
       # check failure
       if @never_fail
@@ -167,6 +159,10 @@ class CheckSettings
         warn "ERROR: #{e.message}"
         result = 1
       end
+    rescue ArgumentError, Psych::SyntaxError => e
+      # YAML parsing error
+      warn "ERROR: #{e.message}"
+      result = 1
     rescue StandardError => e
       # everything else
       warn "FAILURE: #{e.message}"
