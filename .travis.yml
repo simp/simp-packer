@@ -41,9 +41,9 @@ jobs:
       script: bundle exec rake test:shellcheck
 
     - stage:  validation
-      name:   'Validate simp.json (packer 1.2.5)'
+      name:   'Validate simp.json (packer 1.4.0)'
       env:
-        - 'ver=1.2.5'
+        - 'ver=1.4.0'
         - 'PATH="$PWD/packer-bin/${ver}:${PATH}"'
       before_script:
         - 'test -f "packer-bin/${ver}/packer" || { wget -c "https://releases.hashicorp.com/packer/${ver}/packer_${ver}_linux_amd64.zip" -O packer.zip && mkdir -p "packer-bin/${ver}" && cd "packer-bin/${ver}" && unzip ../../packer.zip ; cd - ; }'

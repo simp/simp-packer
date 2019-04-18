@@ -10,7 +10,6 @@ namespace :simp do
     DESC
     task :oldbuild, [:test_dir] do |t, args|
       require 'simp/packer/build/runner'
-      date = Time.now.strftime('%Y%m%d-%H%M%S')
       unless ENV['SIMP_PACKER_test_dir']
         msg = ['ERROR:  You must supply the test directory ']
         msg << "\nrake #{t.name_with_args}\n"
