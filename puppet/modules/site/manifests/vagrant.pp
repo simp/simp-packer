@@ -1,3 +1,9 @@
+# Sets up vagrant user to be able to ssh in and
+# have root priveledges.
+# Adds Virtual Box services so svckill will not
+# kill them.
+#
+# @author https://github.com/simp/simp-packer/graphs/contributors
 class site::vagrant {
   pam::access::rule { 'vagrant_simp':
     permission => '+',
@@ -24,14 +30,14 @@ class site::vagrant {
   }
 
   sudo::default_entry { 'simp_default_notty':
-    content => ['!env_reset, !requiretty'],
-    target => 'simp',
+    content  => ['!env_reset, !requiretty'],
+    target   => 'simp',
     def_type => 'user'
   }
 
   sudo::default_entry { 'vagrant_default_notty':
-    content => ['!env_reset, !requiretty'],
-    target => 'vagrant',
+    content  => ['!env_reset, !requiretty'],
+    target   => 'vagrant',
     def_type => 'user'
   }
 
