@@ -1,4 +1,20 @@
-day mmm DD YYYY Chris Tessmer <chris.tessmer@onyxpoint.com> - UNRELEASED
+Thu Apr 18 2019 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - UNRELEASED
+* Updated to work with new r10k iso install process.  It will no longer work
+  with older builds.  You need to checkout version 2.3.0 to  build an older
+  version.
+  - changed simp.json template to reflect new flow.  (Note: Used a temp script
+    to model simp env changes, see FIX ME.)
+  - added site module installation with vagrant user manifest  because site module
+    is not installed.
+  - updated simp_conf.yaml in examples to reflect new simp cli changes.
+  - added rake simp:packer:oldbuild to run with just test directory
+    like the old days for a temporary bridge.
+* Changes to simp.json template require packer version 1.4.0.  (The valid_exit_codes
+  entry added during script reboot will ignore spurious errors that happen
+  when the reboot script throws an error because it rebooted during the script.)
+* Fixed errors in  simp:packer:build logic.
+
+Mon Apr 01 2019 Chris Tessmer <chris.tessmer@onyxpoint.com> - UNRELEASED
 
 This patch refactors the `simp_packer_test.sh` and `simp_config.rb` scripts
 into testable Ruby classes, and adds a few example unit tests.

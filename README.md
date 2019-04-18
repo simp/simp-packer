@@ -67,9 +67,11 @@ Requirements:
 
   - Ensure the binary is in your `$PATH` and comes before any other packer
     executables on the system (e.g., `export PATH="/path/to/packer:$PATH"`).
-  - `simp-packer` 2.* requires `packer` version 1.2.4 or later. This update is
-    to support UEFI boot of SIMP servers. Since VirtualBox does not support
-    UEFI tftpboot, the SIMP clients will use legacy BIOS boot.
+  - `simp-packer` >= 2.4  requires `packer` version 1.4.0  or later.
+    Currently it only works with simp 6.4.0 and later.
+  - `simp-packer` >= 2.0 < 2.4  requires `packer` version 1.2.4 or later and
+   does not work with SIMP >= 6.4.0
+
 
 * A [SIMP][SIMP] ISO (`.iso`) file. Either an official release or one generated
   by [simp-core](https://github.com/simp/simp-core) build commands.
@@ -80,10 +82,11 @@ Requirements:
 
 ## Usage
 
-There are two ways to run simp-packer:
+There are a few ways to run simp-packer:
 
 1. [Using `rake simp:packer:matrix`](#using-rake-simppackermatrix)
 
+   - still under development and has been thoroughly tested.
    - Builds multiple Vagrant boxes based on a matrix of settings.
    - Publishes each box plus JSON files with **_versioned_** metadata to
      a local directory tree.
@@ -97,7 +100,12 @@ There are two ways to run simp-packer:
    - Requires you to [manually provide a test directory and configuration
      files](#manually-creating-the-configuration-files)
 
-Both methods are configured by [environment variables](#environment-variables)
+3. [Using `rake simp:packer:build`]
+
+   - Takes a test directory that has the vars.json, packer.yaml and simp_conf.yaml
+   already set up like the old build process.
+
+All methods are configured by [environment variables](#environment-variables)
 and Rake task arguments.
 
 ### Using `rake simp:packer:matrix`

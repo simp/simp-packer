@@ -36,7 +36,7 @@ namespace :simp do
                          'lib/simp/packer/files/configs/centos7/simp_conf.yaml')
       args.with_defaults(test_dir: ENV['SIMP_PACKER_test_dir'] || "simp-packer-build-#{date}")
 
-      packer_build_runner = Simp::Build::Packer::Runner.new(args.test_dir)
+      packer_build_runner = Simp::Packer::Build::Runner.new(args.test_dir)
       packer_build_runner.prep(
         args.vars_json,
         args.simp_conf_yaml,

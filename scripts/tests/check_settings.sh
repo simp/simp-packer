@@ -18,7 +18,7 @@ done
 [ -z "$RUBY" ]&& { echo "ERROR: could not find a ruby executable"; exit "${ERR_NO_RUBY_EXE}"; }
 
 packerdir=${VAR_LOCAL_SIMP_DIR:-"/var/local/simp"}
-pupenvdir="$(puppet config print environmentpath)"
+pupenvdir="$(puppet config print environmentpath 2> /dev/null)"
 hieradata_dir="${pupenvdir}/simp/data"
 
 simp_version="$(cat "${SIMP_VERSION_FILE:-/etc/simp/simp.version}")"

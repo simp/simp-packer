@@ -1,0 +1,4 @@
+--log-format="%{path}:%{line}:%{check}:%{KIND}:%{message}"
+--relative
+--no-140chars-check
+--no-trailing_comma-check

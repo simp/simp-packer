@@ -26,14 +26,6 @@ module Simp
       #             that is writeable and has enough space for packer to
       #             create the disk for the machine.
       #
-      #   Example usage   TMPDIR=/var/tmp ./simp_packer_test.sh /var/jmg/packer/nofips
-      #
-      #   Where I have copied the sample directory nofips to /var/jmg/packer and
-      #   have edited the packer and vars files to point to my iso.  I also
-      #   have already set up in VirtualBox the HOST ONLY network refered to in
-      #   the packer.yaml file, or changed the network and IP addresses in the
-      #   packer.yaml file to reference a VirtualBox network I have already setup.
-      #
       #
       class Runner
         include FileUtils
