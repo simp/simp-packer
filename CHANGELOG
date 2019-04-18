@@ -13,6 +13,8 @@ Thu Apr 18 2019 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - UNRELEASED
   entry added during script reboot will ignore spurious errors that happen
   when the reboot script throws an error because it rebooted during the script.)
 * Fixed errors in  simp:packer:build logic.
+* removed support for puppet 4.10 and ruby 2.1.9.
+
 
 Mon Apr 01 2019 Chris Tessmer <chris.tessmer@onyxpoint.com> - UNRELEASED
 

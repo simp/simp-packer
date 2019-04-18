@@ -51,27 +51,9 @@ jobs:
       script: bundle exec rake packer:validate
 
     - stage: 'Spec tests'
-      rvm:    2.1.9
-      name:  'Ruby unit tests (Ruby 2.1.9)'
-      script: bundle exec rake spec
-
-    - stage: 'Spec tests'
       rvm:    2.4.4
       name:  'Ruby unit tests (Ruby 2.4.4)'
       script: bundle exec rake spec
-
-    - stage:  'Spec tests'
-      name:   'Puppet 4.8 (SIMP 6.0–6.1)'
-      rvm:    2.1.9
-      env:    'PUPPET_VERSION="~> 4.8.2"'
-      script: bundle exec rake test:puppet
-
-    - stage:  'Spec tests'
-      name:   'Puppet 4.10 (SIMP 6.2)'
-      rvm:    2.1.9
-      env:
-        - 'PUPPET_VERSION="~> 4.10.4"'
-      script: bundle exec rake test:puppet
 
     - stage:  'Spec tests'
       name:   'Puppet 5.5 (SIMP 6.3+)'

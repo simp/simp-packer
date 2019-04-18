@@ -68,7 +68,8 @@ Requirements:
   - Ensure the binary is in your `$PATH` and comes before any other packer
     executables on the system (e.g., `export PATH="/path/to/packer:$PATH"`).
   - `simp-packer` >= 2.4  requires `packer` version 1.4.0  or later.
-    Currently it only works with simp 6.4.0 and later.
+    Currently it only works with simp 6.4.0 and later.  It also requires
+    ruby 2.3.0 or later because of gem dependencies.
   - `simp-packer` >= 2.0 < 2.4  requires `packer` version 1.2.4 or later and
    does not work with SIMP >= 6.4.0
 
@@ -107,6 +108,11 @@ There are a few ways to run simp-packer:
 
 All methods are configured by [environment variables](#environment-variables)
 and Rake task arguments.
+
+IMPORTANT:
+  Packer` uses around twice the space of the virtual image footprint when
+  building, so ensure that `TMPDIR` has sufficient space.  `TMPDIR` defaults to
+  `/tmp` which is not (usually) large enough.  This affects all methods.
 
 ### Using `rake simp:packer:matrix`
 
@@ -174,7 +180,8 @@ Build matrix elements are delimited by colons (`:`)
 | `MATRIX_LABEL`        | Label for this matrix run that will prefix each iteration's directory name (default: `build_<YYYYmmdd>_<HHMMSS>`) |
 
 
-### Using `rake simp:packer:build`
+### Using `rake simp:packer:build` and `rake simp:packer:oldbuild`
+
 
 ```sh
 TMPDIR=/some/tmp/dir \
@@ -182,11 +189,22 @@ TMPDIR=/some/tmp/dir \
   bundle exec rake simp:packer:build[vars_json,packer_yaml,simp_conf_yaml,test_dir]
 ```
 
-- The `simp:packer:build` task creates a single Vagrant box _without version
+```sh
+TMPDIR=/some/tmp/dir \
+  [ENV_VAR=value ...] \
+  bundle exec rake simp:packer:oldbuild[test_dir]
+```
+
+
+The `build` version allows you to call using configuration files located from
+other locations. You don't copy the config files to the test directory.i 
+It will copy the files over for you but you have to type in all the locations.
+
+The `oldbuild` versions allows you copy the files to a directory your self and run
+just entering the directory.
+
+- Both of these tasks create a single Vagrant box _without version
   metadata_.
-- `packer` uses around twice the space of the virtual image footprint when
-  building, so ensure that `TMPDIR` has sufficient space.  `TMPDIR` defaults to
-  `/tmp` which is not (usually) large enough.
 
 
 #### Manually creating the configuration files
