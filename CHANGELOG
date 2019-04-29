@@ -1,3 +1,8 @@
+Mon Apr 29 2019 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - UNRELEASED
+* change simp.json file to use simpenv script in simp-utils
+* removed linked file in site module.  Packer can't handle linked files
+
+
 Thu Apr 18 2019 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - UNRELEASED
 * Updated to work with new r10k iso install process.  It will no longer work
   with older builds.  You need to checkout version 2.3.0 to  build an older
