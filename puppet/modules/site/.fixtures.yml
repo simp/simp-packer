@@ -6,7 +6,3 @@ fixtures:
     sudo: https://github.com/simp/pupmod-simp-sudo
     simplib: https://github.com/simp/pupmod-simp-simplib
     stdlib: https://github.com/simp/puppetlabs-stdlib
-  simlinks:
-    site: "#{source_dir}"
-
-

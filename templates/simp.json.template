@@ -159,13 +159,10 @@
       "source": "./files",
       "destination": "/var/local/simp/files"
     },
-
-
-    // Copy files from the host to the virtual machine for use later on
     {
-      "type": "file",
+      "destination": "/var/local/simp",
       "source": "./puppet",
-      "destination": "/var/local/simp/puppet"
+      "type": "file"
     },
     // TEST:  Check if it booted into fips or not according to the
     //        fips variable set in the boot command.
@@ -224,9 +221,11 @@
     //  The script also installs simp-vendored-r10k.
     {
      "type": "shell",
-      "remote_path": "/var/local/simp/scripts/config/create_new_environment.sh",
+      "remote_path": "/var/local/simp/scripts/inline-newenv.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -i '{{.Path}}'",
-      "script" : "scripts/config/create_new_environment.sh"
+      "inline" : [
+        "/usr/local/bin/simpenv -n simp"
+        ]
     },
     //  Create the puppet files and install the puppetmodules
     { "type": "shell",
@@ -234,10 +233,6 @@
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -i '{{.Path}}'",
       "inline" : [
         "cd /etc/puppetlabs/code/environments/simp",
-        "simp puppetfile generate --skeleton > Puppetfile",
-        "simp puppetfile generate > Puppetfile.simp",
-        "chown root:puppet Puppetfile Puppetfile.simp",
-        "chmod 640 Puppetfile Puppetfile.simp",
         "umask 0027",
         "sg puppet -c '/usr/share/simp/bin/r10k puppetfile install --puppetfile /etc/puppetlabs/code/environments/simp/Puppetfile --moduledir /etc/puppetlabs/code/environments/simp/modules'"
       ]
@@ -394,7 +389,13 @@
       "extra_arguments": "--test",
       "puppet_bin_dir": "/opt/puppetlabs/bin"
     },
-
+    // Run puppet server one last time and it should be clean.
+    // If not then something is wrong.
+    {
+      "type": "puppet-server",
+      "extra_arguments": "--test",
+      "puppet_bin_dir": "/opt/puppetlabs/bin"
+    },
     // Add some shortcuts to root's .bashrc (to help get around)
     {
       "type": "shell",
