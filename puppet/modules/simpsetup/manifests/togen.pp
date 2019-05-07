@@ -3,7 +3,9 @@
 #  It use the domain name from simpsetup also.
 #  It users server## and ws## for the names of the systems.
 #
-class simpsetup::togen {
+class simpsetup::togen (
+  String $env = $simpsetup::environment
+){
 
 $togen_template = @(END)
 <% $simpsetup::servers.each |$number| { %>
@@ -14,7 +16,7 @@ ws<%= $number %>.<%= $simpsetup::domain %>
 <% } %>
 END
 
-  file {  '/var/simp/environments/simp/FakeCA/togen':
+  file {  "/var/simp/environments/${env}/FakeCA/togen":
     owner   => 'root',
     group   => 'root',
     mode    => '0640',
@@ -22,9 +24,9 @@ END
   }
 
   exec { 'generate certs from togen':
-    command => '/var/simp/environments/simp/FakeCA/gencerts_nopass.sh',
-    cwd     => '/var/simp/environments/simp/FakeCA',
-    creates => "/var/simp/environments/simp/site_files/pki_files/files/keydist/ws33.${simpsetup::domain}",
-    require => File['/var/simp/environments/simp/FakeCA/togen']
+    command => "/var/simp/environments/${env}/FakeCA/gencerts_nopass.sh",
+    cwd     => "/var/simp/environments/${env}/FakeCA",
+    creates => "/var/simp/environments/${env}/site_files/pki_files/files/keydist/ws33.${simpsetup::domain}",
+    require => File["/var/simp/environments/${env}/FakeCA/togen"]
   }
 }

@@ -8,7 +8,7 @@ codedir=$(puppet config print environmentpath)
 pupenvdir=$(puppet config print environmentpath)
 pupenv=$(puppet config print environment)
 puppetmodpath="${codedir}/${pupenv}/modules"
-hieradata_dir="${pupenvdir}/simp/data"
+hieradata_dir="${pupenvdir}/${pupenv}/data"
 
 simp_version="$(cat /etc/simp/simp.version)"
 semver=( ${simp_version//./ } )
@@ -46,4 +46,4 @@ EOF
 chown root:puppet "${hieradata_dir}/default.yaml"
 chmod g+rX "${hieradata_dir}/default.yaml"
 
-puppet apply -e "include site::vagrant" --environment=simp
+puppet apply -e "include site::vagrant" --environment=production

@@ -160,7 +160,7 @@
       "destination": "/var/local/simp/files"
     },
     {
-      "destination": "/var/local/simp",
+      "destination": "/var/local/simp/",
       "source": "./puppet",
       "type": "file"
     },
@@ -169,6 +169,12 @@
     //
     // These should run without sudo (the environment vars do not work).
     // ------------------------------------------------------------------------
+    // Grant all uploaded scripts premission to execute on the server
+    {
+      "type": "shell",
+      "remote_path": "/var/local/simp/scripts/inline-find-chmod-x--var-local-simp-scripts.sh",
+      "inline": [ "sudo find /var/local/simp/scripts -type f -name '*.sh' -print -exec chmod +x {} \\;" ]
+    },
     {
       "type": "shell",
       "remote_path": "/var/local/simp/scripts/tests/check_settings_at_boot.sh",
@@ -216,7 +222,6 @@
          "fi"
       ]
     },
-
     // FIX ME Set up the initial Environment.  This will eventually be a simp env command
     //  The script also installs simp-vendored-r10k.
     {
@@ -224,7 +229,10 @@
       "remote_path": "/var/local/simp/scripts/inline-newenv.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -i '{{.Path}}'",
       "inline" : [
-        "/usr/local/bin/simpenv -n simp"
+        "if [[ -d /etc/puppetlabs/code/environments/production ]]; then",
+          "mv /etc/puppetlabs/code/environments/production /etc/puppetlabs/code/environments/orig_production",
+        "fi",
+        "/usr/local/sbin/simpenv -n production"
         ]
     },
     //  Create the puppet files and install the puppetmodules
@@ -232,12 +240,19 @@
       "remote_path": "/var/local/simp/inline-simp-puppet-file.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -i '{{.Path}}'",
       "inline" : [
-        "cd /etc/puppetlabs/code/environments/simp",
+        "cd /etc/puppetlabs/code/environments/production",
         "umask 0027",
-        "sg puppet -c '/usr/share/simp/bin/r10k puppetfile install --puppetfile /etc/puppetlabs/code/environments/simp/Puppetfile --moduledir /etc/puppetlabs/code/environments/simp/modules'"
+        "sg puppet -c '/usr/share/simp/bin/r10k puppetfile install --puppetfile /etc/puppetlabs/code/environments/production/Puppetfile --moduledir /etc/puppetlabs/code/environments/production/modules'"
       ]
     },
-
+    // Make sure That packer can still access the system by setting up the
+    // site::vagrant manifest to be called when puppet is run.
+    {
+     "type": "shell",
+      "remote_path": "/var/local/simp/scripts/puppet-usersetup.sh",
+      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -i '{{.Path}}'",
+      "script" : "scripts/puppet-usersetup.sh"
+    },
     // Now we run simp using the simp conf yaml file specified in the shell.
     // It should complete successfully.
     {
@@ -250,7 +265,7 @@
          "echo 'umask:'",
          "umask",
          "echo 'Running simp config...'",
-         "simp config -a {{user `simp_conf_file`}}"
+         "simp config -a {{user `simp_conf_file`}} --force-config"
       ]
     },
     // Disable NetworkManager (may prevent a problem with beaker)
@@ -260,7 +275,6 @@
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
       "inline" : [ "/opt/puppetlabs/bin/puppet resource service NetworkManager ensure=stopped enable=false" ]
     },
-
     // Now run bootstrap.
     //
     // This script also configures a puppet manifest `site::vagrant` that
@@ -339,13 +353,6 @@
       "extra_arguments": "--test",
       "staging_dir": "/var/local/simp/scripts",
       "puppet_bin_dir": "/opt/puppetlabs/bin"
-    },
-
-    // Grant all uploaded scripts premission to execute on the server
-    {
-      "type": "shell",
-      "remote_path": "/var/local/simp/scripts/inline-find-chmod-x--var-local-simp-scripts.sh",
-      "inline": [ "sudo find /var/local/simp/scripts -type f -name '*.sh' -print -exec chmod +x {} \\;" ]
     },
 
     // TEST: Check settings after bootstrap.

@@ -9,6 +9,8 @@ set -e
 
 ERR_NO_RUBY_EXE=71
 
+pupenv='production'
+
 for pth in /opt/puppetlabs/puppet/bin /opt/puppetlabs/bin; do
   if [ -z "$RUBY" ] && [ -x "$pth/ruby" ]; then
     export PATH="$pth:${PATH}"
@@ -19,7 +21,7 @@ done
 
 packerdir=${VAR_LOCAL_SIMP_DIR:-"/var/local/simp"}
 pupenvdir="$(puppet config print environmentpath 2> /dev/null)"
-hieradata_dir="${pupenvdir}/simp/data"
+hieradata_dir="${pupenvdir}/${pupenv}/data"
 
 simp_version="$(cat "${SIMP_VERSION_FILE:-/etc/simp/simp.version}")"
 semver=( ${simp_version//./ } )
