@@ -3,7 +3,7 @@ require 'yaml'
 require 'fileutils'
 require 'socket'
 
-environment = 'production'
+environment = ENV['SIMP_PACKER_environment'] || 'production'
 hieradir = "/etc/puppetlabs/code/environments/#{environment}/data"
 simp_version = File.read('/etc/simp/simp.version').strip
 simp_version.gsub!(%r{\A(\d+(?:(?:\.\d+)?\.\d+)?).*}, '\1')

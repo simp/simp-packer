@@ -4,11 +4,10 @@
 #  incase it is Puppet 4.0
 export PATH="${PATH}:/opt/puppetlabs/bin:/opt/puppetlabs/puppet/bin"
 packerdir="/var/local/simp"
-codedir=$(puppet config print environmentpath)
-pupenvdir=$(puppet config print environmentpath)
-pupenv=$(puppet config print environment)
-puppetmodpath="${codedir}/${pupenv}/modules"
-hieradata_dir="${pupenvdir}/${pupenv}/data"
+pupenvdir=$(puppet config print environmentpath 2> /dev/null)
+env=$(puppet config print environment 2> /dev/null)
+puppetmodpath="${pupenvdir}/${env}/modules"
+hieradata_dir="${pupenvdir}/${env}/data"
 
 simp_version="$(cat /etc/simp/simp.version)"
 semver=( ${simp_version//./ } )
@@ -17,7 +16,7 @@ minor="${semver[1]}"
 
 # Use old hieradata path when SIMP < 6.3.0
 if [[ ( "$major" -eq 6  &&  "$minor" -lt 3 ) || "$major" -le 5 ]]; then
-  hieradata_dir="$pupenvdir/simp/hieradata"
+  hieradata_dir="$pupenvdir/${env}/hieradata"
   sed -i -e 's@/data$@/hieradata@g' /root/.bashrc-extras
 fi
 
@@ -26,7 +25,7 @@ echo "The hiera data directory is: $hieradata_dir"
 
 # Install site module
 cp -R "${packerdir}/puppet/modules/site" "${puppetmodpath}/"
-chmod -R g+rx "${puppetmodpath}/site"
+chmod -R g+rX "${puppetmodpath}/site"
 chown -R root:puppet "${puppetmodpath}/site"
 
 # Include the vagrant manifest in  default along with
@@ -46,4 +45,4 @@ EOF
 chown root:puppet "${hieradata_dir}/default.yaml"
 chmod g+rX "${hieradata_dir}/default.yaml"
 
-puppet apply -e "include site::vagrant" --environment=production
+puppet apply -e "include site::vagrant" --environment=$env

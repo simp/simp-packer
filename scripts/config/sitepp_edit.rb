@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 #
 require 'fileutils'
-environment='production'
+environment=ENV['SIMP_PACKER_environment'] || 'production'
 sitepp_file = "/etc/puppetlabs/code/environments/#{environment}/manifests/site.pp"
 backup_sitepp_file = "/etc/puppetlabs/code/environments/#{environment}/manifests/site.pp.packer.backup"
 

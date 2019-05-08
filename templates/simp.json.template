@@ -181,7 +181,8 @@
       "execute_command": "chmod +x {{.Path}}; {{.Vars}} sh '{{.Path}}'",
       "environment_vars" : [
         "SIMP_PACKER_fips={{user `fips`}}",
-        "SIMP_PACKER_disk_encrypt={{user `disk_encrypt`}}"
+        "SIMP_PACKER_disk_encrypt={{user `disk_encrypt`}}",
+        "SIMP_PACKER_environment={{user `simpenvironment`}}"
       ],
       "script" : "scripts/tests/check_settings_at_boot.sh"
     },
@@ -229,10 +230,11 @@
       "remote_path": "/var/local/simp/scripts/inline-newenv.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -i '{{.Path}}'",
       "inline" : [
-        "if [[ -d /etc/puppetlabs/code/environments/production ]]; then",
-          "mv /etc/puppetlabs/code/environments/production /etc/puppetlabs/code/environments/orig_production",
+        "env=\"{{user `simpenvironment`}}\"",
+        "if [[ -d /etc/puppetlabs/code/environments/$env ]]; then",
+          "mv /etc/puppetlabs/code/environments/$env /etc/puppetlabs/code/environments/orig_$env",
         "fi",
-        "/usr/local/sbin/simpenv -n production"
+        "/usr/local/sbin/simpenv -n $env"
         ]
     },
     //  Create the puppet files and install the puppetmodules
@@ -240,15 +242,19 @@
       "remote_path": "/var/local/simp/inline-simp-puppet-file.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -i '{{.Path}}'",
       "inline" : [
-        "cd /etc/puppetlabs/code/environments/production",
+        "env=\"{{user `simpenvironment`}}\"",
+        "cd /etc/puppetlabs/code/environments/$env",
         "umask 0027",
-        "sg puppet -c '/usr/share/simp/bin/r10k puppetfile install --puppetfile /etc/puppetlabs/code/environments/production/Puppetfile --moduledir /etc/puppetlabs/code/environments/production/modules'"
+        "sg puppet -c \"/usr/share/simp/bin/r10k puppetfile install --puppetfile /etc/puppetlabs/code/environments/$env/Puppetfile --moduledir /etc/puppetlabs/code/environments/$env/modules\""
       ]
     },
     // Make sure That packer can still access the system by setting up the
     // site::vagrant manifest to be called when puppet is run.
     {
-     "type": "shell",
+      "type": "shell",
+      "environment_vars" : [
+        "SIMP_PACKER_environment={{user `simpenvironment`}}"
+      ],
       "remote_path": "/var/local/simp/scripts/puppet-usersetup.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -i '{{.Path}}'",
       "script" : "scripts/puppet-usersetup.sh"
@@ -284,7 +290,7 @@
     // TODO: Move `site::vagrant` out of the bash script heredoc and into its
     //       own file.
     {
-     "type": "shell",
+      "type": "shell",
       "remote_path": "/var/local/simp/scripts/simp-bootstrap.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -i '{{.Path}}'",
       "script" : "scripts/simp-bootstrap.sh"
@@ -380,11 +386,17 @@
     },
     {
       "type": "shell",
+      "environment_vars" : [
+        "SIMP_PACKER_environment={{user `simpenvironment`}}"
+      ],
       "remote_path": "/var/local/simp/scripts/inline-run-sitepp_edit-rb.sh",
       "inline": ["sudo {{user `ruby_path`}} /var/local/simp/scripts/config/sitepp_edit.rb"]
     },
     {
       "type": "shell",
+      "environment_vars" : [
+        "SIMP_PACKER_environment={{user `simpenvironment`}}"
+      ],
       "remote_path": "/var/local/simp/scripts/inline-run-hiera_update-rb.sh",
       "inline": ["sudo {{user `ruby_path`}} /var/local/simp/scripts/config/hiera_update.rb"]
     },
