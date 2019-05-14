@@ -1,9 +1,9 @@
 #!/usr/bin/env ruby
 #
 require 'fileutils'
-
-sitepp_file = '/etc/puppetlabs/code/environments/simp/manifests/site.pp'
-backup_sitepp_file = '/etc/puppetlabs/code/environments/simp/manifests/site.pp.packer.backup'
+environment = ENV['SIMP_PACKER_environment'] || 'production'
+sitepp_file = "/etc/puppetlabs/code/environments/#{environment}/manifests/site.pp"
+backup_sitepp_file = "/etc/puppetlabs/code/environments/#{environment}/manifests/site.pp.packer.backup"
 
 if File.file?(backup_sitepp_file)
   puts "site.pp backup was found: #{backup_sitepp_file}.  This script will not run again."

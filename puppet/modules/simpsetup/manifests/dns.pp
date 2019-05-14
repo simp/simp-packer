@@ -11,14 +11,15 @@ class simpsetup::dns(
   String              $dnsserver = $simpsetup::dnsserver,
   String              $ipaddress = $simpsetup::ipaddress,
   String              $relver = $simpsetup::relver,
-  String              $allowed_nets = $simpsetup::allowed_nets
+  String              $allowed_nets = $simpsetup::allowed_nets,
+  String              $env = $simpsetup::environment
 ){
 
   $_ip = split($ipaddress,'\.')
   $fwdaddr = join($_ip[0,3],'.')
   $lastip  = $_ip[3]
   $revaddr = join(reverse($_ip[0,3]),'.')
-  $dns_rsync_dir = "/var/simp/environments/simp/rsync/CentOS/${relver}/bind_dns/default/named"
+  $dns_rsync_dir = "/var/simp/environments/${env}/rsync/CentOS/${relver}/bind_dns/default/named"
 
   file { "${dns_rsync_dir}/etc/zones/${domain}":
     owner   => 'root',

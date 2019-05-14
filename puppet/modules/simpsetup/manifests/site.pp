@@ -6,9 +6,10 @@
 #  @param  $sitedir   The directory where the site manifests are.
 #
 class simpsetup::site (
-  String $sitedir  = '/etc/puppetlabs/code/environments/simp/modules/site/manifests'
+  String $env = $simpsetup::environment
 ){
 
+  $sitedir  = "/etc/puppetlabs/code/environments/${env}/modules/site/manifests"
   $file_perms = {
     'ensure'  => 'file',
     'owner'   => 'root',

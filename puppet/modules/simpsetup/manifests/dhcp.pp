@@ -14,15 +14,17 @@
 # @param $dnsip IP address of dns server
 # @param $domain  Domain name
 # @param $fwdaddr the first three octets of the puppetserver IP.
+# @param $env   the puppet environment
 #
 class simpsetup::dhcp (
   String      $ksip      = $simpsetup::ipaddress,
   String      $dnsip     = $simpsetup::ipaddress,
   String      $domain    = $simpsetup::domain,
   String      $fwdaddr   = $simpsetup::fwdaddr,
+  String      $env       = $simpsetup::environment,
 ){
 
-  $rsync_dir = "/var/simp/environments/simp/rsync/${facts['os']['name']}/Global/dhcpd"
+  $rsync_dir = "/var/simp/environments/${env}/rsync/${facts['os']['name']}/Global/dhcpd"
 
   $iface = $facts['networking']['primary']
   $_macprefix = split($facts['networking']['interfaces'][$iface]['mac'],':')

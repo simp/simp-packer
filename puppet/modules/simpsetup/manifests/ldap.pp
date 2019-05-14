@@ -9,7 +9,8 @@
 # @param    $password The password for the root user in LDAP.
 class simpsetup::ldap(
   String      $domain    = $simpsetup::domain,
-  String      $password  = 'P@ssw0rdP@ssw0rd'
+  String      $password  = 'P@ssw0rdP@ssw0rd',
+  String      $env       = $simpsetup::environment
 ) {
 
   $_domain = split($domain, '\.')
@@ -33,13 +34,13 @@ class simpsetup::ldap(
 
   exec { 'packer_addto_ldap':
     command => "/usr/bin/ldapadd -Z -x -w ${password} -D \"cn=LDAPAdmin,OU=People,${basedn}\" -f /tmp/add.ldif",
-    cwd     => '/var/simp/environments/simp/FakeCA',
+    cwd     => "/var/simp/environments/${env}/FakeCA",
     require => File['/tmp/add.ldif']
   }
 
   exec { 'packer_mod_ldap':
     command => "/usr/bin/ldapmodify -Z -x -w ${password} -D \"cn=LDAPAdmin,OU=People,${basedn}\" -f /tmp/mod.ldif",
-    cwd     => '/var/simp/environments/simp/FakeCA',
+    cwd     => "/var/simp/environments/${env}/FakeCA",
     require => [File['/tmp/mod.ldif'],Exec['packer_addto_ldap']]
   }
 

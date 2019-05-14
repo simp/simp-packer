@@ -1,7 +1,20 @@
+Wed May 08 2019 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - UNRELEASED
+* Update to use simp-cli 6.4 alpha (version 5.0.0).  This puts things in production environment.
+  Added packer user variable simpenviroment so the directory where files are
+  copied to can be changed.  How ever the scripts
+  that run on the server use puppet config to determine environment and we do not
+  yet use the packer user  variable simpenvironment to set the  environment
+  in the puppet.conf file.  It is only used to copy files to the correct directory.
+* Must use
+    simp-environment-skeleton >= 7.0.0
+    simp-rsync-skeleton >= 7.0.0
+    simp-adapter >= 1.0.0
+    simp-cli >= 5.0.0
+    simp-utils >= 6.2.0
+
 Mon Apr 29 2019 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - UNRELEASED
 * change simp.json file to use simpenv script in simp-utils
 * removed linked file in site module.  Packer can't handle linked files
-
 
 Thu Apr 18 2019 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - UNRELEASED
 * Updated to work with new r10k iso install process.  It will no longer work

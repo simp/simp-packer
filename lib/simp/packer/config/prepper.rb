@@ -33,6 +33,7 @@ module Simp
         def default_settings
           {
             'vm_description'      => 'SIMP-PACKER-BUILD',
+            'simpenvironment'     => 'production',
             'output_directory'    => "#{@testdir}/OUTPUT",
             'nat_interface'       => 'enp0s3',
             'host_only_interface' => 'enp0s8',
