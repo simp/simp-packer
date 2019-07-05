@@ -209,7 +209,6 @@
         "chown -R vagrant /home/vagrant"
       ]
     },
-
     // Set root umask (if configured)
     {
       "type": "shell",
@@ -223,42 +222,6 @@
          "fi"
       ]
     },
-    // FIX ME Set up the initial Environment.  This will eventually be a simp env command
-    //  The script also installs simp-vendored-r10k.
-    {
-     "type": "shell",
-      "remote_path": "/var/local/simp/scripts/inline-newenv.sh",
-      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -i '{{.Path}}'",
-      "inline" : [
-        "env=\"{{user `simpenvironment`}}\"",
-        "if [[ -d /etc/puppetlabs/code/environments/$env ]]; then",
-          "mv /etc/puppetlabs/code/environments/$env /etc/puppetlabs/code/environments/orig_$env",
-        "fi",
-        "/usr/local/sbin/simpenv -n $env"
-        ]
-    },
-    //  Create the puppet files and install the puppetmodules
-    { "type": "shell",
-      "remote_path": "/var/local/simp/inline-simp-puppet-file.sh",
-      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -i '{{.Path}}'",
-      "inline" : [
-        "env=\"{{user `simpenvironment`}}\"",
-        "cd /etc/puppetlabs/code/environments/$env",
-        "umask 0027",
-        "sg puppet -c \"/usr/share/simp/bin/r10k puppetfile install --puppetfile /etc/puppetlabs/code/environments/$env/Puppetfile --moduledir /etc/puppetlabs/code/environments/$env/modules\""
-      ]
-    },
-    // Make sure That packer can still access the system by setting up the
-    // site::vagrant manifest to be called when puppet is run.
-    {
-      "type": "shell",
-      "environment_vars" : [
-        "SIMP_PACKER_environment={{user `simpenvironment`}}"
-      ],
-      "remote_path": "/var/local/simp/scripts/puppet-usersetup.sh",
-      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -i '{{.Path}}'",
-      "script" : "scripts/puppet-usersetup.sh"
-    },
     // Now we run simp using the simp conf yaml file specified in the shell.
     // It should complete successfully.
     {
@@ -271,8 +234,19 @@
          "echo 'umask:'",
          "umask",
          "echo 'Running simp config...'",
-         "simp config -a {{user `simp_conf_file`}} --force-config"
+         "simp config -a {{user `simp_conf_file`}}"
       ]
+    },
+    // Make sure That packer can still access the system by setting up the
+    // site::vagrant manifest to be called when puppet is run.
+    {
+      "type": "shell",
+      "environment_vars" : [
+        "SIMP_PACKER_environment={{user `simpenvironment`}}"
+      ],
+      "remote_path": "/var/local/simp/scripts/puppet-usersetup.sh",
+      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -i '{{.Path}}'",
+      "script" : "scripts/puppet-usersetup.sh"
     },
     // Disable NetworkManager (may prevent a problem with beaker)
     {

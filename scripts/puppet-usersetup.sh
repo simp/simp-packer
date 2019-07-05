@@ -45,4 +45,4 @@ EOF
 chown root:puppet "${hieradata_dir}/default.yaml"
 chmod g+rX "${hieradata_dir}/default.yaml"
 
-puppet apply -e "include site::vagrant" --environment=$env
+#puppet apply -e "include site::vagrant" --environment=$env
