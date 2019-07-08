@@ -88,22 +88,22 @@ module Simp
 
           case settings['bootcmd-prefix']
           when 'linux-min'
-            puts "linux-min oes not work yet"
+            puts 'linux-min oes not work yet'
             sanitized['bootcmd-prefix'] = 'linux-min'
           else
             sanitized['bootcmd-prefix'] = 'simp'
           end
 
           case settings['disk_encrypt']
-          when  'simp-nocrypt','false','no',''
+          when 'simp-nocrypt', 'false', 'no', ''
             sanitized['disk_encrypt'] = 'false'
           else
-            #default to encrypt
+            # default to encrypt
             sanitized['disk_encrypt'] = 'true'
           end
 
           case sanitized['disk_encrypt']
-          when 'true'
+          when 'true', 'yes'
             sanitized['bootcmd'] = sanitized['bootcmd-prefix']
           else
             sanitized['bootcmd'] = "#{sanitized['bootcmd-prefix']}-nocrypt"
