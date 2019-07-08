@@ -68,7 +68,7 @@
         ["modifyvm", "{{.Name}}", "--accelerate3d", "off"]
       ],
       "boot_command": [
-        "simp {{user `disk_encrypt`}} {{user `fips`}}","<enter>",
+        "{{user `bootcmd`}} {{user `fips`}}","<enter>",
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
@@ -277,9 +277,11 @@
     // and 7 and with no path it can't find it.  And passing environment
     // variables doesn't seem to work when the execute command contains sudo
     // even with -E.
+    // The error code 2300218 was added as acceptable because it is the error code
+    // returned when the script is disconnected.
     {
       "type": "shell",
-      "valid_exit_codes": [ 0, 143 ],
+      "valid_exit_codes": [ 0, 143 , 2300218],
       "remote_path": "/var/local/simp/reboot1.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -E bash '{{.Path}}'",
       "expect_disconnect": true,

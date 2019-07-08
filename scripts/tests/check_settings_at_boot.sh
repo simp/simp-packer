@@ -5,15 +5,31 @@ set -e
 export PATH=$PATH:/opt/puppetlabs/bin
 
 # Checking out if the disks are encrypted ... if it was chosen.
+
+/bin/lsblk --output FSTYPE,TYPE,NAME | grep "^crypto_LUKS"
+case $? in
+0)
+  ecrypted_disks_found=true
+  ;;
+*)
+  ecrypted_disks_found=false
+  ;;
+esac
 case ${SIMP_PACKER_disk_crypt:-} in
-"simp_disk_crypt"|"simp_crypt_disk")
-   if ! /bin/lsblk --output FSTYPE,TYPE,NAME | grep "^crypto_LUKS" ; then
+"true")
+   if ! $ecrypted_disks_found ; then
       echo "No encrypted disk was found on the system."
       /bin/lsblk
       exit 2
    fi
    ;;
-*) ;;
+*) 
+   if  $ecrypted_disks_found ; then
+      echo "Encrypted disk was found on the system but was not expected."
+      /bin/lsblk
+      exit 2
+   fi
+  ;;
 esac
 
 # Check if fips is set correctly at boot

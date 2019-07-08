@@ -29,10 +29,10 @@ simp_options::dns::servers:
 simp_options::fips: true
 simp_options::ldap: true
 simp_options::ldap::base_dn: dc=simp,dc=test
-simp_options::ldap::bind_hash: "{SSHA}Hc9kKrXJgIfOWHi1mz3dasSaBRCqW7I4"
-simp_options::ldap::bind_pw: 11mb7.FZDoHHM55HA1y49zXzMEyTGITM
-simp_options::ldap::sync_hash: "{SSHA}HELJ58SLyYGXlNSe2/OAOYYXgAHcasvI"
-simp_options::ldap::sync_pw: 12jCcVajS%0fjLHSsoM4mAEXuZ4Eeh53
+simp_options::ldap::bind_hash: "{SSHA}7A/OhP9mkwORNSaZHeGQqR+X5GzlAbsw"
+simp_options::ldap::bind_pw: P@ssw0rdP@ssw0rd
+simp_options::ldap::sync_hash: "{SSHA}7A/OhP9mkwORNSaZHeGQqR+X5GzlAbsw"
+simp_options::ldap::sync_pw: P@ssw0rdP@ssw0rd
 simp_options::ntpd::servers:
 - 0.centos.pool.ntp.org
 - 1.centos.pool.ntp.org
