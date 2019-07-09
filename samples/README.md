@@ -1,5 +1,11 @@
 # Sample test directories
 
+IMPORTANT:   When copying the sample directories use
+
+  cp -RL <sample dir name> <destination>
+
+So the data in the linked files is copied, not the links.
+
 <!-- vim-markdown-toc GFM -->
 
 * [simp_conf.yaml](#simp_confyaml)

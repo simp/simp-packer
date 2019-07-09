@@ -11,7 +11,7 @@
 # === cli::is_ldap_server ===
 # Whether the SIMP server will also be the LDAP server.
 #
-cli::is_ldap_server: true
+cli::is_simp_ldap_server: true
 
 # === cli::network::dhcp ===
 # Whether to use DHCP to set up your network ("static" or "dhcp").
@@ -23,11 +23,11 @@ cli::network::gateway: 192.168.121.1
 
 # === cli::network::hostname ===
 # The FQDN of the system.
-cli::network::hostname: puppet66.release.me
+cli::network::hostname: puppet66.simp.test
 
 # === cli::network::interface ===
 # The network interface to use to connect to the network.
-cli::network::interface: ens3
+cli::network::interface: eth1
 
 # === cli::network::ipaddress ===
 # The IP address of the system.
@@ -108,7 +108,7 @@ simp_openldap::server::conf::rootpw: "{SSHA}xux83JB+KprEbGMpoOftNMFrp/jkXHfH"
 #
 # Remember to put these in the appropriate order for your environment!
 simp_options::dns::search:
-- release.me
+- simp.test
 
 # === simp_options::dns::servers ===
 # A list of DNS servers for the managed hosts.
@@ -138,23 +138,23 @@ simp_options::fips: false
 
 # === simp_options::ldap::base_dn ===
 # The Base Distinguished Name of the LDAP server.
-simp_options::ldap::base_dn: dc=release,dc=me
+simp_options::ldap::base_dn: dc=simp,dc=test
 
 # === simp_options::ldap::bind_hash ===
 # The salted LDAP Bind password hash.
-simp_options::ldap::bind_hash: "{SSHA}ebr350mDOaiY3xzAHJPSxcGkhzvytOGB"
+simp_options::ldap::bind_hash: "{SSHA}xux83JB+KprEbGMpoOftNMFrp/jkXHfH"
 
 # === simp_options::ldap::bind_pw ===
 # The LDAP Bind password.
-simp_options::ldap::bind_pw: hn3*dbV1tThnmav-ozA*LX1ee3d8U1GG
+simp_options::ldap::bind_pw: P@ssw0rdP@ssw0rd
 
 # === simp_options::ldap::sync_hash ===
 #
-simp_options::ldap::sync_hash: "{SSHA}8+be6ONJ0gJpU5FULL24eTJysnrNXqkt"
+simp_options::ldap::sync_hash: "{SSHA}xux83JB+KprEbGMpoOftNMFrp/jkXHfH"
 
 # === simp_options::ldap::sync_pw ===
 # The LDAP Sync password.
-simp_options::ldap::sync_pw: WhEybKTZdX5uqwbyxXOx8Ro2qGi9L+.U
+simp_options::ldap::sync_pw: P@ssw0rdP@ssw0rd
 
 # === simp_options::ntpd::servers ===
 # Your network's NTP time servers.
@@ -166,7 +166,7 @@ simp_options::ntpd::servers:
 
 # === simp_options::puppet::ca ===
 # The Puppet Certificate Authority.
-simp_options::puppet::ca: puppet66.release.me
+simp_options::puppet::ca: puppet66.simp.test
 
 # === simp_options::puppet::ca_port ===
 # The port on which the Puppet Certificate Authority will listen
@@ -175,7 +175,7 @@ simp_options::puppet::ca_port: 8141
 
 # === simp_options::puppet::server ===
 # The Hostname or FQDN of the Puppet server.
-simp_options::puppet::server: puppet66.release.me
+simp_options::puppet::server: puppet66.simp.test
 
 # === simp_options::syslog::log_servers ===
 # The log server(s) to receive forwarded logs.
