@@ -88,8 +88,9 @@ module Simp
 
           case settings['bootcmd-prefix']
           when 'linux-min'
-            raise 'linux-min does not work yet'
-            sanitized['bootcmd-prefix'] = 'linux-min'
+            raise 'ERROR:  linux-min does not work yet'
+            #TODO
+            #sanitized['bootcmd-prefix'] = 'linux-min'
           else
             sanitized['bootcmd-prefix'] = 'simp'
           end
