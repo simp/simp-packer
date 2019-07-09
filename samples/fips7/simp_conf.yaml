@@ -48,4 +48,5 @@ sssd::domains:
 - LDAP
 svckill::mode: warning
 useradd::securetty:
+- tty0
 - tty1

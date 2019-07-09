@@ -26,7 +26,7 @@ simp_options::dns::search:
 - simp.test
 simp_options::dns::servers:
 - 192.168.103.7
-simp_options::fips: true
+simp_options::fips: false
 simp_options::ldap: true
 simp_options::ldap::base_dn: dc=simp,dc=test
 simp_options::ldap::bind_hash: "{SSHA}7A/OhP9mkwORNSaZHeGQqR+X5GzlAbsw"
@@ -48,4 +48,5 @@ sssd::domains:
 - LDAP
 svckill::mode: warning
 useradd::securetty:
+- tty0
 - tty1

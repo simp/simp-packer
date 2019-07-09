@@ -4,14 +4,14 @@ cli::is_simp_ldap_server: true
 cli::network::dhcp: static
 cli::network::gateway: 192.168.103.1
 cli::network::hostname: puppet.simp.test
-cli::network::interface: enp0s8
+cli::network::interface: eth1
 cli::network::ipaddress: 192.168.103.7
 cli::network::netmask: 255.255.255.0
 cli::network::set_up_nic: true
 cli::set_grub_password: true
 cli::set_production_to_simp: true
 cli::simp::scenario: simp
-grub::password: grub.pbkdf2.sha512.10000.18EA188B923287579DE28FF4CB41DEE8571213AC4BDD2906E55E147E87319E12B670EEE8AEB9689BA589F061D90EB3CC7B7FF2991ACF28309453F416517DBB74.63C6F328D86416B95DDBC46C388B1475B985B45491AB4D348B90632AE7DDCB077A8806CDCB70017CFC0761F903DAEDD8E5C08F7E9D37C2995C06802E92AD6EC7
+grub::password: "$6$nPtYfEt.Xpq3AW54$ZAs2ZjLM5dguxg7KkHQRZje.Y2olmIjbz/yR/am3EK96jdGnPI2Fa6tziK/qtXpdjb1TBmWa2fkMcdyttagMb/"
 puppetdb::master::config::puppetdb_port: 8139
 puppetdb::master::config::puppetdb_server: "%{hiera('simp_options::puppet::server')}"
 simp::runlevel: 3
@@ -48,4 +48,5 @@ sssd::domains:
 - LDAP
 svckill::mode: warning
 useradd::securetty:
+- tty0
 - tty1
