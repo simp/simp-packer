@@ -56,7 +56,7 @@ module Simp
         # Remove all the comments from a json template file
         def self.read_and_strip_comments_from_file(json_file)
           unless File.file?(json_file)
-            raise "\n\nERROR: JSON file '#{json_file}' doees not exist or is not a file."
+            raise "\n\nERROR: JSON file '#{json_file}' does not exist or is not a file."
           end
           f = File.open(json_file, 'r')
           json = ''
@@ -88,7 +88,7 @@ module Simp
 
           case settings['bootcmd-prefix']
           when 'linux-min'
-            puts 'linux-min oes not work yet'
+            raise 'linux-min does not work yet'
             sanitized['bootcmd-prefix'] = 'linux-min'
           else
             sanitized['bootcmd-prefix'] = 'simp'
