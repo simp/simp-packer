@@ -7,18 +7,19 @@ export PATH=$PATH:/opt/puppetlabs/bin
 # Checking out if the disks are encrypted ... if it was chosen.
 echo "SIMP_PACKER_disk_encrypt is ${SIMP_PACKER_disk_encrypt:-}"
 echo "SIMP_PACKER_fips is ${SIMP_PACKER_fips:-} "
+
 case ${SIMP_PACKER_disk_encrypt:-} in
 "true")
-   if ! /bin/lsblk --output FSTYPE,TYPE,NAME | grep "^crypto_LUKS" ; then
+   if ! /bin/lsblk --output TYPE,NAME | grep "^crypt" ; then
       echo "Disk encrypt is $SIMP_PACKER_disk_encrypt. but no encrypted disk was found on the system."
-      /bin/lsblk
+      /bin/lsblk --output TYPE,NAME
       exit 2
    fi
    ;;
-*) 
-   if  /bin/lsblk --output FSTYPE,TYPE,NAME | grep "^crypto_LUKS"; then
+*)
+   if  /bin/lsblk --output TYPE,NAME | grep "^crypt"; then
       echo "Disk encrypt is $SIMP_PACKER_disk_encrypt. Encrypted disk was found on the system but was not expected."
-      /bin/lsblk
+      /bin/lsblk --output TYPE,NAME
       exit 2
    fi
   ;;
