@@ -45,13 +45,6 @@ cli::network::set_up_nic: true
 # Whether to set the GRUB password on this system.
 cli::set_grub_password: true
 
-# === cli::set_production_to_simp ===
-# Whether to set default Puppet environment to 'simp'.
-#
-# Links the 'production' environment to 'simp', after backing up the
-# existing production environment.
-cli::set_production_to_simp: true
-
 # === cli::simp::scenario ===
 cli::simp::scenario: simp
 
