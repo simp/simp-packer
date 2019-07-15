@@ -1,5 +1,11 @@
 # Sample test directories
 
+IMPORTANT:   When copying the sample directories use
+
+  cp -RL <sample dir name> <destination>
+
+So the data in the linked files is copied, not the links.
+
 <!-- vim-markdown-toc GFM -->
 
 * [simp_conf.yaml](#simp_confyaml)
@@ -123,10 +129,10 @@ fips: 'fips=1'
 
 # Whether to encrypt the disk at build time
 # Valid values:
-#   '' to not encrypt
-#  'simp_crypt_disk' or 'simp_disk_crypt' to encrypt the disk
+#   true: encrypt the disk (default)
+#   false: to not encrypt
 #  This is used in diskdetect script in the ks directory.
-disk_encrypt: ''
+disk_encrypt: 'true'
 
 # Additional sleep to add to the time allotted to boot from the ISO.
 # You may need to customize this if your build environment runs slower

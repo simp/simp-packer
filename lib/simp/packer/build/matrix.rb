@@ -131,13 +131,15 @@ module Simp
         def generate_packer_yaml(vm_description, os_name, fips, encryption)
           local_packer_yaml = 'packer.yaml'
           packer_yaml_lines = File.read(File.join(@packer_configs_dir, os_name, 'packer.yaml')).split(%r{\n})
-          packer_yaml_lines.delete_if { |x| x =~ %r{^(disk_encrypt|vm_decription|fips|headless):} }
+          packer_yaml_lines.delete_if { |x| x =~ %r{^(disk_encrypt|vm_description|fips|headless):} }
           packer_yaml_lines << "vm_description: '#{vm_description}'"
           packer_yaml_lines << "fips: 'fips=#{fips ? '1' : '0'}'"
           packer_yaml_lines << "headless: 'true'"
           if encryption
-            packer_yaml_lines << "disk_encrypt: 'simp_disk_crypt'"
+            packer_yaml_lines << "disk_encrypt: 'true'"
             packer_yaml_lines.select { |x| x =~ %r{^big_sleep} }.each { |x| x.sub!('<wait10>', '<wait10>' * 12) }
+          else
+            packer_yaml_lines << "disk_encrypt: 'false'"
           end
           File.open(local_packer_yaml, 'w') { |f| f.puts packer_yaml_lines.join("\n") }
           local_packer_yaml

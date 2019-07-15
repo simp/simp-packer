@@ -44,18 +44,19 @@ module Simp
             'puppetname'          => 'puppet',
             'new_password'        => 'P@ssw0rdP@ssw0rd',
             'fips'                => 'fips=0',
-            'disk_encrypt'        => '',
+            'disk_encrypt'        => 'true',
             'big_sleep'           => '',
             'headless'            => 'true',
             'iso_dist_dir'        => '/net/ISO/Distribution_ISOs',
-            'root_umask'          => '0077'
+            'root_umask'          => '0077',
+            'bootcmd'             => 'simp'
           }
         end
 
         # Remove all the comments from a json template file
         def self.read_and_strip_comments_from_file(json_file)
           unless File.file?(json_file)
-            raise "\n\nERROR: JSON file '#{json_file}' doees not exist or is not a file."
+            raise "\n\nERROR: JSON file '#{json_file}' does not exist or is not a file."
           end
           f = File.open(json_file, 'r')
           json = ''
@@ -85,11 +86,28 @@ module Simp
             puts "Invalid setting for Headless #{settings['headless']} using 'true'"
           end
 
-          case settings['disk_encrypt']
-          when 'simp_crypt_disk', 'simp_disk_crypt'
-            sanitized['disk_encrypt'] = 'simp_crypt_disk'
+          case settings['bootcmd-prefix']
+          when 'linux-min'
+            raise 'ERROR:  linux-min does not work yet'
+            # TODO
+            # sanitized['bootcmd-prefix'] = 'linux-min'
           else
-            sanitized['disk_encrypt'] = ''
+            sanitized['bootcmd-prefix'] = 'simp'
+          end
+
+          case settings['disk_encrypt']
+          when 'simp-nocrypt', 'false', 'no', ''
+            sanitized['disk_encrypt'] = 'false'
+          else
+            # default to encrypt
+            sanitized['disk_encrypt'] = 'true'
+          end
+
+          case sanitized['disk_encrypt']
+          when 'true', 'yes'
+            sanitized['bootcmd'] = sanitized['bootcmd-prefix']
+          else
+            sanitized['bootcmd'] = "#{sanitized['bootcmd-prefix']}-nocrypt"
           end
 
           sanitized

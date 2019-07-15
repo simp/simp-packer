@@ -11,7 +11,7 @@
 # === cli::is_ldap_server ===
 # Whether the SIMP server will also be the LDAP server.
 #
-cli::is_ldap_server: true
+cli::is_simp_ldap_server: true
 
 # === cli::network::dhcp ===
 # Whether to use DHCP to set up your network ("static" or "dhcp").
@@ -44,13 +44,6 @@ cli::network::set_up_nic: true
 # === cli::set_grub_password ===
 # Whether to set the GRUB password on this system.
 cli::set_grub_password: true
-
-# === cli::set_production_to_simp ===
-# Whether to set default Puppet environment to 'simp'.
-#
-# Links the 'production' environment to 'simp', after backing up the
-# existing production environment.
-cli::set_production_to_simp: true
 
 # === cli::simp::scenario ===
 cli::simp::scenario: simp
