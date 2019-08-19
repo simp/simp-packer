@@ -1,1 +1,1 @@
-ssssss
+        "simp fips=0<enter><wait>",

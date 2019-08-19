@@ -1,1 +1,1 @@
-ssssss
+        "simp-nocrypt fips=1<enter><wait>",

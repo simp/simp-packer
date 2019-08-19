@@ -2,21 +2,31 @@
   This does not let you choose your own partitions
   for obvious reasons
 <%- end -%>
-<%- if @settings['bootcmd-prefix'].eql? 'simp' then
+<%- if @os > 6 then -%>
+<%-   if @settings['bootcmd-prefix'].eql? 'simp' then
+        if @settings['fips'].eql? 'fips=0' then -%>
+        "<down>",
+<%-     end -%>
+        "<enter><wait>",
+<%-    if @settings['disk_encrypt'].eql? 'false' then -%>
+        "<down>",
+<%-    end
+      else  -%>
+        "<down><down><enter><wait>",
+<%-     if @settings['fips'].eql? 'fips=0'  then -%>
+        "<down><down>",
+<%-     end
+        if @settings['disk_encrypt'].eql? 'false' then -%>
+        "<down>",
+<%-     end
+      end -%>
+        "<enter><wait>",
+<%- else
       if @settings['fips'].eql? 'fips=0' then -%>
+        "<down><down><down>",
+<%-   end -%>
+<%-   if @settings['disk_encrypt'].eql? 'false' then -%>
         "<down>",
 <%-   end -%>
         "<enter><wait>",
-<%-  if @settings['disk_encrypt'].eql? 'false' then -%>
-        "<down>",
-<%-  end
-    else  -%>
-        "<down><down><enter><wait>",
-<%-   if @settings['fips'].eql? 'fips=0'  then -%>
-        "<down><down>",
-<%-   end
-      if @settings['disk_encrypt'].eql? 'false' then -%>
-        "<down>",
-<%-   end
-    end -%>
-        "<enter><wait>",
+<%- end -%>

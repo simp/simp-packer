@@ -74,7 +74,7 @@
         ["modifyvm", "{{.Name}}", "--accelerate3d", "off"]
       ],
       "boot_command": [
-        <%= render "simp.json/bootcmd.erb" %>
+<%= render "simp.json/bootcmd.erb" -%>
        ],
       "ssh_username": "simp",
       "ssh_password": "{{user `new_password`}}",
