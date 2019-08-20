@@ -20,10 +20,9 @@ module Simp
 
         include Simp::Packer::Config::VBoxNetUtils
 
-        def initialize(os_ver, workingdir, testdir, basedir = File.expand_path(
+        def initialize( workingdir, testdir, basedir = File.expand_path(
           "#{__dir__}/../../.."
         ))
-          @os_ver     = os_ver
           @workingdir = workingdir
           @testdir    = testdir
           @basedir    = basedir
@@ -48,7 +47,6 @@ module Simp
             'nat_interface'       => 'enp0s3',
             'new_password'        => 'P@ssw0rdP@ssw0rd',
             'output_directory'    => "#{@testdir}/OUTPUT",
-            'os_ver'              => @os_ver,
             'puppetname'          => 'puppet',
             'root_umask'          => '0077',
             'simpenvironment'     => 'production',
@@ -216,8 +214,9 @@ module Simp
           json_template = File.join(@basedir, 'templates', 'simp.json.template')
           simpconfig_data = generate_simp_conf_yaml(settings)
           vars_data       = generate_vars_json(settings)
-          #need to know the os_ver if firmware is efi
-          settings['os_ver'] = @os_ver || infer_os_from_name(File.basename(vars_data['iso_url']))[:el]
+          # need to know the os_ver if firmware is efi
+          # might want to put this in vars.json so we don't have to guess
+          settings['os_ver'] = infer_os_from_name(File.basename(vars_data['iso_url']))[:el]
           generate_simp_json(settings, 'simp.json.erb', @basedir, "#{@workingdir}/simp.json")
           generate_vagrantfiles(vars_data, simpconfig_data, settings['output_directory'])
         end

@@ -114,7 +114,6 @@ module Simp
             #  remove me
             #
             packer_build_runner = Simp::Packer::Build::Runner.new(
-              os_ver,
               File.expand_path(iteration_dir),
             )
 

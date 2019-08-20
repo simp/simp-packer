@@ -35,14 +35,12 @@ module Simp
         # @param [String] test_dir    Directory where the test files exist
         # @param [String] base_dir    The simp-packer directory
         def initialize(
-          os_ver   = nil,
           test_dir = nil,
           base_dir = File.expand_path("#{__dir__}/../../../.."),
           verbose  = true
         )
           @base_dir    = base_dir
           @test_dir    = test_dir || File.expand_path(Dir.pwd, 'simp-packer')
-          @os_ver      = os_ver
           @verbose     = verbose
         end
 
@@ -98,7 +96,7 @@ module Simp
           end
 
           # set up specific simp-packer configurations (formerly simp_config.rb)
-          simp_packer_config = Simp::Packer::Config::Prepper.new(@os_ver, working_dir, @test_dir, @base_dir)
+          simp_packer_config = Simp::Packer::Config::Prepper.new(working_dir, @test_dir, @base_dir)
           simp_packer_config.verbose = @verbose
           simp_packer_config.run
 

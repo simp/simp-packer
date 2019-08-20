@@ -3,9 +3,6 @@ namespace :simp do
     desc <<-DESC.gsub(%r{^    }, '')
       Validates simp.json[.template] and var-files.  WARNING: Does NOT publishi .box to Vagrant dirtree.
 
-      * os_ver         The major version number of the os you
-                       are building
-
       * vars_json      (ENV: SIMP_PACKER_json_file) Path to a specific packer
                        vars-file to use in the build.
 
@@ -21,7 +18,7 @@ namespace :simp do
                        (Default: "simp-packer-build-<YYYYddmm-HHMMSS>",
                         ENV: SIMP_PACKER_test_dir)
     DESC
-    task :build, [:os_ver, :vars_json, :packer_yaml, :simp_conf_yaml, :test_dir] do |t, args|
+    task :build, [:vars_json, :packer_yaml, :simp_conf_yaml, :test_dir] do |t, args|
       require 'simp/packer/build/runner'
       date = Time.now.strftime('%Y%m%d-%H%M%S')
       unless ENV['SIMP_PACKER_vars_json_file']
@@ -33,7 +30,6 @@ namespace :simp do
         raise  msg.join("\n") unless args.vars_json
         args.with_defaults(vars_json: ENV['SIMP_PACKER_vars_json_file'])
       end
-      args.with_defaults(os_ver: '7')
       args.with_defaults(packer_yaml: ENV['SIMP_PACKER_packer_yaml_file'] || \
                          'lib/simp/packer/files/configs/centos7/packer.yaml')
       args.with_defaults(simp_conf_yaml: ENV['SIMP_PACKER_simp_conf_yaml_file'] || \
