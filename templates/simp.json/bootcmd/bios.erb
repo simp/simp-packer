@@ -1,1 +1,1 @@
-        "<%= @settings['bootcmd-prefix'] -%><%- if @settings['disk_encrypt'].eql? "false" -%>-nocrypt<%- end -%> <%= @settings['fips'] -%><enter><wait>",
+        "<%= @settings['bootcmd'] -%><%- if @settings['disk_encrypt'].eql? "false" -%>-nocrypt<%- end -%> <%= @settings['fips'] -%><enter><wait>",

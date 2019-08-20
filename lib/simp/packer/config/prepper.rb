@@ -1,5 +1,6 @@
 require 'simp/packer/config/vagrantfile_writer'
 require 'simp/packer/config/vbox_net_utils'
+require 'simp/packer/config/simpjsonfile_writer'
 require 'json'
 require 'yaml'
 require 'fileutils'
@@ -19,9 +20,10 @@ module Simp
 
         include Simp::Packer::Config::VBoxNetUtils
 
-        def initialize(workingdir, testdir, basedir = File.expand_path(
+        def initialize(os_ver, workingdir, testdir, basedir = File.expand_path(
           "#{__dir__}/../../.."
         ))
+          @os_ver     = os_ver
           @workingdir = workingdir
           @testdir    = testdir
           @basedir    = basedir
@@ -32,24 +34,25 @@ module Simp
         # @return [Hash] Default `packer.yaml` settings
         def default_settings
           {
-            'vm_description'      => 'SIMP-PACKER-BUILD',
-            'simpenvironment'     => 'production',
-            'output_directory'    => "#{@testdir}/OUTPUT",
-            'nat_interface'       => 'enp0s3',
-            'host_only_interface' => 'enp0s8',
-            'mac_address'         => 'aabbbbaa0007',
-            'firmware'            => 'bios',
-            'host_only_gateway'   => '192.168.101.1',
-            'domain'              => 'simp.test',
-            'puppetname'          => 'puppet',
-            'new_password'        => 'P@ssw0rdP@ssw0rd',
-            'fips'                => 'fips=0',
-            'disk_encrypt'        => 'true',
             'big_sleep'           => '',
+            'bootcmd'             => 'simp',
+            'disk_encrypt'        => 'true',
+            'domain'              => 'simp.test',
+            'fips'                => 'fips=0',
+            'firmware'            => 'bios',
             'headless'            => 'true',
+            'host_only_gateway'   => '192.168.101.1',
+            'host_only_interface' => 'enp0s8',
             'iso_dist_dir'        => '/net/ISO/Distribution_ISOs',
+            'mac_address'         => 'aabbbbaa0007',
+            'nat_interface'       => 'enp0s3',
+            'new_password'        => 'P@ssw0rdP@ssw0rd',
+            'output_directory'    => "#{@testdir}/OUTPUT",
+            'os_ver'              => @os_ver,
+            'puppetname'          => 'puppet',
             'root_umask'          => '0077',
-            'bootcmd'             => 'simp'
+            'simpenvironment'     => 'production',
+            'vm_description'      => 'SIMP-PACKER-BUILD'
           }
         end
 
@@ -86,13 +89,13 @@ module Simp
             puts "Invalid setting for Headless #{settings['headless']} using 'true'"
           end
 
-          case settings['bootcmd-prefix']
+          case settings['bootcmd']
           when 'linux-min'
             raise 'ERROR:  linux-min does not work yet'
             # TODO
-            # sanitized['bootcmd-prefix'] = 'linux-min'
+            # sanitized['bootcmd'] = 'linux-min'
           else
-            sanitized['bootcmd-prefix'] = 'simp'
+            sanitized['bootcmd'] = 'simp'
           end
 
           case settings['disk_encrypt']
@@ -101,13 +104,6 @@ module Simp
           else
             # default to encrypt
             sanitized['disk_encrypt'] = 'true'
-          end
-
-          case sanitized['disk_encrypt']
-          when 'true', 'yes'
-            sanitized['bootcmd'] = sanitized['bootcmd-prefix']
-          else
-            sanitized['bootcmd'] = "#{sanitized['bootcmd-prefix']}-nocrypt"
           end
 
           sanitized
@@ -201,11 +197,16 @@ module Simp
         end
 
         # Get rid of the comments in the simp.json file and copy to the working directory.
-        def self.generate_simp_json(json_template, simp_json)
+        def generate_simp_json(settings, template_name, basedir, simp_json)
+
           File.open(simp_json, 'w') do |f|
-            f.write read_and_strip_comments_from_file(json_template)
+            f.write  Simp::Packer::Config::SimpjsonfileWriter.new(settings,basedir).render template_name
             f.close
           end
+        end
+
+        def infer_os_from_name(name)
+           name.match(%r{(?<os>CentOS)-(?<el>\d+)})
         end
 
         # Generate files
@@ -215,7 +216,9 @@ module Simp
           json_template = File.join(@basedir, 'templates', 'simp.json.template')
           simpconfig_data = generate_simp_conf_yaml(settings)
           vars_data       = generate_vars_json(settings)
-          Simp::Packer::Config::Prepper.generate_simp_json(json_template, "#{@workingdir}/simp.json")
+          #need to know the os_ver if firmware is efi
+          settings['os_ver'] = @os_ver || infer_os_from_name(File.basename(vars_data['iso_url']))[:el]
+          generate_simp_json(settings, 'simp.json.erb', @basedir, "#{@workingdir}/simp.json")
           generate_vagrantfiles(vars_data, simpconfig_data, settings['output_directory'])
         end
 

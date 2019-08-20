@@ -2,8 +2,16 @@
   This does not let you choose your own partitions
   for obvious reasons
 <%- end -%>
-<%- if @os > 6 then -%>
-<%-   if @settings['bootcmd-prefix'].eql? 'simp' then
+<%- if @settings['os_ver'].eql? '6' then 
+      if @settings['fips'].eql? 'fips=0' then -%>
+        "<down><down><down>",
+<%-   end -%>
+<%-   if @settings['disk_encrypt'].eql? 'false' then -%>
+        "<down>",
+<%-   end -%>
+<%- else -%>
+<%-# This section is for OS  version 7 and greater -%>
+<%-   if @settings['bootcmd'].eql? 'simp' then
         if @settings['fips'].eql? 'fips=0' then -%>
         "<down>",
 <%-     end -%>
@@ -12,6 +20,7 @@
         "<down>",
 <%-    end
       else  -%>
+<%-#    This section is for linux min which is not totally supperted yet -%>
         "<down><down><enter><wait>",
 <%-     if @settings['fips'].eql? 'fips=0'  then -%>
         "<down><down>",
@@ -20,13 +29,6 @@
         "<down>",
 <%-     end
       end -%>
-        "<enter><wait>",
-<%- else
-      if @settings['fips'].eql? 'fips=0' then -%>
-        "<down><down><down>",
-<%-   end -%>
-<%-   if @settings['disk_encrypt'].eql? 'false' then -%>
-        "<down>",
-<%-   end -%>
-        "<enter><wait>",
 <%- end -%>
+<%-# You Should be at the selection you want now hit enter -%>
+        "<enter><wait>",

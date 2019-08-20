@@ -1,3 +1,5 @@
+require 'erb'
+
 module Simp
   module Packer
     module Config
