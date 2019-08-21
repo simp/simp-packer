@@ -141,6 +141,7 @@
       "environment_vars" : [
         "SIMP_PACKER_fips={{user `fips`}}",
         "SIMP_PACKER_disk_encrypt={{user `disk_encrypt`}}",
+        "SIMP_PACKER_firmware={{user `firmware`}}",
         "SIMP_PACKER_environment={{user `simpenvironment`}}"
       ],
       "script" : "scripts/tests/check_settings_at_boot.sh"

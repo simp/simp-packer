@@ -2,6 +2,8 @@ require 'simp/tests/matrix/unroller'
 require 'simp/packer/build/runner'
 require 'fileutils'
 require 'rake/file_utils'
+require 'pry'
+require 'pry-byebug'
 
 module Simp
   module Packer
