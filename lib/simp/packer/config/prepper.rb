@@ -50,6 +50,7 @@ module Simp
             'puppetname'          => 'puppet',
             'root_umask'          => '0077',
             'simpenvironment'     => 'production',
+            'ssh_agent_auth'      => 'false',
             'vm_description'      => 'SIMP-PACKER-BUILD'
           }
         end
@@ -113,6 +114,7 @@ module Simp
           time = Time.new
           vars_data = vars_data.merge(settings)
           vars_data['postprocess_output'] = settings['output_directory']
+          vars_data['ssh_agent_auth'] = settings['ssh_agent_auth']
           vars_data['output_directory'] = settings['output_directory'] + '/' + time.strftime('%Y%m%d%H%M')
           vars_data['host_only_network_name'] = vboxnet_for_network(settings['host_only_gateway'])
           if vars_data['host_only_network_name'].nil?

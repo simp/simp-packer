@@ -48,24 +48,22 @@ case ${SIMP_PACKER_fips:-} in
      ;;
 esac
 
-#NOTE:  Not exiting out for this because it is a packer problem not
-#  a SIMP problem
-sys_efi_exists=$(test -d /sys/firmware/efi)
 case ${SIMP_PACKER_firmware:-} in
   "bios")
-    if [ "$sys_efi_exists" -ne 1 ]; then
+    if [ -d /sys/firmware/efi ]; then
       echo "System appears to have booted in EFI mode, not LEGACY BIOS.  Packer may be configured wrong."
+      exit 6
     fi
     ;;
   "efi")
-    
-    if [ "$sys_efi_exists" -ne 0 ]; then
+    if [ ! -d /sys/firmware/efi ]; then
       echo "System appears to have booted in EFI mode, not LEGACY BIOS.  Packer may be configured wrong."
+      exit 6
     fi
     ;;
-    *)
-     echo "Unknown value ${SIMP_PACKER_firmware:-} for firmware.  Cannot verify the setting"
-     ;;
+  *)
+    echo "Unknown value ${SIMP_PACKER_firmware:-} for firmware.  Cannot verify the setting"
+    ;;
 esac
 
 echo "Exiting $0"

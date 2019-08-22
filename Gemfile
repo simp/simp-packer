@@ -2,7 +2,7 @@
 # NOTE: SIMP Puppet rake tasks support ruby 2.1.9
 # ------------------------------------------------------------------------------
 gem_sources = ENV.fetch('GEM_SERVERS','https://rubygems.org').split(/[, ]+/)
-puppet_version =  ENV.fetch('PUPPET_VERSION', '~>4.0')
+puppet_version =  ENV.fetch('PUPPET_VERSION', '~>5.0')
 
 gem_sources.each { |gem_source| source gem_source }
 
