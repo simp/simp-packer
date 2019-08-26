@@ -1,0 +1,18 @@
+[
+ {
+  "os_ver" : "6",
+   "firmware" : "bios"
+  },
+  {
+    "os_ver" : "7",
+    "firmware" : "bios"
+  },
+  {
+    "os_ver" : "6",
+    "firmware" : "efi"
+  },
+  {
+    "os_ver" : "7",
+    "firmware" : "efi"
+  }
+]
