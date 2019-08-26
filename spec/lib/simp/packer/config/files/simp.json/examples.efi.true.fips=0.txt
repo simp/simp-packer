@@ -1,2 +1,0 @@
-       "<down><enter><wait>",
-       "<enter><wait>",

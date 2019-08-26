@@ -1,8 +1,8 @@
 namespace :packer do
   desc <<-DESC.gsub(%r{^    }, '')
-    Validates simp.jsoni.erb files and vars.json
+    Validates simp.json.erb files and vars.json
 
-    Unlike `packer validate FILE`, this will work on `simp.json.erb` 
+    Unlike `packer validate FILE`, this will work on `simp.json.erb`
 
     Arguments (both optional):
     * template_name  The name of the template ENV: SIMP_PACKER_template_name.
@@ -35,7 +35,7 @@ namespace :packer do
 
     require 'tmpdir'
     Dir.mktmpdir 'simp-packer-validate' do |dir|
-      in_settings.each { |set| 
+      in_settings.each { |set|
         puts "Validating with settings: #{set}"
         basedir = File.dirname(File.dirname(json))
         templatename = File.basename(json)
