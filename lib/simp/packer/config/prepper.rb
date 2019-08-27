@@ -20,9 +20,7 @@ module Simp
 
         include Simp::Packer::Config::VBoxNetUtils
 
-        def initialize( workingdir, testdir, basedir = File.expand_path(
-          "#{__dir__}/../../.."
-        ))
+        def initialize(workingdir, testdir, basedir = File.expand_path("#{__dir__}/../../.."))
           @workingdir = workingdir
           @testdir    = testdir
           @basedir    = basedir
@@ -198,24 +196,22 @@ module Simp
 
         # Get rid of the comments in the simp.json file and copy to the working directory.
         def generate_simp_json(settings, template_name, basedir, simp_json)
-
           File.open(simp_json, 'w') do |f|
-            f.write  Simp::Packer::Config::SimpjsonfileWriter.new(settings,basedir).render template_name
+            f.write Simp::Packer::Config::SimpjsonfileWriter.new(settings, basedir).render template_name
             f.close
           end
         end
 
         def infer_os_from_name(name)
-           name.match(%r{(?<os>CentOS)-(?<el>\d+)})
+          name.match(%r{(?<os>CentOS)-(?<el>\d+)})
         end
 
         # Generate files
         #   - <workingdir>/simp.json
         #   - <workingdir>/simp_conf.yaml
         def generate_files(settings)
-          json_template = File.join(@basedir, 'templates', 'simp.json.template')
           simpconfig_data = generate_simp_conf_yaml(settings)
-          vars_data       = generate_vars_json(settings)
+          vars_data = generate_vars_json(settings)
           # need to know the os_ver if firmware is efi
           # might want to put this in vars.json so we don't have to guess
           settings['os_ver'] = infer_os_from_name(File.basename(vars_data['iso_url']))[:el]

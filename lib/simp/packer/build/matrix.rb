@@ -56,11 +56,10 @@ module Simp
             simp_iso_json = cfg[:json]
             vars_data     = JSON.parse(File.read(simp_iso_json))
             m             = infer_os_from_name(File.basename(vars_data['iso_url']))
-            os_ver     = m[:el]
-            os_name    = "#{m[:os]}#{m[:el]}".downcase
-            fips       = (cfg[:fips] || 'on') == 'on'
-            encryption = (cfg[:encryption] || 'off') == 'on'
-            firmware   = (cfg[:firmware] || 'bios')
+            os_name       = "#{m[:os]}#{m[:el]}".downcase
+            fips          = (cfg[:fips] || 'on') == 'on'
+            encryption    = (cfg[:encryption] || 'off') == 'on'
+            firmware      = (cfg[:firmware] || 'bios')
 
             same_patt = Dir[simp_iso_json.gsub(%r{\.json$}, '.iso')].first
             if File.file?(vars_data['iso_url'])
@@ -115,9 +114,7 @@ module Simp
             #
             #  remove me
             #
-            packer_build_runner = Simp::Packer::Build::Runner.new(
-              File.expand_path(iteration_dir),
-            )
+            packer_build_runner = Simp::Packer::Build::Runner.new(File.expand_path(iteration_dir))
 
             File.open(log, 'a') { |f| f.puts iterator_header_msg }
             packer_build_runner.run(
