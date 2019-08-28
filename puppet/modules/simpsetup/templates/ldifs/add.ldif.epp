@@ -19,7 +19,7 @@ objectClass: ldapPublicKey
 shadowMax: 180
 shadowMin: 1
 shadowWarning: 7
-shadowLastChange: 10701
+shadowLastChange: 18100
 sshPublicKey: <some SSH public key>
 loginShell: /bin/bash
 uidNumber: 1000
@@ -49,7 +49,7 @@ objectClass: ldapPublicKey
 shadowMax: 180
 shadowMin: 1
 shadowWarning: 7
-shadowLastChange: 10701
+shadowLastChange: 18100
 sshPublicKey: <some SSH public key>
 loginShell: /bin/bash
 uidNumber: 1003
@@ -79,7 +79,7 @@ objectClass: ldapPublicKey
 shadowMax: 180
 shadowMin: 1
 shadowWarning: 7
-shadowLastChange: 10701
+shadowLastChange: 18100
 sshPublicKey: <some SSH public key>
 loginShell: /bin/bash
 uidNumber: 9001
@@ -109,7 +109,7 @@ objectClass: ldapPublicKey
 shadowMax: 180
 shadowMin: 1
 shadowWarning: 7
-shadowLastChange: 10701
+shadowLastChange: 18100
 sshPublicKey: <some SSH public key>
 loginShell: /bin/bash
 uidNumber: 1002
@@ -132,7 +132,7 @@ objectClass: ldapPublicKey
 shadowMax: 180
 shadowMin: 1
 shadowWarning: 7
-shadowLastChange: 10701
+shadowLastChange: 18100
 sshPublicKey: <some SSH public key>
 loginShell: /bin/bash
 uidNumber: 1001
@@ -162,7 +162,7 @@ objectClass: ldapPublicKey
 shadowMax: 180
 shadowMin: 1
 shadowWarning: 7
-shadowLastChange: 10701
+shadowLastChange: 18100
 sshPublicKey: <some SSH public key>
 loginShell: /bin/bash
 uidNumber: 1700

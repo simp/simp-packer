@@ -14,28 +14,34 @@
   "__": "   - The comments starting below (`//` or `#`) will be parsed out by ",
   "__": "     the start-up script.                                            ",
   "__": "                                                                     ",
+<%- if false -%>
   //
   // Template User variables:
   //
   //   https://www.packer.io/docs/templates/user-variables.html
-  //
+<%- end -%>
   "variables" : {
     "vagrant_password": "vagrant",
     "simp_conf_file": "/var/local/simp/files/simp_conf.yaml",
     "ruby_path": "/opt/puppetlabs/puppet/bin/ruby",
+<%- if false -%>
+    //
     // NOTE: Uncomment this variable and the "ssh_private_key_file" below
     //       to inject a known ssh key during provisioning.  This is useful
     //       to log in and troubleshoot VMs as they are provisioining
     // "ssh_private_key_file": "/home/ctessmer/.ssh/vagrant.key",
+<%- end -%>
     "ssh_agent_auth": "true",
     "vrdp_bind_address": "0.0.0.0"
   },
-
+<%- if false -%>
+  //
   //
   //  VirtualBox Builder (from an ISO)
   //
   //     https://www.packer.io/docs/builders/virtualbox-iso.html
   //
+<%- end -%>
   "builders": [
     {
       "type":              "virtualbox-iso",
@@ -46,6 +52,7 @@
       "iso_url":           "{{user `iso_url`}}",
       "iso_checksum":      "{{user `iso_checksum`}}",
       "iso_checksum_type": "{{user `iso_checksum_type`}}",
+      "iso_interface":     "sata",
       "headless":          "{{user `headless`}}",
       "vrdp_bind_address": "{{user `vrdp_bind_address`}}",
       "ssh_agent_auth":    "{{user `ssh_agent_auth`}}",
@@ -68,92 +75,41 @@
         ["modifyvm", "{{.Name}}", "--accelerate3d", "off"]
       ],
       "boot_command": [
-        "{{user `bootcmd`}} {{user `fips`}}","<enter>",
-        "<wait10><wait10><wait10><wait10><wait10><wait10>",
-        "<wait10><wait10><wait10><wait10><wait10><wait10>",
-        "<wait10><wait10><wait10><wait10><wait10><wait10>",
-        "<wait10><wait10><wait10><wait10><wait10><wait10>",
-        "<wait10><wait10><wait10><wait10><wait10><wait10>",
-        "<wait10><wait10><wait10><wait10><wait10><wait10>",
-        "<wait10><wait10><wait10><wait10><wait10><wait10>",
-        "<wait10><wait10><wait10><wait10><wait10><wait10>",
-        "<wait10><wait10><wait10><wait10>",
-        "{{user `big_sleep`}}",
-        // set simp user password
-        "simp<enter><wait><wait>UserPassword<enter>",
-        "<wait><wait>",
-        "UserPassword<enter>",
-        "<wait5>",
-        "{{user `new_password`}}<enter>",
-        "<wait5>",
-        "{{user `new_password`}}<enter>",
-        "<wait5>",
-        "exit<enter>",
-        "<wait10>",
-        // set root user password
-        "root<enter><wait><wait>RootPassword<enter>",
-        "<wait5><wait>",
-        "RootPassword<enter>",
-        "<wait5>",
-        "{{user `new_password`}}<enter>",
-        "<wait5>",
-        "{{user `new_password`}}<enter>",
-        "<wait5>",
-        "echo 'simp ALL=(ALL) NOPASSWD:ALL'  >> /etc/sudoers<enter>",
-        "<wait5>",
-        "sed -i -e '/Defaults *requiretty/d' /etc/sudoers<enter>",
-        "<wait5>",
-        // configure NAT interface
-        "sed -i -e 's/ONBOOT=no/ONBOOT=yes/g' -e 's/DEFROUTE=yes/DEFROUTE=no/g' /etc/sysconfig/network-scripts/ifcfg-{{user `nat_interface`}}<enter>",
-        "<wait5>",
-        //"grep NM_CONTROLLED /etc/sysconfig/network-scripts/ifcfg-{{user `nat_interface`}} || echo NM_CONTROLLED=no >> /etc/sysconfig/network-scripts/ifcfg-{{user `nat_interface`}}<enter>",
-        "<wait5>",
-        // bring up NAT interface
-        "ifup {{user `nat_interface`}}<enter>",
-        "<wait5>",
-        // Enable SSH on reboot
-        "service sshd start<enter>",
-        "<wait5>",
-        "chkconfig sshd on<enter>",
-        "<wait5>",
-        "chkconfig firewalld off<enter>",
-        "<wait5>",
-        "chkconfig iptables off<enter>",
-        "<wait5>",
-        // This should permanently disable the udev persistent net rules.
-        //
-        //   These can be troublesome, particularly on el6 VMs
-        //   See: https://mirrors.edge.kernel.org/pub/linux/utils/kernel/hotplug/udev/udev.html#id429522
-        //
-        "udir=/etc/udev/rules.d net_rules=\"$udir/70-persistent-net.rules\"; gen_rules=\"$udir/75-persistent-net-generator.rules\"; [ -f \"$net_rules\" ] && { service network stop; rm -f \"$net_rules\"; ln -s /dev/null \"$gen_rules\" ; ln -s /dev/null \"$net_rules\"; service network start ; } <enter>",
-        "<wait5>",
-        "exit<enter>"
+<%= render "simp.json/bootcmd.erb" -%>
        ],
       "ssh_username": "simp",
       "ssh_password": "{{user `new_password`}}",
+<%- if false -%>
       // NOTE: Uncomment this option and the "ssh_private_key_file" variable
       //       to inject a known ssh key during provisioning.  This is useful
       //       to log in and troubleshoot VMs as they are provisioining
       // "ssh_private_key_file": "{{user `ssh_key`}}",
+      //
+<%- end -%>
       "shutdown_command": "sudo /sbin/shutdown -P now"
     }
   ],
 
+<%- if false -%>
+  //
   // Set up the users for packer and vagrant and bootstrap the system
   // --------------------------------------------------------------------------
+<%- end -%>
   "provisioners": [
-
+<%- if false -%>
     // Copy scripts from the host to the virtual machine for use later on
     //
     // Some of the scripts are copied up as they are used, but not secondary
     // scripts called from them.
+<%- end -%>
     {
       "type": "file",
       "source": "./scripts",
       "destination": "/var/local/simp/"
     },
-
+<%- if false -%>
     // Copy files from the host to the virtual machine for use later on
+<%- end -%>
     {
       "type": "file",
       "source": "./files",
@@ -164,12 +120,15 @@
       "source": "./puppet",
       "type": "file"
     },
+<%- if false -%>
+    //
     // TEST:  Check if it booted into fips or not according to the
     //        fips variable set in the boot command.
     //
     // These should run without sudo (the environment vars do not work).
     // ------------------------------------------------------------------------
     // Grant all uploaded scripts premission to execute on the server
+<%- end -%>
     {
       "type": "shell",
       "remote_path": "/var/local/simp/scripts/inline-find-chmod-x--var-local-simp-scripts.sh",
@@ -182,11 +141,15 @@
       "environment_vars" : [
         "SIMP_PACKER_fips={{user `fips`}}",
         "SIMP_PACKER_disk_encrypt={{user `disk_encrypt`}}",
+        "SIMP_PACKER_firmware={{user `firmware`}}",
         "SIMP_PACKER_environment={{user `simpenvironment`}}"
       ],
       "script" : "scripts/tests/check_settings_at_boot.sh"
     },
+<%- if false -%>
+    //
     // TEST:  Check for expected partitions
+<%- end -%>
     {
       "type": "shell",
       "remote_path": "/var/local/simp/scripts/tests/check_partitions.rb",
@@ -194,7 +157,10 @@
       "script" : "scripts/tests/check_partitions.rb"
     },
 
+<%- if false -%>
+    //
     // Set up the vagrant password
+<%- end -%>
     {
       "type": "shell",
       "remote_path": "/var/local/simp/inline-vagrant-users.sh",
@@ -209,7 +175,10 @@
         "chown -R vagrant /home/vagrant"
       ]
     },
+<%- if false -%>
+    //
     // Set root umask (if configured)
+<%- end -%>
     {
       "type": "shell",
       "remote_path": "/var/local/simp/inline-set-root-umask.sh",
@@ -222,14 +191,20 @@
          "fi"
       ]
     },
+<%- if false -%>
+    //
     // Now we run simp using the simp conf yaml file specified in the shell.
     // It should complete successfully.
+<%- end -%>
     {
       "type": "shell",
       "remote_path": "/var/local/simp/inline-simp-config.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -i '{{.Path}}'",
       "inline" : [
+<%- if false -%>
+         //
          // SIMP-4482 workaround when building SIMP 6.1.0 boxes
+<%- end -%>
          "[[ \"$(cat /etc/simp/simp.version)\" =~ ^6\\.1\\.0- ]] && { echo \"SIMP-4482 workaround: umask 0022\"; umask 0022; }",
          "echo 'umask:'",
          "umask",
@@ -237,8 +212,11 @@
          "simp config -a {{user `simp_conf_file`}}"
       ]
     },
+<%- if false -%>
+    //
     // Make sure That packer can still access the system by setting up the
     // site::vagrant manifest to be called when puppet is run.
+<%- end -%>
     {
       "type": "shell",
       "environment_vars" : [
@@ -248,13 +226,17 @@
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo -i '{{.Path}}'",
       "script" : "scripts/puppet-usersetup.sh"
     },
+<%- if false -%>
+    //
     // Disable NetworkManager (may prevent a problem with beaker)
+<%- end -%>
     {
       "type": "shell",
       "remote_path": "/var/local/simp/inline-disable-network-manager.sh",
       "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
       "inline" : [ "/opt/puppetlabs/bin/puppet resource service NetworkManager ensure=stopped enable=false" ]
     },
+<%- if false -%>
     // Now run bootstrap.
     //
     // This script also configures a puppet manifest `site::vagrant` that
@@ -263,6 +245,7 @@
     //
     // TODO: Move `site::vagrant` out of the bash script heredoc and into its
     //       own file.
+<%- end -%>
     {
       "type": "shell",
       "remote_path": "/var/local/simp/scripts/simp-bootstrap.sh",
@@ -270,6 +253,7 @@
       "script" : "scripts/simp-bootstrap.sh"
     },
 
+<%- if false -%>
     // Reboot the system.
     //
     // If I use a script for this, it will randomly error out saying return
@@ -279,6 +263,7 @@
     // even with -E.
     // The error code 2300218 was added as acceptable because it is the error code
     // returned when the script is disconnected.
+<%- end -%>
     {
       "type": "shell",
       "valid_exit_codes": [ 0, 143 , 2300218],
@@ -296,6 +281,7 @@
        ]
     },
 
+<%- if false -%>
     // ########################################################################
     //                  ____  _____ ____   ___   ___ _____
     //                  |  _ \| ____| __ ) / _ \ / _ \_   _|
@@ -306,20 +292,25 @@
     // ########################################################################
 
     // Upload puppet code
+<%- end -%>
     {
+<%- if false -%>
       // Pause a little to let the system boot up all the way
       //
       // NOTE: (In case you're tempted:) you CAN'T set this with a user variable
       //
       //        See: https://github.com/hashicorp/packer/issues/5115
       //
+<%- end -%>
       "pause_before": "300s",
       "type": "file",
       "source": "./puppet",
       "destination": "/var/local/simp"
     },
 
+<%- if false -%>
     // Run puppet again to get closer to a clean run (take 1)
+<%- end -%>
     {
       "type": "puppet-server",
       "ignore_exit_codes": true,
@@ -328,7 +319,9 @@
       "puppet_bin_dir": "/opt/puppetlabs/bin"
     },
 
+<%- if false -%>
     // Run puppet again to get closer to a clean run (take 2)
+<%- end -%>
     {
       "type": "puppet-server",
       "ignore_exit_codes": true,
@@ -337,17 +330,20 @@
       "puppet_bin_dir": "/opt/puppetlabs/bin"
     },
 
+<%- if false -%>
     // TEST: Check settings after bootstrap.
     //
     // TODO:  I had to wrap the ruby scripts in shell scripts because it
     // runs them as shells.  Need to figure out the correct
     // execute_command for executing a ruby script
+<%- end -%>
     {
       "type": "shell",
       "remote_path": "/var/local/simp/scripts/inline-run-check_settings-sh.sh",
       "inline": ["sudo sh /var/local/simp/scripts/tests/check_settings.sh"]
     },
 
+<%- if false -%>
     ////////////////////////////////////////////////////////////////////////////
     //
     // Tests have passed!!
@@ -355,6 +351,7 @@
     // Now, set up the SIMP server:
     //
     ////////////////////////////////////////////////////////////////////////////
+<%- end -%>
     {
       "type": "shell",
       "remote_path": "/var/local/simp/scripts/inline-run-simpsetup.sh",
@@ -377,21 +374,27 @@
       "inline": ["sudo {{user `ruby_path`}} /var/local/simp/scripts/config/hiera_update.rb"]
     },
 
-    // Run puppet server to apply any changes made in hiera and site.pp
+<%- if false -%>
+  // Run puppet server to apply any changes made in hiera and site.pp
+<%- end -%>
     {
       "type": "puppet-server",
       "ignore_exit_codes": true,
       "extra_arguments": "--test",
       "puppet_bin_dir": "/opt/puppetlabs/bin"
     },
+<%- if false -%>
     // Run puppet server one last time and it should be clean.
-    // If not then something is wrong.
+      // If not then something is wrong.
+<%- end -%>
     {
       "type": "puppet-server",
       "extra_arguments": "--test",
       "puppet_bin_dir": "/opt/puppetlabs/bin"
     },
-    // Add some shortcuts to root's .bashrc (to help get around)
+<%- if false -%>
+  // Add some shortcuts to root's .bashrc (to help get around)
+<%- end -%>
     {
       "type": "shell",
       "remote_path": "/var/local/simp/inline-bashrc-extras.sh",
@@ -428,4 +431,7 @@
     }
   ]
 }
-// vim: filetype=javascript
+<%- if false -%>
+  // vim: filetype=javascript
+<%- end -%>
+

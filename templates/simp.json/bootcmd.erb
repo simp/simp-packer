@@ -1,0 +1,64 @@
+<%= render "simp.json/bootcmd/#{@settings['firmware']}.erb" -%>
+        "<wait10><wait10><wait10><wait10><wait10><wait10>",
+        "<wait10><wait10><wait10><wait10><wait10><wait10>",
+        "<wait10><wait10><wait10><wait10><wait10><wait10>",
+        "<wait10><wait10><wait10><wait10><wait10><wait10>",
+        "<wait10><wait10><wait10><wait10><wait10><wait10>",
+        "<wait10><wait10><wait10><wait10><wait10><wait10>",
+        "<wait10><wait10><wait10><wait10><wait10><wait10>",
+        "<wait10><wait10><wait10><wait10><wait10><wait10>",
+        "<wait10><wait10><wait10><wait10>",
+        <%-# //add extra time  to boot from big sleep -%>
+        "{{user `big_sleep`}}",
+        <%-# // set simp user password -%>
+        "simp<enter><wait><wait>UserPassword<enter>",
+        "<wait><wait>",
+        "UserPassword<enter>",
+        "<wait5>",
+        "{{user `new_password`}}<enter>",
+        "<wait5>",
+        "{{user `new_password`}}<enter>",
+        "<wait5>",
+        "exit<enter>",
+        "<wait10>",
+        <%-# // set root user password -%>
+        "root<enter><wait><wait>RootPassword<enter>",
+        "<wait5><wait>",
+        "RootPassword<enter>",
+        "<wait5>",
+        "{{user `new_password`}}<enter>",
+        "<wait5>",
+        "{{user `new_password`}}<enter>",
+        "<wait5>",
+        <%-#     //set up simp user access -%>
+        "echo 'simp ALL=(ALL) NOPASSWD:ALL'  >> /etc/sudoers<enter>",
+        "<wait5>",
+        "sed -i -e '/Defaults *requiretty/d' /etc/sudoers<enter>",
+        "<wait5>",
+        <%-#     // configure NAT interface -%>
+        "sed -i -e 's/ONBOOT=no/ONBOOT=yes/g' -e 's/DEFROUTE=yes/DEFROUTE=no/g' /etc/sysconfig/network-scripts/ifcfg-{{user `nat_interface`}}<enter>",
+        "<wait5>",
+        <%-#     //"grep NM_CONTROLLED /etc/sysconfig/network-scripts/ifcfg-{{user `nat_interface`}} || echo NM_CONTROLLED=no >> /etc/sysconfig/network-scripts/ifcfg-{{user `nat_interface`}}<enter>", -%>
+        "<wait5>",
+        <%-#     // bring up NAT interface -%>
+        "ifup {{user `nat_interface`}}<enter>",
+        "<wait5>",
+        <%-#     // Enable SSH on reboot -%>
+        "service sshd start<enter>",
+        "<wait5>",
+        "chkconfig sshd on<enter>",
+        "<wait5>",
+        "chkconfig firewalld off<enter>",
+        "<wait5>",
+        "chkconfig iptables off<enter>",
+        "<wait5>",
+<%- if false -%>
+        // This should permanently disable the udev persistent net rules.
+        //
+        //   These can be troublesome, particularly on el6 VMs
+        //   See: https://mirrors.edge.kernel.org/pub/linux/utils/kernel/hotplug/udev/udev.html#id429522
+        //
+<%- end -%>
+        "udir=/etc/udev/rules.d net_rules=\"$udir/70-persistent-net.rules\"; gen_rules=\"$udir/75-persistent-net-generator.rules\"; [ -f \"$net_rules\" ] && { service network stop; rm -f \"$net_rules\"; ln -s /dev/null \"$gen_rules\" ; ln -s /dev/null \"$net_rules\"; service network start ; } <enter>",
+        "<wait5>",
+        "exit<enter>"

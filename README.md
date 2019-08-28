@@ -154,6 +154,7 @@ Build matrix elements are delimited by colons (`:`)
 | `os=`         | `el6:el7`   | `el6:el7` | OSes to include in the matrix.  JSON files **will be filtered out** if their data doesn't match one of these OSes. |
 | `fips=`       | `on:off`    | `on`      |  Build SIMP Vagrant box with FIPS mode enabled |
 | `encryption=` | `on:off`    | `off`     |  Build SIMP Vagrant box with disk encryption   |
+| `firmware=`   | `bios:efi   | `bios`    |  Defines which firmware base to use            |
 | `json=`       | _filepaths_ | N/A       | _(optional, if `SIMP_ISO_JSON_FILES` is set)_ List of absolute paths/globs to SIMP ISO `.json` files to consider |
 
 
@@ -269,7 +270,8 @@ See [samples/README.md](samples/README.md) for more information.
 │   ├── config/                 ‡ scripts that configure the VM
 │   ├── tests/                  ‡ VM tests
 ├── templates/.............. Templates
-│   ├── simp.json.template      Annotated JSON Packer template
+│   ├── simp.json.erb           Annotated JSON Packer template in ERB format
+│   ├── simp.json/              Directory of sub templates for simp.json file
 │   ├── Vagrantfile.erb         Vagrantfile generated along with `.box` files
 │   └── Vagrantfile.erb.erb     Vagrantfile.erb (for `vagrant init --template`)
 └── README.md
@@ -280,7 +282,8 @@ See [samples/README.md](samples/README.md) for more information.
 
 ### The Packer file
 
-The packer file is generated from the file `templates/simp.json.template`.
+The packer file is generated from the file `templates/simp.json.erb and settings from
+the packer.yaml file.
 
 #### Build Section
 
@@ -376,7 +379,7 @@ output directory.
   - Basic LDAP users are included: `user1`, `user2`, `admin1`, `admin2`
     - `admin1` and `admin2` are in the `administrators` group.
 - The default distribution's ISO path is `/net/ISO/Distribution_ISOs`. This is
-  currently hard-coded in `simp.json.template`.
+  currently hard-coded in `simp.json.erb`.
 
 ### Troubleshooting & common problems
 
@@ -522,7 +525,7 @@ able to re-use most of the Beaker suites designed for use with the
   - [x] Update the Travis CI pipeline to run asset tests
 - [ ] Asset tests _(phase 2—more complete)_:
   - [ ] Tests (at least linting) for any non-module puppet manifests?
-  - [x] Validate `simp.json.template` creates a parseable JSON file
+  - [x] Validate `simp.json.erb` creates a parseable JSON file
   - [ ] Validate `simp.json` using the [packer JSON _schema_][packer-schema]
   - [x] Spec tests for ruby code (after refactoring into testable components)
         under `lib/`)

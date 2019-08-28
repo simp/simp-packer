@@ -1,0 +1,26 @@
+[
+  {
+    "os_ver" : "6",
+    "firmware" : "bios",
+    "disk_encrypt" : "false",
+    "fips" : "fips=1"
+  },
+  {
+    "os_ver" : "7",
+    "firmware" : "bios",
+    "disk_encrypt" : "true",
+    "fips" : "fips=0"
+  },
+  {
+    "os_ver" : "6",
+    "firmware" : "efi",
+    "disk_encrypt" : "false",
+    "fips" : "fips=0"
+  },
+  {
+    "os_ver" : "7",
+    "firmware" : "efi",
+    "disk_encrypt" : "true",
+    "fips" : "fips=1"
+  }
+]

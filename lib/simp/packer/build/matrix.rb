@@ -2,11 +2,13 @@ require 'simp/tests/matrix/unroller'
 require 'simp/packer/build/runner'
 require 'fileutils'
 require 'rake/file_utils'
+require 'pry'
+require 'pry-byebug'
 
 module Simp
   module Packer
     module Build
-      # Run a matrix of simp-packer builds
+      # Run a matrix of simp-packer builds/
       class Matrix
         include Simp::Tests::Matrix::Unroller
         include FileUtils
@@ -54,10 +56,10 @@ module Simp
             simp_iso_json = cfg[:json]
             vars_data     = JSON.parse(File.read(simp_iso_json))
             m             = infer_os_from_name(File.basename(vars_data['iso_url']))
-
-            os_name    = "#{m[:os]}#{m[:el]}".downcase
-            fips       = (cfg[:fips] || 'on') == 'on'
-            encryption = (cfg[:encryption] || 'off') == 'on'
+            os_name       = "#{m[:os]}#{m[:el]}".downcase
+            fips          = (cfg[:fips] || 'on') == 'on'
+            encryption    = (cfg[:encryption] || 'off') == 'on'
+            firmware      = (cfg[:firmware] || 'bios')
 
             same_patt = Dir[simp_iso_json.gsub(%r{\.json$}, '.iso')].first
             if File.file?(vars_data['iso_url'])
@@ -69,11 +71,11 @@ module Simp
               warn "INFO: falling back to ISO at same path/naming scheme as json file:\n  Using ISO '#{simp_iso_file}'"
             end
 
-            iteration_dir  = "#{label}__#{vars_data['box_simp_release']}__#{os_name}_#{fips ? 'fips' : 'nofips'}"
+            iteration_dir  = "#{label}__#{vars_data['box_simp_release']}__#{os_name}_#{firmware}_#{fips ? 'fips' : 'nofips'}"
             iteration_dir += '_encryption' if encryption
             iteration_summary = "os=#{os_name} fips=#{fips ? 'on' : 'off'}"
             iteration_summary = ' encryption=on' if encryption
-            vm_description =  "SIMP#{vars_data['box_simp_release']}-#{os_name.upcase}-#{fips ? 'FIPS' : 'NOFIPS'}"
+            vm_description =  "SIMP#{vars_data['box_simp_release']}-#{os_name.upcase}-#{firmware.upcase}-#{fips ? 'FIPS' : 'NOFIPS'}"
             vm_description += '-ENCRYPTED' if encryption
 
             msg = []
@@ -103,15 +105,16 @@ module Simp
             Dir.chdir(iteration_dir) do |_dir|
               local_simp_conf_yaml = 'simp_conf.yaml'
               cp File.join(@packer_configs_dir, os_name, 'simp_conf.yaml'), local_simp_conf_yaml
-              generate_packer_yaml(vm_description, os_name, fips, encryption)
+              generate_packer_yaml(vm_description, os_name, fips, encryption, firmware)
               local_vars_json = generate_vars_json(vars_data, simp_iso_file)
             end
 
             log = "#{iteration_dir}.log"
             sh "date > '#{log}'"
-            packer_build_runner = Simp::Packer::Build::Runner.new(
-              File.expand_path(iteration_dir)
-            )
+            #
+            #  remove me
+            #
+            packer_build_runner = Simp::Packer::Build::Runner.new(File.expand_path(iteration_dir))
 
             File.open(log, 'a') { |f| f.puts iterator_header_msg }
             packer_build_runner.run(
@@ -128,13 +131,15 @@ module Simp
           end
         end
 
-        def generate_packer_yaml(vm_description, os_name, fips, encryption)
+        def generate_packer_yaml(vm_description, os_name, fips, encryption, firmware)
           local_packer_yaml = 'packer.yaml'
           packer_yaml_lines = File.read(File.join(@packer_configs_dir, os_name, 'packer.yaml')).split(%r{\n})
-          packer_yaml_lines.delete_if { |x| x =~ %r{^(disk_encrypt|vm_description|fips|headless):} }
+          packer_yaml_lines.delete_if { |x| x =~ %r{^(disk_encrypt|vm_description|firmware|fips|headless):} }
           packer_yaml_lines << "vm_description: '#{vm_description}'"
           packer_yaml_lines << "fips: 'fips=#{fips ? '1' : '0'}'"
           packer_yaml_lines << "headless: 'true'"
+          packer_yaml_lines << "firmware: '#{firmware}'"
+
           if encryption
             packer_yaml_lines << "disk_encrypt: 'true'"
             packer_yaml_lines.select { |x| x =~ %r{^big_sleep} }.each { |x| x.sub!('<wait10>', '<wait10>' * 12) }

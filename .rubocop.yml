@@ -190,7 +190,7 @@ Style/WhenThen:
   Enabled: True
 
 Style/WordArray:
-  Enabled: True
+  Enabled: False
 
 Style/UnneededPercentQ:
   Enabled: True
