@@ -1,7 +1,7 @@
 ---
 # See the README file in the samples directory for a full list
 # # of the variables that can be set and their descriptions.
-vm_description: 'SIMP6.X-CENTOS7-FIPS'
+vm_description: 'SIMP6.5-CENTOS7-FIPS'
 nat_interface: 'enp0s3'
 host_only_interface: 'enp0s8'
 mac_address: 'aabbcccc0007'

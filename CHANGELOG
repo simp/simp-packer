@@ -1,12 +1,23 @@
+Tue Sep 22 2020 Liz Nemsick <lnemsick.simp.@gmail.com> - UNRELEASED
+* Updated for SIMP 6.5.0 Alpha
+  - Use 'simp::classes' in lieu of 'classes' in hieradata.
+  - Use 'rndc-key' in lieu of 'rndckey' in named.conf to match the generated
+    key name. (In SIMP 6.5.0 we no longer deliver the sample rndc.key file,
+    whose key name is 'rndckey'.)
+  - Updated examples.
+  - Removed data -> hieradata cruft for older SIMP builds. Use an earlier
+    version of simp-packer if you need this.
+  - Updated dependency version ranges in 'site' module.
+
 Fri Jul 05 2019 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 2.4.0
-* Update to use SIMP 6.4.0 RC1 which has new changes to simp-cli.
-  
+* Updated to use SIMP 6.4.0 RC1 which has new changes to simp-cli.
+
 Wed May 08 2019 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 2.4.0
-* Update to use simp-cli 6.4 alpha (version 5.0.0).  This puts things in production environment.
-  Added packer user variable simpenviroment so the directory where files are
-  copied to can be changed.  How ever the scripts
+* Updated to use simp-cli 6.4 alpha (version 5.0.0).  This puts things in production
+  environment.  Added packer user variable simpenvironment so the directory where
+  files are copied to can be changed.  However the scripts
   that run on the server use puppet config to determine environment and we do not
-  yet use the packer user  variable simpenvironment to set the  environment
+  yet use the packer user  variable simpenvironment to set the environment
   in the puppet.conf file.  It is only used to copy files to the correct directory.
 * Must use
     simp-environment-skeleton >= 7.0.0
@@ -16,24 +27,24 @@ Wed May 08 2019 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 2.4.0
     simp-utils >= 6.2.0
 
 Mon Apr 29 2019 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 2.4.0
-* change simp.json file to use simpenv script in simp-utils
-* removed linked file in site module.  Packer can't handle linked files
+* Changed simp.json file to use simpenv script in simp-utils
+* Removed linked file in site module.  Packer can't handle linked files
 
 Thu Apr 18 2019 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 2.4.0
 * Updated to work with new r10k iso install process.  It will no longer work
-  with older builds.  You need to checkout version 2.3.0 to  build an older
+  with older builds.  You need to checkout version 2.3.0 to build an older
   version.
-  - changed simp.json template to reflect new flow.  (Note: Used a temp script
+  - Changed simp.json template to reflect new flow.  (Note: Used a temp script
     to model simp env changes, see FIX ME.)
-  - added site module installation with vagrant user manifest  because site module
+  - Added site module installation with vagrant user manifest because site module
     is not installed.
-  - updated simp_conf.yaml in examples to reflect new simp cli changes.
+  - Updated simp_conf.yaml in examples to reflect new simp cli changes.
   - added rake simp:packer:oldbuild to run with just test directory
     like the old days for a temporary bridge.
 * Changes to simp.json template require packer version 1.4.0.  (The valid_exit_codes
   entry added during script reboot will ignore spurious errors that happen
   when the reboot script throws an error because it rebooted during the script.)
-* Fixed errors in  simp:packer:build logic.
+* Fixed errors in simp:packer:build logic.
 * removed support for puppet 4.10 and ruby 2.1.9.
 
 

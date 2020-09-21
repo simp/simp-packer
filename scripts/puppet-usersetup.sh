@@ -14,12 +14,6 @@ semver=( ${simp_version//./ } )
 major="${semver[0]}"
 minor="${semver[1]}"
 
-# Use old hieradata path when SIMP < 6.3.0
-if [[ ( "$major" -eq 6  &&  "$minor" -lt 3 ) || "$major" -le 5 ]]; then
-  hieradata_dir="$pupenvdir/${env}/hieradata"
-  sed -i -e 's@/data$@/hieradata@g' /root/.bashrc-extras
-fi
-
 echo "The puppet environment directory is: $pupenvdir"
 echo "The hiera data directory is: $hieradata_dir"
 
@@ -32,7 +26,7 @@ chown -R root:puppet "${puppetmodpath}/site"
 # other hiera settings to configure the vagrant user
 cat << EOF > "${hieradata_dir}/default.yaml"
 ---
-classes:
+simp::classes:
   - 'site::vagrant'
 
 # enable root login over ssh
