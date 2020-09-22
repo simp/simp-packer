@@ -1,15 +1,17 @@
 Tue Sep 22 2020 Liz Nemsick <lnemsick.simp.@gmail.com> - UNRELEASED
 * Added:
   - Support for SIMP 6.5.0 Alpha
+* Changed:  
   - Use 'simp::classes' in lieu of 'classes' in hieradata.
   - Use 'rndc-key' in lieu of 'rndckey' in named.conf to match the generated
     key name. (In SIMP 6.5.0 we no longer deliver the sample rndc.key file,
     whose key name is 'rndckey'.)
-  - Updated examples
+  - Examples explicitly target SIMP 6.5.0 (instead of "6.X")
+  - 'site' module dependency version ranges now accomodate SIMP 6.5.0
 * Removed:
-  - Removed data -> hieradata cruft for older SIMP builds. Use an earlier
-    version of simp-packer if you need this.
-  - Updated dependency version ranges in 'site' module.
+  - Dropped support for SIMP builds older than 6.3.0
+    - Removed data -> hieradata cruft (for SIMP < 6.3.0)
+      - Use an earlier version of simp-packer if you need this.
 
 Fri Jul 05 2019 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 2.4.0
 * Added:
