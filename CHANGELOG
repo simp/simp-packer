@@ -9,10 +9,13 @@ Tue Sep 22 2020 Liz Nemsick <lnemsick.simp.@gmail.com> - UNRELEASED
   - Examples explicitly target SIMP 6.5.0 (instead of "6.X")
   - 'site' module dependency version ranges now accomodate SIMP 6.5.0
 * Removed:
-  - Dropped support for SIMP builds older than 6.3.0
-    - Removed data -> hieradata cruft (for SIMP < 6.3.0)
-      - Use an earlier version of simp-packer if you need this.
-
+  - Dropped support for all SIMP releases older than 6.5.0
+    - Removed data -> hieradata cruft (for SIMP < 6.3.0
+    - The named.conf rndc-key -> rndckey change is incompatible with
+      SIMP 6.4.0 and earlier
+    - Use an earlier version of simp-packer if you need to build SIMP
+      <= 6.4.0.
+    
 Fri Jul 05 2019 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 2.4.0
 * Added:
   - Support for SIMP 6.4.0 RC1, which has new changes to simp-cli.
