@@ -27,10 +27,6 @@ semver=( ${simp_version//./ } )
 major="${semver[0]}"
 minor="${semver[1]}"
 
-# Use old hieradata path when SIMP < 6.3.0
-if [[ ( "$major" -eq 6  &&  "$minor" -lt 3 ) || "$major" -le 5 ]]; then
-  hieradata_dir="$pupenvdir/simp/hieradata"
-fi
 simp_default="${hieradata_dir}/simp_config_settings.yaml"
 
 SIMP_PACKER_environment=$pupenv ruby "${packerdir}/scripts/tests/check_settings.rb" "${packerdir}/files/simp_conf.yaml" "${simp_default}"

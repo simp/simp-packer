@@ -3,5 +3,5 @@
 simp::runlevel: 'graphical'
 timezone::timezone: 'EST'
 
-classes:
+simp::classes:
     - site::workstation

@@ -16,7 +16,7 @@
   * [Using `rake simp:packer:matrix`](#using-rake-simppackermatrix)
     * [Build matrix elements](#build-matrix-elements)
     * [Environment variables for build matrices](#environment-variables-for-build-matrices)
-  * [Using `rake simp:packer:build`](#using-rake-simppackerbuild)
+  * [Using `rake simp:packer:build` and `rake simp:packer:oldbuild`](#using-rake-simppackerbuild-and-rake-simppackeroldbuild)
     * [Manually creating the configuration files](#manually-creating-the-configuration-files)
   * [Output file locations](#output-file-locations)
   * [Environment variables](#environment-variables)
@@ -48,9 +48,8 @@
 
 ![simp-packer basics][simp-packer-basics]
 
-* `simp-packer` supports SIMP >= 6.0.0-0 (see [Supported SIMP
-  releases](#supported-simp-releases)).
-* It builds Vagrant boxes for [Virtualbox][#virtualbox] using Vagrant's
+* This version of `simp-packer` supports SIMP >= 6.5.0-Alpha
+* It builds Vagrant boxes for [Virtualbox][virtualbox] using Vagrant's
   [virtualbox-iso][vagrant-virtualbox-iso] builder.
 * See the [Roadmap](#roadmap) for boxes/features that are currently implemented
   and planned.
@@ -68,10 +67,7 @@ Requirements:
   - Ensure the binary is in your `$PATH` and comes before any other packer
     executables on the system (e.g., `export PATH="/path/to/packer:$PATH"`).
   - `simp-packer` >= 2.4  requires `packer` version 1.4.0  or later.
-    Currently it only works with simp 6.4.0 and later.  It also requires
-    ruby 2.3.0 or later because of gem dependencies.
-  - `simp-packer` >= 2.0 < 2.4  requires `packer` version 1.2.4 or later and
-   does not work with SIMP >= 6.4.0
+    It also requires ruby 2.3.0 or later because of gem dependencies.
 
 
 * A [SIMP][SIMP] ISO (`.iso`) file. Either an official release or one generated
@@ -95,16 +91,16 @@ There are a few ways to run simp-packer:
        request specific boxes and alert when a new version of a box is
        available.
 
-2. [Using `rake simp:packer:build`](#using-rake-simppackerbuild)
+2. [Using `rake simp:packer:build`](#using-rake-simppackerbuild-and-rake-simppackeroldbuild)
 
    - Builds a single Vagrant box, _without_ any version metadata.
    - Requires you to [manually provide a test directory and configuration
      files](#manually-creating-the-configuration-files)
 
-3. [Using `rake simp:packer:build`]
+3. [Using `rake simp:packer:oldbuild`](#using-rake-simppackerbuild-and-rake-simppackeroldbuild)
 
-   - Takes a test directory that has the vars.json, packer.yaml and simp_conf.yaml
-   already set up like the old build process.
+   - Takes a test directory that has the `vars.json`, `packer.yaml` and
+     `simp_conf.yaml` already set up like the old build process.
 
 All methods are configured by [environment variables](#environment-variables)
 and Rake task arguments.
@@ -198,7 +194,7 @@ TMPDIR=/some/tmp/dir \
 
 
 The `build` version allows you to call using configuration files located from
-other locations. You don't copy the config files to the test directory.i 
+other locations. You don't copy the config files to the test directory.
 It will copy the files over for you but you have to type in all the locations.
 
 The `oldbuild` versions allows you copy the files to a directory your self and run

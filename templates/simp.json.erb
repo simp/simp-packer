@@ -302,7 +302,7 @@
       //        See: https://github.com/hashicorp/packer/issues/5115
       //
 <%- end -%>
-      "pause_before": "300s",
+      "pause_before": "400s",
       "type": "file",
       "source": "./puppet",
       "destination": "/var/local/simp"
@@ -402,9 +402,6 @@
       "inline" : [
         "if [ -f /var/local/simp/root/.bashrc-extras ]; then",
           "cat /var/local/simp/root/.bashrc-extras >> /root/.bashrc",
-        "fi",
-        "if [[ \"$(cat /etc/simp/simp.version)\" =~ ^6\\.[12]\\. ]]; then",
-          "sed -i -e 's@/data$@/hieradata@' /root/.bashrc",
         "fi"
       ]
     },

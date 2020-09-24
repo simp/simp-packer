@@ -3,7 +3,7 @@
 # of the variables that can be set and their descriptions.
 nat_interface: 'enp0s3'
 host_only_interface: 'enp0s8'
-# TODO: configure sipm-packer masters and clients to use DHCP (SIMP-5333)
+# TODO: configure simp-packer masters and clients to use DHCP (SIMP-5333)
 mac_address: 'aabbcccc0007'
 host_only_gateway: '192.168.103.1'
 big_sleep: "<wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10>"
