@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Examples explicitly target SIMP 6.5.0 (instead of "6.X")
 - 'site' module dependency version ranges now accomodate SIMP 6.5.0
 - Converted CHANGELOG into format documented at https://keepachangelog.com/
+- Refined regex used to check for puppetserver and puppetdb service status to
+  support both Puppet 5 and Puppet 6.
 
 ### Removed
 - Dropped support for all SIMP releases older than 6.5.0

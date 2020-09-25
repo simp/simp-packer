@@ -96,7 +96,7 @@ class CheckSettings
   #   puppet resource service <service name>
   def check_service_status(service, expected_status = 'running')
     result = %x(puppet resource service #{service})
-    match = result.match(%r{ensure => '(stopped|running)',})
+    match = result.match(%r{ensure\s+=> '(stopped|running)',})
     if match
       if match[1] == expected_status
         puts "Service '#{service}' status matches expected value '#{expected_status}'."
@@ -112,7 +112,8 @@ class CheckSettings
       #    enable => 'false'
       #   }
       # So we must really be broken, if the puppet CLI doesn't work!
-      err_msg = "Unable to determine #{service} status using 'puppet resource service'."
+      err_msg = "Unable to determine #{service} status using 'puppet resource service':"
+      err_msg += "\n#{result}"
       raise SettingsError, err_msg
     end
   end
