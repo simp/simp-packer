@@ -64,10 +64,10 @@ Requirements:
 * [Vagrant](https://www.vagrantup.com/downloads.html)
 * [Packer](https://www.packer.io/downloads.html) (distributed as a binary).
 
+  - `simp-packer` >= 2.4  requires `packer` version 1.4.0  or later.
+    It also requires ruby >= 2.3 because of gem dependencies.
   - Ensure the binary is in your `$PATH` and comes before any other packer
     executables on the system (e.g., `export PATH="/path/to/packer:$PATH"`).
-  - `simp-packer` >= 2.4  requires `packer` version 1.4.0  or later.
-    It also requires ruby 2.3.0 or later because of gem dependencies.
 
 
 * A [SIMP][SIMP] ISO (`.iso`) file. Either an official release or one generated
