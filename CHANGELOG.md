@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Converted CHANGELOG into format documented at https://keepachangelog.com/
 - Refined regex used to check for puppetserver and puppetdb service status to
   support both Puppet 5 and Puppet 6.
+- Update JSON comments to work with Packer 1.5+
 
 ### Removed
 - Dropped support for all SIMP releases older than 6.5.0
