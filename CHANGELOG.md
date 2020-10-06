@@ -32,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     <= 6.4.0.
 
 ### Fixed
-- Enabled FIPS mode in the `fips7` sample's `simpe_conf.yaml`
+- Enabled FIPS mode in the `fips7` sample's `simp_conf.yaml`
 
 ## [2.4.0] - 2019-07-05
 
