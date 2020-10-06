@@ -31,6 +31,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Use an earlier version of simp-packer if you need to build SIMP
     <= 6.4.0.
 
+### Fixed
+- Enabled FIPS mode in the `fips7` sample's `simp_conf.yaml`
+
 ## [2.4.0] - 2019-07-05
 
 The release adds SIMP 6.4.0 support and several new rake tasks
@@ -61,17 +64,15 @@ The release adds SIMP 6.4.0 support and several new rake tasks
   like the old days for a temporary bridge.
 
 ### Changed
-- Fixed `VBoxManage hostonlyif ipconfig` logic
 - Refactored `simp_config.rb` and `simp_packer_test.sh` into code under `lib/`
 - simp.json file to use simpenv script in simp-utils
-- Changed simp.json template to reflect new flow.  (Note: Used a temp script
+- Changed `simp.json` template to reflect new flow.  (Note: Used a temp script
   to model simp env changes, see FIX ME.)
-- Updated simp_conf.yaml in examples to reflect new simp cli changes.
-- Changes to simp.json template require packer version 1.4.0.  (The
-  valid_exit_codes entry added during script reboot will ignore spurious
-  errors that happen when the reboot script throws an error because it
-  rebooted during the script.)
-- Fixed errors in `simp:packer:build` logic
+- Updated `simp_conf.yaml` in examples to reflect new simp cli changes.
+- NOTE: Changes to `simp.json` template require packer version 1.4.0.  (The
+  valid_exit_codes entry added during script reboot will ignore spurious errors
+  that happen when the reboot script throws an error because it rebooted during
+  the script.)
 
 ### Removed
 - Support for puppet 4.10 and ruby 2.1.9.
@@ -79,6 +80,10 @@ The release adds SIMP 6.4.0 support and several new rake tasks
   2.3.0 to build an older version of SIMP.
 - Linked file in site module (Packer can't handle linked files)
 - Scripts: `simp_packer_test.sh` and `simp_config.rb`
+
+### Fixed
+- Fixed `VBoxManage hostonlyif ipconfig` logic
+- Fixed errors in `simp:packer:build` logic
 
 
 ## [2.3.0] - 2018-11-15
