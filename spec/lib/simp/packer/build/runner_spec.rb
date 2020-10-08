@@ -18,7 +18,7 @@ describe Simp::Packer::Build::Runner do
       @obj.prep(
         'spec/lib/simp/packer/build/files/vars_json/v0/SIMP-6.2.0-0.el7-CentOS-7.0-x86_64.json',
         'spec/lib/simp/packer/build/files/runner/basic/simp_conf.yaml',
-        'spec/lib/simp/packer/build/files/runner/basic/packer.yaml'
+        'spec/lib/simp/packer/build/files/runner/basic/packer.yaml',
       )
     end
 
@@ -59,7 +59,7 @@ describe Simp::Packer::Build::Runner do
       @hostonlyifs = File.read('spec/lib/simp/packer/config/files/vboxmanage-list-hostonlyifs.txt')
     end
 
-    before do
+    before(:each) do
       allow_any_instance_of(Kernel).to receive(:`).with('VBoxManage list hostonlyifs').and_return @hostonlyifs
     end
 
@@ -68,20 +68,20 @@ describe Simp::Packer::Build::Runner do
     end
 
     context 'without an existing hostonly network' do
-      before do
+      before(:each) do
         allow_any_instance_of(Kernel).to receive(:`).with(
-          'VBoxManage list hostonlyifs'
+          'VBoxManage list hostonlyifs',
         ).and_return('')
 
         allow_any_instance_of(Kernel).to receive(:`).with(
-          'VBoxManage hostonlyif create'
+          'VBoxManage hostonlyif create',
         ).and_return("Interface 'vboxnet5' was successfully created")
       end
 
       context 'when able to configure the network' do
-        before do
+        before(:each) do
           allow_any_instance_of(Kernel).to receive(:system).with(
-            'VBoxManage hostonlyif ipconfig vboxnet5 --ip 192.168.101.1 --netmask 255.255.255.0'
+            'VBoxManage hostonlyif ipconfig vboxnet5 --ip 192.168.101.1 --netmask 255.255.255.0',
           ).and_return(true)
         end
 
@@ -89,9 +89,9 @@ describe Simp::Packer::Build::Runner do
       end
 
       context 'when unable to configure the network' do
-        before do
+        before(:each) do
           allow_any_instance_of(Kernel).to receive(:system).with(
-            'VBoxManage hostonlyif ipconfig vboxnet5 --ip 192.168.101.1 --netmask 255.255.255.0'
+            'VBoxManage hostonlyif ipconfig vboxnet5 --ip 192.168.101.1 --netmask 255.255.255.0',
           ).and_return(false)
         end
 

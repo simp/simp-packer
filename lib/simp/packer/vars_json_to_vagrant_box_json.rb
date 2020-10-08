@@ -23,7 +23,7 @@ module Simp
         simp_box_flavors = infer_simp_flavors(@vars_json_data)
 
         @options = options.dup
-        @options[:org]  ||= 'simpci'
+        @options[:org] ||= 'simpci'
         @options[:name] ||= "server-#{simp_box_flavors}"
         @options[:desc] ||= "SIMP server #{simp_box_flavors}"
       end
@@ -53,6 +53,7 @@ module Simp
         unless File.file? vagrantbox_path
           raise Errno::ENOENT, "ERROR: Can't find .box file at '#{vagrantbox_path}'"
         end
+
         created_at = File.mtime(vagrantbox_path).strftime('%Y-%m-%dT%H:%M:%S.%3NZ')
         updated_at = Time.now.utc.strftime('%Y-%m-%dT%H:%M:%S.%3NZ')
 
@@ -61,28 +62,28 @@ module Simp
         box_checksum = Digest::SHA256.file(vagrantbox_path).hexdigest
 
         {
-          'tag'                  => "#{@options[:org]}/#{@options[:name]}",
-          'name'                 => @options[:name],
-          'username'             => @options[:org],
-          'created_at'           => created_at,
-          'updated_at'           => updated_at,
-          'private'              => options[:is_private] || false,
-          'downloads'            => options[:downloads] || 0,
-          'short_description'    => @options[:desc],
+          'tag' => "#{@options[:org]}/#{@options[:name]}",
+          'name' => @options[:name],
+          'username' => @options[:org],
+          'created_at' => created_at,
+          'updated_at' => updated_at,
+          'private' => options[:is_private] || false,
+          'downloads' => options[:downloads] || 0,
+          'short_description' => @options[:desc],
           'description_markdown' => @options[:desc],
-          'description_html'     => "<p>#{@options[:desc]}</p>",
-          'versions'             => [{
-            'version'              => options[:version] || File.mtime(vagrantbox_path).strftime('%Y%m%d.%H%M%S'),
-            'status'               => options[:status] || 'active',
-            'description_html'     => "<p>#{@options[:desc]}</p>",
+          'description_html' => "<p>#{@options[:desc]}</p>",
+          'versions' => [{
+            'version' => options[:version] || File.mtime(vagrantbox_path).strftime('%Y%m%d.%H%M%S'),
+            'status' => options[:status] || 'active',
+            'description_html' => "<p>#{@options[:desc]}</p>",
             'description_markdown' => @options[:desc],
-            'created_at'           => created_at,
-            'updated_at'           => updated_at,
-            'providers'            => [{
+            'created_at' => created_at,
+            'updated_at' => updated_at,
+            'providers' => [{
               'checksum_type' => 'sha256',
-              'checksum'      => box_checksum,
-              'name'          => options[:provider_name] || 'virtualbox',
-              'url'           => File.expand_path(vagrantbox_path)
+              'checksum' => box_checksum,
+              'name' => options[:provider_name] || 'virtualbox',
+              'url' => File.expand_path(vagrantbox_path)
             }]
           }]
         }

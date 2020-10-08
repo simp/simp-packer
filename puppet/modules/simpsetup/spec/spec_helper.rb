@@ -7,9 +7,9 @@ require 'pathname'
 
 # RSpec Material
 fixture_path = File.expand_path(File.join(__FILE__, '..', 'fixtures'))
-module_name = File.basename(File.expand_path(File.join(__FILE__,'../..')))
+module_name = File.basename(File.expand_path(File.join(__FILE__, '../..')))
 
-default_hiera_config =<<-EOM
+default_hiera_config = <<-EOM
 ---
 :backends:
   - "rspec"
@@ -23,34 +23,34 @@ default_hiera_config =<<-EOM
   - "default"
 EOM
 
-
-['hieradata','modules'].each do |dir|
-  _dir = File.join(fixture_path,dir)
+['hieradata', 'modules'].each do |dir|
+  _dir = File.join(fixture_path, dir)
   FileUtils.mkdir_p(_dir) unless File.directory?(_dir)
 end
 
 def massage_os_facts(os_facts)
-  _facts = os_facts.merge( {:networking => {
-    'ip' => os_facts[:ipaddress],
-    'fqdn' => os_facts[:fqdn],
-    'domain' => os_facts[:domain],
-    'primary' => 'ens3',
-    'interfaces' => {
-      'ens3' => {
-        'ip' => os_facts[:ipaddress],
-        'mac' => os_facts[:macaddress],
-      }}}
-  })
+  _facts = os_facts.merge({ networking: {
+                            'ip' => os_facts[:ipaddress],
+                            'fqdn' => os_facts[:fqdn],
+                            'domain' => os_facts[:domain],
+                            'primary' => 'ens3',
+                            'interfaces' => {
+                              'ens3' => {
+                                'ip' => os_facts[:ipaddress],
+                                'mac' => os_facts[:macaddress]
+                              }
+                            }
+                          } })
   _facts
 end
 
 RSpec.configure do |c|
   # If nothing else...
   c.default_facts = {
-    :production => {
+    production: {
       #:fqdn           => 'production.rspec.test.localdomain',
-      :path           => '/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin',
-      :concat_basedir => '/tmp'
+      path: '/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin',
+      concat_basedir: '/tmp'
     }
   }
 
@@ -59,10 +59,10 @@ RSpec.configure do |c|
 
   c.module_path = File.join(fixture_path, 'modules')
   c.manifest_dir = File.join(fixture_path, 'manifests')
-  c.hiera_config = File.join(fixture_path,'hieradata','hiera.yaml')
+  c.hiera_config = File.join(fixture_path, 'hieradata', 'hiera.yaml')
 
   # Useless backtrace noise
-  backtrace_exclusion_patterns = [ /spec_helper/, /gems/ ]
+  backtrace_exclusion_patterns = [%r{spec_helper}, %r{gems}]
 
   if c.respond_to?(:backtrace_exclusion_patterns)
     c.backtrace_exclusion_patterns = backtrace_exclusion_patterns
@@ -83,7 +83,7 @@ RSpec.configure do |c|
     @spec_global_env_temp = Dir.mktmpdir('simpspec')
 
     if defined?(environment)
-      FileUtils.mkdir_p(File.join(@spec_global_env_temp,environment.to_s))
+      FileUtils.mkdir_p(File.join(@spec_global_env_temp, environment.to_s))
     end
 
     # ensure the user running these tests has an accessible environmentpath
@@ -101,7 +101,7 @@ end
 Dir.glob("#{RSpec.configuration.module_path}/*").each do |dir|
   begin
     Pathname.new(dir).realpath
-  rescue
-    fail "ERROR: The module '#{dir}' is not installed. Tests cannot continue."
+  rescue StandardError
+    raise "ERROR: The module '#{dir}' is not installed. Tests cannot continue."
   end
 end

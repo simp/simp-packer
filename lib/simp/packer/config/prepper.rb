@@ -31,25 +31,25 @@ module Simp
         # @return [Hash] Default `packer.yaml` settings
         def default_settings
           {
-            'big_sleep'           => '',
-            'bootcmd'             => 'simp',
-            'disk_encrypt'        => 'true',
-            'domain'              => 'simp.test',
-            'fips'                => 'fips=0',
-            'firmware'            => 'bios',
-            'headless'            => 'true',
-            'host_only_gateway'   => '192.168.101.1',
+            'big_sleep' => '',
+            'bootcmd' => 'simp',
+            'disk_encrypt' => 'true',
+            'domain' => 'simp.test',
+            'fips' => 'fips=0',
+            'firmware' => 'bios',
+            'headless' => 'true',
+            'host_only_gateway' => '192.168.101.1',
             'host_only_interface' => 'enp0s8',
-            'iso_dist_dir'        => '/net/ISO/Distribution_ISOs',
-            'mac_address'         => 'aabbbbaa0007',
-            'nat_interface'       => 'enp0s3',
-            'new_password'        => 'P@ssw0rdP@ssw0rd',
-            'output_directory'    => "#{@testdir}/OUTPUT",
-            'puppetname'          => 'puppet',
-            'root_umask'          => '0077',
-            'simpenvironment'     => 'production',
-            'ssh_agent_auth'      => 'false',
-            'vm_description'      => 'SIMP-PACKER-BUILD'
+            'iso_dist_dir' => '/net/ISO/Distribution_ISOs',
+            'mac_address' => 'aabbbbaa0007',
+            'nat_interface' => 'enp0s3',
+            'new_password' => 'P@ssw0rdP@ssw0rd',
+            'output_directory' => "#{@testdir}/OUTPUT",
+            'puppetname' => 'puppet',
+            'root_umask' => '0077',
+            'simpenvironment' => 'production',
+            'ssh_agent_auth' => 'false',
+            'vm_description' => 'SIMP-PACKER-BUILD'
           }
         end
 
@@ -58,6 +58,7 @@ module Simp
           unless File.file?(json_file)
             raise "\n\nERROR: JSON file '#{json_file}' does not exist or is not a file."
           end
+
           f = File.open(json_file, 'r')
           json = ''
           f.each do |line|
@@ -118,6 +119,7 @@ module Simp
           if vars_data['host_only_network_name'].nil?
             raise "ERROR: could not create or find a virtualbox network for #{settings['host_only_gateway']}"
           end
+
           vars_data
         end
 
@@ -142,19 +144,19 @@ module Simp
           ldap_base_dn = 'dc=' + settings['domain'].split('.').join(',dc=')
 
           simp_conf.merge(
-            'cli::network::gateway'        => settings['host_only_gateway'],
-            'simp_options::dns::servers'   => [puppet_ip],
-            'cli::network::ipaddress'      => puppet_ip,
+            'cli::network::gateway' => settings['host_only_gateway'],
+            'simp_options::dns::servers' => [puppet_ip],
+            'cli::network::ipaddress' => puppet_ip,
             'simp_options::puppet::server' => puppet_fqdn,
-            'cli::network::hostname'       => puppet_fqdn,
-            'simp_options::puppet::ca'     => puppet_fqdn,
-            'cli::network::interface'      => settings['host_only_interface'],
-            'cli::network::netmask'        => '255.255.255.0',
-            'simp_options::dns::search'    => [settings['domain']],
-            'simp_options::trusted_nets'   => network + '.0/24',
-            'simp_options::ldap::base_dn'  => ldap_base_dn,
-            'simp_options::fips'           => settings['fips'].eql?('fips=1'),
-            'simp_options::ntpd::servers'  => [settings['host_only_gateway']]
+            'cli::network::hostname' => puppet_fqdn,
+            'simp_options::puppet::ca' => puppet_fqdn,
+            'cli::network::interface' => settings['host_only_interface'],
+            'cli::network::netmask' => '255.255.255.0',
+            'simp_options::dns::search' => [settings['domain']],
+            'simp_options::trusted_nets' => network + '.0/24',
+            'simp_options::ldap::base_dn' => ldap_base_dn,
+            'simp_options::fips' => settings['fips'].eql?('fips=1'),
+            'simp_options::ntpd::servers' => [settings['host_only_gateway']],
           )
         end
 
@@ -222,7 +224,7 @@ module Simp
         # Write out box-specific Vagrantfile + Vagrantfile.erb files
         def generate_vagrantfiles(vars_data, simpconfig_data, top_output)
           {
-            'Vagrantfile'     => 'Vagrantfile.erb',
+            'Vagrantfile' => 'Vagrantfile.erb',
             'Vagrantfile.erb' => 'vagrantfiles/Vagrantfile.erb.erb'
           }.each do |vagrantfile, template_file|
             vfile_contents = Simp::Packer::Config::VagrantfileWriter.new(
@@ -230,7 +232,7 @@ module Simp
               simpconfig_data['cli::network::ipaddress'],
               vars_data['mac_address'],
               vars_data['host_only_network_name'],
-              File.read(File.expand_path("templates/#{template_file}", @basedir))
+              File.read(File.expand_path("templates/#{template_file}", @basedir)),
             ).render
 
             vagrantfile_path = File.join top_output, vagrantfile

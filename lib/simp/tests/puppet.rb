@@ -34,7 +34,7 @@ module Simp
           'bundle exec rake validate',
           'bundle exec rake lint',
           'bundle exec rake metadata_lint',
-          'bundle exec rake test'
+          'bundle exec rake test',
         ]
       end
     end

@@ -9,7 +9,7 @@ describe Simp::Packer::Config::VagrantfileWriter do
         '1.2.3.4',
         'aa:bb:cc:dd:ee:ff',
         'hostonly.tld',
-        File.read('spec/lib/simp/packer/config/files/vagrantfile_templates/example.vagrantfile.erb.erb')
+        File.read('spec/lib/simp/packer/config/files/vagrantfile_templates/example.vagrantfile.erb.erb'),
       ).render
 
       @expected_content = File.read('spec/lib/simp/packer/config/files/vagrantfile_templates/example.vagrantfile.erb.rendered')

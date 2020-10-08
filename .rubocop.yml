@@ -53,6 +53,7 @@ RSpec/HookArgument:
 RSpec/NamedSubject:
   Exclude:
   - spec/classes/**/*
+  - spec/defines/**/*
 Style/BlockDelimiters:
   Description: Prefer braces for chaining. Mostly an aesthetical choice. Better to
     be consistent then.
@@ -74,6 +75,8 @@ Style/FormatStringToken:
   EnforcedStyle: template
 Style/HashEachMethods:
   Enabled: true
+Style/HashSyntax:
+  Enabled: false
 Style/HashTransformKeys:
   Enabled: false
 Style/HashTransformValues:

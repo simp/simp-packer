@@ -55,8 +55,9 @@ module Simp
         # Raise a decriptive error if any build requirements are missing
         def fail_without_prereqs(packer_yaml, simp_conf_yaml, vars_json)
           raise "ERROR: Test dir not found at '#{@test_dir}'" unless File.directory?(@test_dir)
+
           if @verbose
-            STDERR.puts(
+            warn(
               '', "Contents of test_dir (#{@test_dir}):",
               Dir["#{@test_dir}/*"].map { |x| "  #{File.basename(x)}\n" }.join, ''
             )
@@ -78,20 +79,20 @@ module Simp
           working_dir       = opts[:working_dir]    || File.join(@test_dir, "working.#{date}")
           opts[:log_file] ||= File.join(@test_dir, "#{date}.simp-packer.log")
           opts[:plog_file] || ENV['PACKER_LOGPATH'] || File.join(@test_dir, "#{date}.packer.log")
-          opts[:tmp_dir]   ||= nil
-          opts[:dry_run]   ||= ENV.fetch('SIMP_PACKER_dry_run', 'no') == 'yes'
+          opts[:tmp_dir] ||= nil
+          opts[:dry_run] ||= ENV.fetch('SIMP_PACKER_dry_run', 'no') == 'yes'
           # The files are currently needed by Simp::Packer::Config::Prepper (the
           # old simp_config.rb).  They have to exist before this method is called.
-          opts[:packer_yaml]       ||= File.join(@test_dir, 'packer.yaml')
-          opts[:simp_conf_yaml]    ||= File.join(@test_dir, 'simp_conf.yaml')
-          opts[:vars_json]         ||= File.join(@test_dir, 'vars.json')
+          opts[:packer_yaml] ||= File.join(@test_dir, 'packer.yaml')
+          opts[:simp_conf_yaml] ||= File.join(@test_dir, 'simp_conf.yaml')
+          opts[:vars_json] ||= File.join(@test_dir, 'vars.json')
           opts[:extra_packer_args] ||= ENV['SIMP_PACKER_extra_args'] || ''
 
           fail_without_prereqs(opts[:packer_yaml], opts[:simp_conf_yaml], opts[:vars_json])
           # scaffold working directory
           rm_rf(working_dir, verbose: @verbose) if File.exist?(working_dir)
           mkdir_p working_dir, verbose: @verbose
-          %w[files puppet scripts].each do |f|
+          ['files', 'puppet', 'scripts'].each do |f|
             copy_entry(File.join(@base_dir, f), File.join(working_dir, f), verbose: @verbose)
           end
 
