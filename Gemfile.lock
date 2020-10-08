@@ -81,7 +81,7 @@ GEM
     facterdb (1.4.0)
       facter (< 4.0.0)
       jgrep
-    faraday (0.9.2)
+    faraday (0.17.3)
       multipart-post (>= 1.2, < 3)
     faraday_middleware (0.14.0)
       faraday (>= 0.7.4, < 1.0)
@@ -149,7 +149,7 @@ GEM
     parallel (1.19.2)
     parallel_tests (2.24.0)
       parallel
-    parser (2.7.1.5)
+    parser (2.7.2.0)
       ast (~> 2.4.1)
     pathspec (0.2.1)
     pry (0.13.1)
@@ -241,17 +241,19 @@ GEM
       puppet
     rspec-support (3.9.3)
     rsync (1.0.9)
-    rubocop (0.92.0)
+    rubocop (0.93.0)
       parallel (~> 1.10)
       parser (>= 2.7.1.5)
       rainbow (>= 2.2.2, < 4.0)
-      regexp_parser (>= 1.7)
+      regexp_parser (>= 1.8)
       rexml
-      rubocop-ast (>= 0.5.0)
+      rubocop-ast (>= 0.6.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 1.4.0, < 2.0)
     rubocop-ast (0.7.1)
       parser (>= 2.7.1.5)
+    rubocop-i18n (2.0.2)
+      rubocop (~> 0.51)
     rubocop-rspec (1.43.2)
       rubocop (~> 0.87)
     ruby-ll (2.1.2)
@@ -339,7 +341,7 @@ DEPENDENCIES
   metadata-json-lint
   pry
   pry-doc
-  puppet (~> 5.0)
+  puppet (~> 5.5)
   puppet-lint-empty_string-check
   puppet-lint-trailing_comma-check
   puppet-strings
@@ -350,6 +352,7 @@ DEPENDENCIES
   rspec-mocks
   rspec-puppet
   rubocop
+  rubocop-i18n
   rubocop-rspec
   simp-beaker-helpers (~> 1.14)
   simp-rake-helpers (~> 5.11)
