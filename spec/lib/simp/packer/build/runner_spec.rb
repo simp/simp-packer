@@ -1,7 +1,10 @@
+# frozen_string_literal: true
+
 require 'simp/packer/build/runner'
 require 'spec_helper'
 require 'tmpdir'
 
+# rubocop:disable RSpec/InstanceVariable, RSpec/BeforeAfterAll
 describe Simp::Packer::Build::Runner do
   before(:all) do
     @dir = Dir.mktmpdir('spec_simp-packer-runner')
@@ -55,12 +58,9 @@ describe Simp::Packer::Build::Runner do
   end
 
   describe '#run' do
-    before :all do
-      @hostonlyifs = File.read('spec/lib/simp/packer/config/files/vboxmanage-list-hostonlyifs.txt')
-    end
-
     before(:each) do
-      allow_any_instance_of(Kernel).to receive(:`).with('VBoxManage list hostonlyifs').and_return @hostonlyifs
+      hostonlyifs = File.read('spec/lib/simp/packer/config/files/vboxmanage-list-hostonlyifs.txt')
+      allow(Kernel).to receive(:`).with('VBoxManage list hostonlyifs').and_return hostonlyifs
     end
 
     context 'with an existing hostonly network' do
@@ -69,18 +69,18 @@ describe Simp::Packer::Build::Runner do
 
     context 'without an existing hostonly network' do
       before(:each) do
-        allow_any_instance_of(Kernel).to receive(:`).with(
+        allow(Kernel).to receive(:`).with(
           'VBoxManage list hostonlyifs',
         ).and_return('')
 
-        allow_any_instance_of(Kernel).to receive(:`).with(
+        allow(Kernel).to receive(:`).with(
           'VBoxManage hostonlyif create',
         ).and_return("Interface 'vboxnet5' was successfully created")
       end
 
       context 'when able to configure the network' do
         before(:each) do
-          allow_any_instance_of(Kernel).to receive(:system).with(
+          allow(Kernel).to receive(:system).with(
             'VBoxManage hostonlyif ipconfig vboxnet5 --ip 192.168.101.1 --netmask 255.255.255.0',
           ).and_return(true)
         end
@@ -90,7 +90,7 @@ describe Simp::Packer::Build::Runner do
 
       context 'when unable to configure the network' do
         before(:each) do
-          allow_any_instance_of(Kernel).to receive(:system).with(
+          allow(Kernel).to receive(:system).with(
             'VBoxManage hostonlyif ipconfig vboxnet5 --ip 192.168.101.1 --netmask 255.255.255.0',
           ).and_return(false)
         end
@@ -103,3 +103,4 @@ describe Simp::Packer::Build::Runner do
     end
   end
 end
+# rubocop:enable RSpec/InstanceVariable, RSpec/BeforeAfterAll

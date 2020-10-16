@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'simp/packer/config/simpjsonfile_writer'
 require 'pry'
 require 'pry-byebug'

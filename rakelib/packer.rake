@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :packer do
   desc <<-DESC.gsub(%r{^    }, '')
     Validates simp.json.erb files and vars.json
@@ -31,6 +33,7 @@ namespace :packer do
 
     raise "ERROR: json file '#{json}' not found.  (ENV: SIMP_PACKER_json_file)" unless File.exist?(json)
     raise "ERROR: settings file '#{settings_file}' not found.  (ENV: SIMP_PACKER_settings_file)" unless File.exist?(settings_file)
+
     in_settings = JSON.parse(File.read(settings_file))
 
     require 'tmpdir'

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'simp/packer/config/prepper'
 require 'fileutils'
 require 'rake'

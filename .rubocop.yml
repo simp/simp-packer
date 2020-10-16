@@ -6,7 +6,11 @@ AllCops:
   DisplayCopNames: true
   TargetRubyVersion: '2.4'
   Include:
-  - "**/*.rb"
+  - "lib/**/*.rb"
+  - "spec/**/*.rb"
+  - "scripts/**/*.rb"
+  - "puppet/**/*.rb"
+  - "rakelib/*.rake"
   Exclude:
   - bin/*
   - ".vendor/**/*"
@@ -61,6 +65,7 @@ Style/BlockDelimiters:
 Style/ClassAndModuleChildren:
   Description: Compact style reduces the required amount of indentation.
   EnforcedStyle: compact
+  Enabled: false
 Style/EmptyElse:
   Description: Enforce against empty else clauses, but allow `nil` for clarity.
   EnforcedStyle: empty
@@ -166,3 +171,6 @@ Style/IfUnlessModifier:
   Enabled: false
 Style/SymbolProc:
   Enabled: false
+RailsI18n/DecorateString:
+  Enabled: false
+

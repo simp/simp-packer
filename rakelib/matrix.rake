@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'simp/packer/build/matrix'
 require 'rake'
 namespace :simp do

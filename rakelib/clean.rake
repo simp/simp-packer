@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rake/clean'
 
 CLEAN << FileList.new('puppet/modules/*/spec/fixtures')

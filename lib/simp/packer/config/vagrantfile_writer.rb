@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# rubocop:disable Naming/MethodParameterName
 module Simp
   module Packer
     module Config
@@ -24,3 +27,4 @@ module Simp
     end
   end
 end
+# rubocop:enable Naming/MethodParameterName

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Simp
   module Packer
     module Config
@@ -5,7 +7,7 @@ module Simp
       #   and creating VirtualBox [hostonlyif networks][hostonlyif-nets].
       #
       #   [hostonlyif-nets]: https://www.virtualbox.org/manual/ch06.html#network_hostonly
-
+      #
       module VBoxNetUtils
         # @return [Array] List of VirtualBox host-only networks
         def hostonlyifs

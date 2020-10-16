@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'simp/tests/matrix/unroller'
 require 'simp/packer/build/runner'
 require 'fileutils'

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'simp/packer/config/vagrantfile_writer'
 require 'simp/packer/config/vbox_net_utils'
 require 'simp/packer/config/simpjsonfile_writer'

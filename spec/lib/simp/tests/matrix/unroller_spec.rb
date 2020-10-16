@@ -1,18 +1,20 @@
+# frozen_string_literal: true
+
 require 'simp/tests/matrix/unroller'
 require 'spec_helper'
 
 describe Simp::Tests::Matrix::Unroller do
-  describe '#unroll' do
-    before :all do
-      class Foo
-        include Simp::Tests::Matrix::Unroller
-      end
-      @obj = Foo.new
+  subject(:obj) do
+    Class.new do
+      include Simp::Tests::Matrix::Unroller
     end
+    foo_class.new
+  end
 
+  describe '#unroll' do
     it 'unrolls x1 ordered matrix specifications' do
       matrix_specification = ['a=foo:bar:baz']
-      expect(@obj.unroll(matrix_specification)).to eq [
+      expect(obj.unroll(matrix_specification)).to eq [
         { a: 'foo' },
         { a: 'bar' },
         { a: 'baz' },
@@ -21,7 +23,7 @@ describe Simp::Tests::Matrix::Unroller do
 
     it 'unrolls x2 ordered matrix specifications' do
       matrix_specification = ['a=on:off', 'b=foo:bar:baz']
-      expect(@obj.unroll(matrix_specification)).to eq [
+      expect(obj.unroll(matrix_specification)).to eq [
         { a: 'on',  b: 'foo' },
         { a: 'off', b: 'foo' },
         { a: 'on',  b: 'bar' },
@@ -33,7 +35,7 @@ describe Simp::Tests::Matrix::Unroller do
 
     it 'unrolls x3 ordered matrix specifications' do
       matrix_specification = ['a=on:off', 'b=foo:bar:baz', 'c=x:y:z']
-      expect(@obj.unroll(matrix_specification)).to eq [
+      expect(obj.unroll(matrix_specification)).to eq [
         { a: 'on', b: 'foo', c: 'x' },
         { a: 'off', b: 'foo', c: 'x' },
         { a: 'on', b: 'bar', c: 'x' },

@@ -1,15 +1,18 @@
+# frozen_string_literal: true
+
+# rubocop:disable Style/MixinUsage
 require 'puppetlabs_spec_helper/module_spec_helper'
 require 'rspec-puppet'
 require 'simp/rspec-puppet-facts'
 include Simp::RspecPuppetFacts
+# rubocop:enable Style/MixinUsage
 
 require 'pathname'
 
 # RSpec Material
 fixture_path = File.expand_path(File.join(__FILE__, '..', 'fixtures'))
-module_name = File.basename(File.expand_path(File.join(__FILE__, '../..')))
 
-default_hiera_config = <<-EOM
+default_hiera_config = <<-HIERA
 ---
 :backends:
   - "rspec"
@@ -21,27 +24,27 @@ default_hiera_config = <<-EOM
   - "%{spec_title}"
   - "%{module_name}"
   - "default"
-EOM
+HIERA
 
 ['hieradata', 'modules'].each do |dir|
-  _dir = File.join(fixture_path, dir)
-  FileUtils.mkdir_p(_dir) unless File.directory?(_dir)
+  f_dir = File.join(fixture_path, dir)
+  FileUtils.mkdir_p(f_dir) unless File.directory?(f_dir)
 end
 
 def massage_os_facts(os_facts)
-  _facts = os_facts.merge({ networking: {
-                            'ip' => os_facts[:ipaddress],
-                            'fqdn' => os_facts[:fqdn],
-                            'domain' => os_facts[:domain],
-                            'primary' => 'ens3',
-                            'interfaces' => {
-                              'ens3' => {
-                                'ip' => os_facts[:ipaddress],
-                                'mac' => os_facts[:macaddress]
-                              }
-                            }
-                          } })
-  _facts
+  massaged_facts = os_facts.merge({ networking: {
+                                    'ip' => os_facts[:ipaddress],
+                                    'fqdn' => os_facts[:fqdn],
+                                    'domain' => os_facts[:domain],
+                                    'primary' => 'ens3',
+                                    'interfaces' => {
+                                      'ens3' => {
+                                        'ip' => os_facts[:ipaddress],
+                                        'mac' => os_facts[:macaddress]
+                                      }
+                                    }
+                                  } })
+  massaged_facts
 end
 
 RSpec.configure do |c|
@@ -70,14 +73,16 @@ RSpec.configure do |c|
     c.backtrace_clean_patterns = backtrace_exclusion_patterns
   end
 
+  # rubocop:disable RSpec/BeforeAfterAll
   c.before(:all) do
-    data = YAML.load(default_hiera_config)
+    data = YAML.safe_load(default_hiera_config)
     data[:yaml][:datadir] = File.join(fixture_path, 'hieradata')
 
     File.open(c.hiera_config, 'w') do |f|
       f.write data.to_yaml
     end
   end
+  # rubocop:enable RSpec/BeforeAfterAll
 
   c.before(:each) do
     @spec_global_env_temp = Dir.mktmpdir('simpspec')

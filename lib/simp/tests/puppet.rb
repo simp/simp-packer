@@ -1,5 +1,8 @@
+# frozen_string_literal: true
+
 module Simp
   module Tests
+    # Puppet testing helpers
     module Puppet
       # Pass through environment variables that users/CI should be able to influence
       def filtered_env_vars

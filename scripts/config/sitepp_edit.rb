@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
-#
+# frozen_string_literal: true
+
 require 'fileutils'
 environment = ENV['SIMP_PACKER_environment'] || 'production'
 sitepp_file = "/etc/puppetlabs/code/environments/#{environment}/manifests/site.pp"

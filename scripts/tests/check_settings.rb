@@ -1,8 +1,11 @@
 #! /usr/bin/env ruby
+# frozen_string_literal: true
+
 require 'yaml'
 
 class SettingsError < StandardError; end
 
+# Check that fips, selinux, puppet are set up
 class CheckSettings
   def initialize(never_fail)
     # when true, checking stops at the first failed

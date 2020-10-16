@@ -1,4 +1,6 @@
 #! /usr/bin/env ruby
+# frozen_string_literal: true
+
 # Test to see if expect partitions exist, fail if they don't
 EXPECTED_PARTITIONS = ['/var', '/var/log', '/var/log/audit', '/'].sort
 puts `df -h | grep -v tmpfs`
