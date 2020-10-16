@@ -5,7 +5,6 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-
 ## [Unreleased]
 
 ### Added
@@ -33,6 +32,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Enabled FIPS mode in the `fips7` sample's `simp_conf.yaml`
+- Local site module is now appended to the environment's
+  Puppetfile so that the module persists when r10k is used to
+  deploy the modules in upgrade tests.
+- Removed extraneous call to puppet-usersetup.sh from simp-bootstrap.sh.
+  This script was called already called between `simp config` and
+  `simp bootstrap`.
 
 ## [2.4.0] - 2019-07-05
 
