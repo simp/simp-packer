@@ -1,4 +1,5 @@
 #!/bin/sh
+
 #  Because this script is used before the reboot the path is not
 #  set for simp user so I add this to the end
 #  incase it is Puppet 4.0
@@ -39,4 +40,6 @@ EOF
 chown root:puppet "${hieradata_dir}/default.yaml"
 chmod g+rX "${hieradata_dir}/default.yaml"
 
-#puppet apply -e "include site::vagrant" --environment=$env
+# Need to add to Puppetfile in the environment as a local module
+# or it will be removed when upgrading and r10K is called.
+echo "mod 'site', :local => true" >> "${pupenvdir}/${env}/Puppetfile"
