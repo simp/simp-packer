@@ -14,7 +14,9 @@ module Simp
       end
 
       def run_rake_tasks(cmds)
-        Bundler.with_clean_env do
+        #  Bundler 2.1+ = :with_unbundled_env, old Bundler = :with_clean_env
+        clean_env_method = Bundler.respond_to?(:with_unbundled_env) ? :with_unbundled_env : :with_clean_env
+        ::Bundler.send(clean_env_method) do
           cmds.each do |cmd|
             line = cmd.to_s
             puts "\n\n==== EXECUTING: #{line}\n"
