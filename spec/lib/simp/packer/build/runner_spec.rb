@@ -57,10 +57,12 @@ describe Simp::Packer::Build::Runner do
     end
   end
 
+  # rubocop:disable RSpec/AnyInstance
   describe '#run' do
     before(:each) do
       hostonlyifs = File.read('spec/lib/simp/packer/config/files/vboxmanage-list-hostonlyifs.txt')
-      allow(Kernel).to receive(:`).with('VBoxManage list hostonlyifs').and_return hostonlyifs
+
+      allow_any_instance_of(Kernel).to receive(:`).with('VBoxManage list hostonlyifs').and_return hostonlyifs
     end
 
     context 'with an existing hostonly network' do
@@ -69,18 +71,18 @@ describe Simp::Packer::Build::Runner do
 
     context 'without an existing hostonly network' do
       before(:each) do
-        allow(Kernel).to receive(:`).with(
+        allow_any_instance_of(Kernel).to receive(:`).with(
           'VBoxManage list hostonlyifs',
         ).and_return('')
 
-        allow(Kernel).to receive(:`).with(
+        allow_any_instance_of(Kernel).to receive(:`).with(
           'VBoxManage hostonlyif create',
         ).and_return("Interface 'vboxnet5' was successfully created")
       end
 
       context 'when able to configure the network' do
         before(:each) do
-          allow(Kernel).to receive(:system).with(
+          allow_any_instance_of(Kernel).to receive(:system).with(
             'VBoxManage hostonlyif ipconfig vboxnet5 --ip 192.168.101.1 --netmask 255.255.255.0',
           ).and_return(true)
         end
@@ -102,5 +104,6 @@ describe Simp::Packer::Build::Runner do
       end
     end
   end
+  # rubocop:enable RSpec/AnyInstance
 end
 # rubocop:enable RSpec/InstanceVariable, RSpec/BeforeAfterAll
