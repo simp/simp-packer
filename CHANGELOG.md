@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refined regex used to check for puppetserver and puppetdb service status to
   support both Puppet 5 and Puppet 6.
 - JSON comments work with Packer 1.5+
-- Gemfile gems match SIMP 6.5.0 Puppet modules.
+- Project and Module Gemfile gems match SIMP 6.5.0 Puppet modules.
   - Mitigated CVE-2020-10663 by updating `json` to >= 2.3
 - `.travis.yml` updated to use env var secrets + diagnostic pipelines
 
@@ -43,8 +43,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed extraneous call to puppet-usersetup.sh from simp-bootstrap.sh.
   This script was called already called between `simp config` and
   `simp bootstrap`.
-- Fixed `YAML.safe_load` Symbol errors in Puppet modules' spec_helper.rb files.
-- Fixed a LOT of rubcop warnings that were enabled by the updated Gemfile.
+- Fixed `YAML.safe_load` Symbol errors in pupmod' `spec_helper.rb` files.
+- A LOT of rubcop warnings that were enabled by the updated Gemfile.
+- puppet-lint warnings in site module
 
 ## [2.4.0] - 2019-07-05
 
