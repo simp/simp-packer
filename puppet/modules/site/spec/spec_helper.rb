@@ -75,7 +75,7 @@ RSpec.configure do |c|
 
   # rubocop:disable RSpec/BeforeAfterAll
   c.before(:all) do
-    data = YAML.safe_load(default_hiera_config)
+    data = YAML.safe_load(default_hiera_config, [Symbol])
     data[:yaml][:datadir] = File.join(fixture_path, 'hieradata')
 
     File.open(c.hiera_config, 'w') do |f|

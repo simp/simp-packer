@@ -21,14 +21,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refined regex used to check for puppetserver and puppetdb service status to
   support both Puppet 5 and Puppet 6.
 - Update JSON comments to work with Packer 1.5+
+- Update Gemfile gems to match SIMP 6.5.0 Puppet modules.
+  - Mitigates CVE-2020-10663 by updating `json` to >= 2.3
+  - This updated rubocop, which has substantially different cops & rules
 
 ### Removed
-- Dropped support for all SIMP releases older than 6.5.0
+- Dropped support for all SIMP releases older than 6.5.0.
   - Removed data -> hieradata cruft (for SIMP < 6.3.0
   - The named.conf rndc-key -> rndckey change is incompatible with
     SIMP 6.4.0 and earlier
   - Use an earlier version of simp-packer if you need to build SIMP
     <= 6.4.0.
+- Puppet tests support clean env runs under both Bundler 2.1+ and older
+  versions.
 
 ### Fixed
 - Enabled FIPS mode in the `fips7` sample's `simp_conf.yaml`
@@ -38,6 +43,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed extraneous call to puppet-usersetup.sh from simp-bootstrap.sh.
   This script was called already called between `simp config` and
   `simp bootstrap`.
+- Fixed `YAML.safe_load` Symbol errors in Puppet modules' spec_helper.rb files.
+- Fixed a LOT of rubcop warnings that were enabled by the updated Gemfile.
 
 ## [2.4.0] - 2019-07-05
 
