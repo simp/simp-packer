@@ -11,19 +11,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for SIMP 6.5.0 Alpha
 
 ### Changed
-- Use 'simp::classes' in lieu of 'classes' in hieradata.
-- Use 'rndc-key' in lieu of 'rndckey' in named.conf to match the generated
+- Use `simp::classes` in lieu of `classes` in hieradata.
+- Use `rndc-key` in lieu of `rndckey` in named.conf to match the generated
   key name. (In SIMP 6.5.0 we no longer deliver the sample rndc.key file,
-  whose key name is 'rndckey'.)
+  whose key name is `rndckey`.)
 - Examples explicitly target SIMP 6.5.0 (instead of "6.X")
-- 'site' module dependency version ranges now accomodate SIMP 6.5.0
+- 'site' module dependency version ranges now accommodate SIMP 6.5.0
 - Converted CHANGELOG into format documented at https://keepachangelog.com/
 - Refined regex used to check for puppetserver and puppetdb service status to
   support both Puppet 5 and Puppet 6.
-- Update JSON comments to work with Packer 1.5+
-- Update Gemfile gems to match SIMP 6.5.0 Puppet modules.
-  - Mitigates CVE-2020-10663 by updating `json` to >= 2.3
-  - This updated rubocop, which has substantially different cops & rules
+- JSON comments work with Packer 1.5+
+- Gemfile gems match SIMP 6.5.0 Puppet modules.
+  - Mitigated CVE-2020-10663 by updating `json` to >= 2.3
+- `.travis.yml` updated to use env var secrets + diagnostic pipelines
 
 ### Removed
 - Dropped support for all SIMP releases older than 6.5.0.
