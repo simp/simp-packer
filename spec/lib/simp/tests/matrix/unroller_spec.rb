@@ -5,7 +5,7 @@ require 'spec_helper'
 
 describe Simp::Tests::Matrix::Unroller do
   subject(:obj) do
-    Class.new do
+    foo_class = Class.new do
       include Simp::Tests::Matrix::Unroller
     end
     foo_class.new
