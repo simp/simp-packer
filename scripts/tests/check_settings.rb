@@ -1,8 +1,11 @@
 #! /usr/bin/env ruby
+# frozen_string_literal: true
+
 require 'yaml'
 
 class SettingsError < StandardError; end
 
+# Check that fips, selinux, puppet are set up
 class CheckSettings
   def initialize(never_fail)
     # when true, checking stops at the first failed
@@ -46,7 +49,7 @@ class CheckSettings
     # instead of the default of 8150.
     # TODO read configured value from the hieradata
     expected = 8140
-    actual = %x(puppet config print masterport).to_i
+    actual = `puppet config print masterport`.to_i
 
     if actual == expected
       puts "The puppet masterport setting matches the configured value '#{expected}'."
@@ -57,7 +60,7 @@ class CheckSettings
 
     # For the test configuration, the puppet master is also the CA server.
     expected = @expected_conf['simp_options::puppet::ca_port']
-    actual = %x(puppet config print ca_port).to_i
+    actual = `puppet config print ca_port`.to_i
 
     if actual == expected
       puts "The puppet ca_port setting matches the configured value '#{expected}'."
@@ -81,7 +84,7 @@ class CheckSettings
     # should be 'Enforcing'.
     # TODO read configured value from the hieradata
     expected = 'Enforcing'
-    actual = %x(/usr/sbin/getenforce).strip
+    actual = `/usr/sbin/getenforce`.strip
     if actual == expected
       puts "The system selinux setting agrees with the configured value '#{expected}'."
     else
@@ -95,7 +98,7 @@ class CheckSettings
   # are the 'ensure' values returned by
   #   puppet resource service <service name>
   def check_service_status(service, expected_status = 'running')
-    result = %x(puppet resource service #{service})
+    result = `puppet resource service #{service}`
     match = result.match(%r{ensure\s+=> '(stopped|running)',})
     if match
       if match[1] == expected_status

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :simp do
   namespace :packer do
     desc <<-DESC.gsub(%r{^    }, '')
@@ -28,6 +30,7 @@ namespace :simp do
         msg << "\n"
 
         raise  msg.join("\n") unless args.vars_json
+
         args.with_defaults(vars_json: ENV['SIMP_PACKER_vars_json_file'])
       end
       args.with_defaults(packer_yaml: ENV['SIMP_PACKER_packer_yaml_file'] || \
@@ -40,7 +43,7 @@ namespace :simp do
       packer_build_runner.prep(
         args.vars_json,
         args.simp_conf_yaml,
-        args.packer_yaml
+        args.packer_yaml,
       )
       packer_build_runner.run
     end

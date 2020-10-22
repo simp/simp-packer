@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'fileutils'
 require 'json'
 
@@ -40,6 +42,7 @@ module Simp
         include FileUtils
 
         attr_accessor :verbose
+
         def initialize(base_dir)
           @base_dir = base_dir
           @verbose  = ((ENV['SIMP_PACKER_verbose'] || 'no') == 'yes')
@@ -119,7 +122,7 @@ module Simp
           when :move
             migrate = ->(src, dst, verbose = true) { FileUtils.mv src, dst, verbose: verbose }
           when :hardlink
-            migrate = lambda do |src, dst, verbose = true|
+            migrate = ->(src, dst, verbose = true) do
               FileUtils.ln src, dst, verbose: verbose, force: (ENV['SIMP_PACKER_publish_force'] == 'yes')
             end
           else

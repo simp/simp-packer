@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Simp
   module Packer
     module Config
@@ -5,11 +7,11 @@ module Simp
       #   and creating VirtualBox [hostonlyif networks][hostonlyif-nets].
       #
       #   [hostonlyif-nets]: https://www.virtualbox.org/manual/ch06.html#network_hostonly
-
+      #
       module VBoxNetUtils
         # @return [Array] List of VirtualBox host-only networks
         def hostonlyifs
-          %x(VBoxManage list hostonlyifs).split("\n\n")
+          `VBoxManage list hostonlyifs`.split("\n\n")
         end
 
         # Returns the name of the vboxnet for network, creating it if it
@@ -47,13 +49,15 @@ module Simp
         def create_hostonlyif_for(network)
           puts "creating new Virtualbox hostonly network for #{network}" if @verbose
 
-          cmd_output = %x(VBoxManage hostonlyif create)
+          cmd_output = `VBoxManage hostonlyif create`
           unless cmd_output.include? 'was successfully created'
             raise "ERROR: Creation of network unsuccesful: #{cmd_output}"
           end
+
           vboxnet = cmd_output.split("'")[1]
           ipconfig_cmd = "VBoxManage hostonlyif ipconfig #{vboxnet} --ip #{network} --netmask 255.255.255.0"
           return vboxnet if system(ipconfig_cmd)
+
           raise "ERROR: Failure to configure: #{ipconfig_cmd}"
         end
       end

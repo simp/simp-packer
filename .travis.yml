@@ -8,6 +8,40 @@
 #
 # *** = Modules created for SIMP 6.2+ are not required to support Puppet < 4.10
 # ### = Modules created for SIMP 6.3+ are not required to support Puppet < 5.3
+# ==============================================================================
+#
+# Travis CI Repo options for this pipeline:
+#
+#   Travis CI Env Var      Type      Notes
+#   ---------------------  --------  -------------------------------------------
+#   GITHUB_OAUTH_TOKEN     Secure    Required for automated GitHub releases
+#   SKIP_GITHUB_PUBLISH    Optional  Skips publishing GitHub releases if "true"
+#
+#   The secure env vars will be filtered in Travis CI log output, and aren't
+#   provided to untrusted builds (i.e, triggered by PR from another repository)
+#
+# ------------------------------------------------------------------------------
+#
+# Travis CI Trigger options for this pipeline:
+#
+#   To validate if $GITHUB_OAUTH_TOKEN is able to publish a GitHub release,
+#   trigger a custom Travis CI build for this branch using the CUSTOM CONFIG:
+#
+#     env: VALIDATE_TOKENS=yes
+#
+# ------------------------------------------------------------------------------
+#
+# Release Engineering notes:
+#
+#   To automagically publish a release to GitHub and PuppetForge:
+#
+#   - Set GITHUB_OAUTH_TOKEN as a secure env variable in this repo's Travis CI
+#     settings
+#   - Push a git tag that matches the lates version in CHANGELOG.md
+#   - The tag SHOULD be annotated with release notes, but nothing enforces this
+#     convention at present
+#
+# ------------------------------------------------------------------------------
 ---
 language: ruby
 cache: bundler
@@ -17,10 +51,14 @@ notifications:
   email: false
 
 stages:
-  - validation
-  - 'Spec tests'
+  - name: 'validate tokens'
+    if: 'env(VALIDATE_TOKENS) = yes'
+  - name: validation
+    if: 'NOT env(VALIDATE_TOKENS) = yes'
+  - name: 'Spec tests'
+    if: 'NOT env(VALIDATE_TOKENS) = yes'
   - name: deploy
-    if: 'tag IS present'
+    if: 'tag IS present AND NOT env(VALIDATE_TOKENS) = yes'
 
 before_install:
   - rm -f Gemfile.lock
@@ -51,13 +89,13 @@ jobs:
       script: bundle exec rake packer:validate
 
     - stage: 'Spec tests'
-      rvm:    2.4.4
-      name:  'Ruby unit tests (Ruby 2.4.4)'
+      rvm:    2.4.9
+      name:  'Ruby unit tests (Ruby 2.4.9)'
       script: bundle exec rake spec
 
     - stage:  'Spec tests'
       name:   'Puppet 5.5 (SIMP 6.3+)'
-      rvm:    2.4.4
+      rvm:    2.4.9
       env:
         - 'PUPPET_VERSION="~> 5.5.6"'
       script: bundle exec rake test:puppet
@@ -70,8 +108,15 @@ jobs:
       script: bundle exec rake test:puppet
 
     - stage:  'Spec tests'
+      name: 'Puppet 6.18 (PE 2019.2)'
+      rvm: 2.5.7
+      env: PUPPET_VERSION="~> 6.18.0"
+      script:
+        - bundle exec rake spec
+
+    - stage:  'Spec tests'
       name:   'Latest Puppet 6.x (allowed to fail)'
-      rvm:    2.5.1
+      rvm:    2.5.7
       env:
         - 'PUPPET_VERSION="~> 6.0"'
       script: bundle exec rake test:puppet
@@ -81,9 +126,19 @@ jobs:
         - true
       deploy:
         - provider: releases
+          token: $GITHUB_OAUTH_TOKEN
           on:
             tags: true
-            condition: '($SKIP_FORGE_PUBLISH != true)'
-          skip_cleanup: true
-          api_key:
-            secure: "pjgpw5TbhG8JNEH8CEY06dUrBUtmi3D4uKS9PXrF03ejFG2TStY9qPC7hEUiEJVVSXhWdkSeVXn+/6vlDcKWKybVcI7sfzWGosXchlROxKwUSCWW4OUXqIYix+ek8rGLfSsojrX6ZiUcecq4a/cnbBZ3Ni+RUnkv5kSFFsT2u5L4xIBmSWxaTTTTlLc6Stk2NXDsF7ygMkIf9bbL9U10boa6g3EyYoPoNlSARfdDLBLQFMs9k2mfBax9b6XWSXi8gtGItyd9BbHT/4Z1KXa63pN7V+pOM5hG4ulJdwNWM73ChhuVYZxXbtsKQYAZxtf1P55DnjOf0VdArFf3LCO25s7/CtuMs7HrdgTgbqr7aNV+OZcD/YyWz7Oy+AcbUOfHRo/mT93qxoEsO9v7AbJKqTs1xM2cM10JI2CP19414VfxaMPxWITEIx6WVaLiLCfhQQJIPb7UvGgNxT2+MTDlW5a+Ly0C+rYvcpVikN5H4dQ/Kmrp7g/uBu2kRrR1IXZRtd3EgD7YTkvobgCxcTZ7qmYnO73BokLDmnpM6nZRVSeLKLGLA9dnPlqBiZogK750TNWTciua/LLmLi4HcWE52dPs6pH2SAXeJrzOgbqQNPDR/AUca4ZQqQ5/MFC6Xyy1QxrmTQLAlNXC3cck6D2lt6aTpi7u6oqYNladX6jH8rU="
+            condition: '($SKIP_GITHUB_PUBLISH != true)'
+
+    - stage: 'validate tokens'
+      language: shell
+      before_install: skip
+      install: skip
+      name:  'validate CI GitHub OAuth token has sufficient scope to release'
+      script:
+      - 'echo; echo "===== GITHUB_OAUTH_TOKEN validation";echo "  (TRAVIS_SECURE_ENV_VARS=$TRAVIS_SECURE_ENV_VARS)"; echo'
+      - 'OWNER="$(echo $TRAVIS_REPO_SLUG | cut -d/ -f1)"'
+      - 'curl -H "Authorization: token ${GITHUB_OAUTH_TOKEN}"
+          "https://api.github.com/users/$OWNER"
+          -I | grep ^X-OAuth-Scopes | egrep -w "repo|public_repo"'

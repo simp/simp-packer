@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'simp/tests/matrix/unroller'
 require 'simp/packer/build/runner'
 require 'fileutils'
@@ -19,12 +21,12 @@ module Simp
           matrix_json_files = matrix.select { |x| x =~ %r{^json=} }.map { |x| parse_glob_list(x.sub(%r{^json=}, '')) }.flatten
           json_str          = "json=#{(env_json_files + matrix_json_files).uniq.join(':')}"
           full_matrix       = [json_str] + matrix.delete_if { |x| x =~ %r{^json=} }
-          @iterations          = simp_json_iteration_filter(unroll(full_matrix))
+          @iterations = simp_json_iteration_filter(unroll(full_matrix))
 
-          files_dir            = ENV['SAMPLE_DIR'] || File.join(
+          files_dir = ENV['SAMPLE_DIR'] || File.join(
             File.dirname(File.dirname(__FILE__)), 'files'
           )
-          @packer_configs_dir  = ENV['SIMP_PACKER_CONFIGS_DIR'] || File.join(files_dir, 'configs')
+          @packer_configs_dir = ENV['SIMP_PACKER_CONFIGS_DIR'] || File.join(files_dir, 'configs')
 
           @vagrant_box_dir     = ENV['VAGRANT_BOX_DIR'] || "/opt/#{ENV['USER']}/vagrant"
           @tmp_dir             = ENV['TMP_DIR'] || File.join(Dir.pwd, 'tmp')
@@ -119,8 +121,8 @@ module Simp
             File.open(log, 'a') { |f| f.puts iterator_header_msg }
             packer_build_runner.run(
               log_file: log,
-              tmp_dir:  @tmp_dir,
-              extra_packer_args: ENV['SIMP_PACKER_extra_args'] || '--on-error=ask'
+              tmp_dir: @tmp_dir,
+              extra_packer_args: ENV['SIMP_PACKER_extra_args'] || '--on-error=ask',
             )
             next if ENV.fetch('SIMP_PACKER_dry_run', 'no') == 'yes'
 
@@ -165,6 +167,7 @@ module Simp
           json_data = actual_json_files(unrolled_matrix.map { |c| c[:json] }.uniq)
           unrolled_matrix.select do |i|
             next unless json_data.key?(i[:json])
+
             el = i[:os].sub(%r{^el}, '')
             puts "el = '#{el}'"
             iso_name = File.basename(json_data[i[:json]]['iso_url'])

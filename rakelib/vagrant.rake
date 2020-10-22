@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'simp/packer/vars_json_to_vagrant_box_json'
 require 'simp/packer/publish/local_dir_tree'
 
@@ -32,6 +34,7 @@ namespace :vagrant do
     task :list, [:tree_dir] do |_t, args|
       args.with_defaults(tree_dir: ENV['VAGRANT_BOX_DIR'] || '')
       raise "ERROR: :tree_dir '#{args.tree_dir}' not found.  (ENV: VAGRANT_BOX_DIR)" unless File.exist?(args.tree_dir)
+
       dir_tree = Simp::Packer::Publish::LocalDirTree.new(args.tree_dir)
       puts dir_tree.list_str
     end
@@ -51,15 +54,16 @@ namespace :vagrant do
     MSG
     task :publish, [:tree_dir, :simp_iso_json_file, :box_path, :copy] do |_t, args|
       args.with_defaults(:copy => 'hardlink')
-      copy_words = %w[hardlink move copy]
+      copy_words = ['hardlink', 'move', 'copy']
       unless copy_words.include?(args.copy.to_s)
         raise "\nERROR: :copy was '#{args.copy}'; must be one of: '#{copy_words.join("', '")}'\n\n"
       end
+
       Simp::Packer::Publish::LocalDirTree.publish(
         args.simp_iso_json_file,
         args.box_path,
         args.tree_dir,
-        args.copy.to_sym
+        args.copy.to_sym,
       )
     end
   end

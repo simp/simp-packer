@@ -11,19 +11,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for SIMP 6.5.0 Alpha
 
 ### Changed
-- Use 'simp::classes' in lieu of 'classes' in hieradata.
-- Use 'rndc-key' in lieu of 'rndckey' in named.conf to match the generated
+- Use `simp::classes` in lieu of `classes` in hieradata.
+- Use `rndc-key` in lieu of `rndckey` in named.conf to match the generated
   key name. (In SIMP 6.5.0 we no longer deliver the sample rndc.key file,
-  whose key name is 'rndckey'.)
+  whose key name is `rndckey`.)
 - Examples explicitly target SIMP 6.5.0 (instead of "6.X")
-- 'site' module dependency version ranges now accomodate SIMP 6.5.0
+- 'site' module dependency version ranges now accommodate SIMP 6.5.0
 - Converted CHANGELOG into format documented at https://keepachangelog.com/
 - Refined regex used to check for puppetserver and puppetdb service status to
   support both Puppet 5 and Puppet 6.
-- Update JSON comments to work with Packer 1.5+
-
+- JSON comments work with Packer 1.5+
+- Project and Module Gemfile gems match SIMP 6.5.0 Puppet modules.
+  - Mitigated CVE-2020-10663 by updating `json` to >= 2.3
+- `.travis.yml` updated to use env var secrets + diagnostic pipelines
+- Puppet tests support clean env runs under both Bundler 2.1+ and older
+  versions.
+  
 ### Removed
-- Dropped support for all SIMP releases older than 6.5.0
+- Dropped support for all SIMP releases older than 6.5.0.
   - Removed data -> hieradata cruft (for SIMP < 6.3.0
   - The named.conf rndc-key -> rndckey change is incompatible with
     SIMP 6.4.0 and earlier
@@ -38,6 +43,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed extraneous call to puppet-usersetup.sh from simp-bootstrap.sh.
   This script was called already called between `simp config` and
   `simp bootstrap`.
+- Fixed `YAML.safe_load` Symbol errors in pupmod' `spec_helper.rb` files.
+- A LOT of rubcop warnings that were enabled by the updated Gemfile.
+- puppet-lint warnings in site module
 
 ## [2.4.0] - 2019-07-05
 

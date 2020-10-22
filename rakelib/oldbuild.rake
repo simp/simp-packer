@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :simp do
   namespace :packer do
     desc <<-DESC.gsub(%r{^    }, '')
@@ -17,6 +19,7 @@ namespace :simp do
         msg << "\n"
 
         raise  msg.join("\n") unless args.test_dir
+
         args.with_defaults(test_dir: ENV['SIMP_PACKER_test_dir'])
       end
       packer_build_runner = Simp::Packer::Build::Runner.new(args.test_dir)

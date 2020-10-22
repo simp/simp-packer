@@ -1,5 +1,8 @@
+# frozen_string_literal: true
+
 module Simp
   module Tests
+    # Puppet testing helpers
     module Puppet
       # Pass through environment variables that users/CI should be able to influence
       def filtered_env_vars
@@ -11,7 +14,9 @@ module Simp
       end
 
       def run_rake_tasks(cmds)
-        Bundler.with_clean_env do
+        #  Bundler 2.1+ = :with_unbundled_env, old Bundler = :with_clean_env
+        clean_env_method = Bundler.respond_to?(:with_unbundled_env) ? :with_unbundled_env : :with_clean_env
+        ::Bundler.send(clean_env_method) do
           cmds.each do |cmd|
             line = cmd.to_s
             puts "\n\n==== EXECUTING: #{line}\n"
@@ -34,7 +39,7 @@ module Simp
           'bundle exec rake validate',
           'bundle exec rake lint',
           'bundle exec rake metadata_lint',
-          'bundle exec rake test'
+          'bundle exec rake test',
         ]
       end
     end
