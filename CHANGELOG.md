@@ -24,7 +24,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Project and Module Gemfile gems match SIMP 6.5.0 Puppet modules.
   - Mitigated CVE-2020-10663 by updating `json` to >= 2.3
 - `.travis.yml` updated to use env var secrets + diagnostic pipelines
-
+- Puppet tests support clean env runs under both Bundler 2.1+ and older
+  versions.
+  
 ### Removed
 - Dropped support for all SIMP releases older than 6.5.0.
   - Removed data -> hieradata cruft (for SIMP < 6.3.0
@@ -32,8 +34,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     SIMP 6.4.0 and earlier
   - Use an earlier version of simp-packer if you need to build SIMP
     <= 6.4.0.
-- Puppet tests support clean env runs under both Bundler 2.1+ and older
-  versions.
 
 ### Fixed
 - Enabled FIPS mode in the `fips7` sample's `simp_conf.yaml`
