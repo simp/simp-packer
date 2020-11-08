@@ -34,15 +34,16 @@ module Simp
 
         attr_accessor :verbose
 
-        # @param [String] test_dir    Directory where the test files exist
-        # @param [String] base_dir    The simp-packer directory
+        # @param [String] test_dir  Directory where the test files exist
+        # @param [String] base_dir  The simp-packer directory
+        # @param [Boolean] verbose  be verbose?
         def initialize(
           test_dir = nil,
           base_dir = File.expand_path("#{__dir__}/../../../.."),
           verbose  = true
         )
-          @base_dir    = base_dir
           @test_dir    = test_dir || File.expand_path(Dir.pwd, 'simp-packer')
+          @base_dir    = base_dir
           @verbose     = verbose
         end
 
@@ -91,6 +92,7 @@ module Simp
           opts[:extra_packer_args] ||= ENV['SIMP_PACKER_extra_args'] || ''
 
           fail_without_prereqs(opts[:packer_yaml], opts[:simp_conf_yaml], opts[:vars_json])
+
           # scaffold working directory
           rm_rf(working_dir, verbose: @verbose) if File.exist?(working_dir)
           mkdir_p working_dir, verbose: @verbose
