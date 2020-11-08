@@ -33,17 +33,17 @@ end
 
 def massage_os_facts(os_facts)
   massaged_facts = os_facts.merge({ networking: {
-                                    'ip' => os_facts[:ipaddress],
-                                    'fqdn' => os_facts[:fqdn],
-                                    'domain' => os_facts[:domain],
-                                    'primary' => 'ens3',
-                                    'interfaces' => {
-                                      'ens3' => {
-                                        'ip' => os_facts[:ipaddress],
-                                        'mac' => os_facts[:macaddress]
-                                      }
-                                    }
-                                  } })
+    'ip'         => os_facts[:ipaddress],
+    'fqdn'       => os_facts[:fqdn],
+    'domain'     => os_facts[:domain],
+    'primary'    => 'ens3',
+    'interfaces' => {
+      'ens3' => {
+        'ip'  => os_facts[:ipaddress],
+        'mac' => os_facts[:macaddress]
+      }
+    }
+  } })
   massaged_facts
 end
 
