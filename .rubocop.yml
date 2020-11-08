@@ -173,4 +173,7 @@ Style/SymbolProc:
   Enabled: false
 RailsI18n/DecorateString:
   Enabled: false
-
+Layout/FirstHashElementIndentation:
+  EnforcedStyle: consistent
+Layout/HashAlignment:
+  EnforcedHashRocketStyle: table
