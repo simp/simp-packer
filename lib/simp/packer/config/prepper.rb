@@ -206,10 +206,6 @@ module Simp
           end
         end
 
-        def infer_os_from_name(name)
-          name.match(%r{(?<os>CentOS)-(?<el>\d+)})
-        end
-
         # Generate files
         #   - <workingdir>/simp.json
         #   - <workingdir>/simp_conf.yaml
@@ -218,7 +214,7 @@ module Simp
           vars_data = generate_vars_json(settings)
           # need to know the os_ver if firmware is efi
           # might want to put this in vars.json so we don't have to guess
-          settings['os_ver'] = infer_os_from_name(File.basename(vars_data['iso_url']))[:el]
+          settings['os_ver'] = vars_data['dist_os_maj_version']
           generate_simp_json(settings, 'simp.json.erb', @basedir, "#{@workingdir}/simp.json")
           generate_vagrantfiles(vars_data, simpconfig_data, settings['output_directory'])
         end

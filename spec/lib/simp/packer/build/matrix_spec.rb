@@ -1,0 +1,115 @@
+# frozen_string_literal: true
+
+require 'simp/packer/build/matrix'
+require 'spec_helper'
+require 'tmpdir'
+require 'tempfile'
+require 'digest/sha2'
+
+require 'simp/packer/publish/local_dir_tree'
+
+# rubocop:disable RSpec/InstanceVariable, RSpec/BeforeAfterAll
+describe Simp::Packer::Build::Matrix do
+  before(:all) { @tmpdir = Dir.mktmpdir('spec_simp-packer-build-matrix') }
+  after(:all) { FileUtils.rm_rf @tmpdir }
+
+  let(:iso_rels) { ['el6', 'el7', 'el8'] }
+  let(:iso_files) do
+    iso_files = {}
+    iso_rels.each do |rel|
+      iso = Tempfile.new("fake-#{rel}-iso-", @tmpdir)
+      iso.write("Fake #{rel} ISO")
+      iso_files[rel] = iso
+    end
+    iso_files
+  end
+
+  before(:each) do
+    iso_files.map do |rel,iso_file|
+      json_file = File.join( @tmpdir, "fake-simp-iso-#{rel}.json" )
+      File.open(json_file, 'w') do |f|
+        f.puts JSON.pretty_generate( {
+          'simp_vars_version' => '1.0.0',
+          "iso_url" => "file://#{iso_file.path}",
+          "iso_checksum" => Digest::SHA256.hexdigest( iso_file.path ),
+          "iso_checksum_type": "sha256",
+          "new_password": "L0oSrP@ssw0r!L0oSrP@ssw0r!L0oSrP@ssw0r!",
+          "dist_os_flavor" => "CentOS",
+          "dist_os_version" => "FIXME: NOT_SET_YET_IN_MATRIX_SPEC",
+          "dist_os_maj_version" => rel.match(/\d+/).to_a.first,
+        })
+      end
+    end
+  end
+
+  let(:iso_json_files) do
+    iso_files.map do |rel,iso_file|
+      json_file = File.join( @tmpdir, "fake-simp-iso-#{rel}.json" )
+      [rel, json_file]
+    end.to_h
+  end
+
+  let(:iso_json_file_glob) { File.join( @tmpdir, "fake-simp-iso-el?.json*" ) }
+
+  let(:matrix_opts) do
+    {
+      'fips' => ['on','off'],
+      'os'   => ['el6', 'el7','el8'],
+    }
+  end
+
+  let(:matrix_args) do
+    matrix_opts.map{ |k,v| "#{k}=#{v.join(':')}" }
+  end
+
+
+  context 'with os=el6:el7,fips=on:off' do
+    let(:matrix_opts) do
+      {
+        'fips'       => ['on','off'],
+        'os'         => ['el6', 'el7'],
+      }
+    end
+
+    let(:expected_matrix) do
+      matrix_opts.inject([{}]) do |matrix_hashes,kv|
+        v_hashes = kv.last.inject([]){ |hashes,v| hashes << { (kv.first).to_sym => v } }
+        matrix_hashes.map { |m_hash| v_hashes.map{|v_hash| m_hash.merge(v_hash) }}.flatten(1)
+      end.map{|h| {json: iso_json_files[h[:os]]}.merge(h) }
+    end
+
+    subject(:subject ){ described_class.new(matrix_args, constructor_opts)}
+
+    context 'and providing json file glob via opts' do
+      let(:constructor_opts){{simp_iso_json_files: iso_json_file_glob}}
+
+      describe '#initialize' do
+        it 'intializes with correct matrix' do
+          expect(subject.instance_variable_get('@iterations')).to match_array expected_matrix
+        end
+      end
+
+      describe '#run' do
+        it 'iterates the correct number of times' do
+          n = expected_matrix.size
+          expect(Simp::Packer::Build::Runner).to receive(:new).exactly(n).times.and_return(double(:run => true))
+          expect(Simp::Packer::Publish::LocalDirTree).to receive(:publish).exactly(n).times
+          subject.run
+        end
+      end
+    end
+
+    context 'and providing json file list via matrix arg' do
+      let(:constructor_opts){{}}
+      let(:matrix_args) { super() << "json=#{iso_json_files.values.join(':')}" }
+
+      describe '#initialize' do
+        it 'intializes with correct matrix' do
+          expect(subject.instance_variable_get('@iterations')).to match_array expected_matrix
+        end
+      end
+    end
+
+  end
+end
+# rubocop:enable RSpec/InstanceVariable, RSpec/BeforeAfterAll
