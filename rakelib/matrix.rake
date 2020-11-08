@@ -5,7 +5,7 @@ require 'rake'
 
 namespace :simp do
   namespace :packer do
-    def matrix_fail_msg(t)
+    def matrix_fail_msg(task)
       <<~FAIL
 
       --------------------------------------------------------------------------------
@@ -14,9 +14,9 @@ namespace :simp do
 
       Usage:
 
-        rake #{t.name_with_args}[MATRIX]
+        rake #{task.name_with_args}[MATRIX]
 
-      #{t.full_comment.sub(%r{^#{t.comment}}, '').strip}
+      #{task.full_comment.sub(%r{^#{task.comment}}, '').strip}
 
       --------------------------------------------------------------------------------
 

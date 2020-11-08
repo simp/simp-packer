@@ -16,30 +16,29 @@ module Simp
         include FileUtils
 
         DEFAULT_OPTS = {
-          simp_iso_json_files:      ENV['SIMP_ISO_JSON_FILES'] || '',
-          simp_packer_configs_dir:  ENV['SIMP_PACKER_CONFIGS_DIR'] || File.expand_path('../files/configs',__dir__),
-          vagrant_box_dir:          ENV['VAGRANT_BOX_DIR'] || "/opt/#{ENV['USER']}/vagrant",
-          tmp_dir:                  ENV['TMP_DIR'] || File.join(Dir.pwd, 'tmp'),
-          dry_run:                  (ENV['SIMP_PACKER_dry_run'] || 'no') == 'yes',
-          extra_packer_args:        ENV['SIMP_PACKER_extra_args'] || nil,
-        }
+          simp_iso_json_files: ENV['SIMP_ISO_JSON_FILES'] || '',
+          simp_packer_configs_dir: ENV['SIMP_PACKER_CONFIGS_DIR'] || File.expand_path('../files/configs', __dir__),
+          vagrant_box_dir: ENV['VAGRANT_BOX_DIR'] || "/opt/#{ENV['USER']}/vagrant",
+          tmp_dir: ENV['TMP_DIR'] || File.join(Dir.pwd, 'tmp'),
+          dry_run: (ENV['SIMP_PACKER_dry_run'] || 'no') == 'yes',
+          extra_packer_args: ENV['SIMP_PACKER_extra_args'] || nil
+        }.freeze
 
         # @param matrix [Array] matrix of things
-        def initialize(matrix, opts={})
+        def initialize(matrix, opts = {})
           @opts = DEFAULT_OPTS.merge(opts)
 
           # SIMP ISO json list/glob come from opts and/or `json=` in the matrix
           env_json_files      = parse_glob_list(@opts[:simp_iso_json_files])
-          matrix_json_files   = matrix.select{ |x| x =~ %r{^json=} }.map do |x|
+          matrix_json_files   = matrix.select { |x| x =~ %r{^json=} }.map { |x|
             parse_glob_list(x.sub(%r{^json=}, ''))
-          end.flatten
+          }.flatten
           json_str            = "json=#{(env_json_files + matrix_json_files).uniq.join(':')}"
           full_matrix         = [json_str] + matrix.delete_if { |x| x =~ %r{^json=} }
           @iterations         = iterations_with_valid_simp_json(unroll(full_matrix))
           @packer_configs_dir = @opts[:simp_packer_configs_dir]
           @tmp_dir            = @opts[:tmp_dir]
         end
-
 
         # Takes list of paths/globs and returns Array of existing files
         # - Non-existent paths will be discarded with a warning message
@@ -68,7 +67,7 @@ module Simp
             vars_data     = JSON.parse(File.read(simp_iso_json))
 
             unless Gem::Dependency.new('', '~> 1.0').match?('', Gem::Version.new(vars_data['simp_vars_version']))
-              raise %Q[ERROR: #{simp_iso_json}: "simp_vars_version" must be \
+              raise %[ERROR: #{simp_iso_json}: "simp_vars_version" must be \
                 "1.0.0" or greater (got '#{vars_data['simp_vars_version']}')]
             end
 
@@ -150,16 +149,16 @@ module Simp
         # Try using the JSON file's name, except with the suffix '.iso'
         # @return [String] Path to SIMP ISO file
         def iso_url_or_best_guess(vars_data, simp_iso_json)
-            same_patt = Dir[simp_iso_json.gsub(%r{\.json$}, '.iso')].first
-            # TODO: support http URLs? (packer does)
-            if File.file?(vars_data['iso_url'].gsub(%r(^file://),''))
-              simp_iso_file = vars_data['iso_url'].gsub(%r(^file://),'')
-              warn "INFO: ISO found at iso_url in '#{simp_iso_json}':\n  Using ISO '#{simp_iso_file}'"
-            elsif File.file?(same_patt)
-              simp_iso_file = same_patt
-              warn "INFO: falling back to ISO at same path/naming scheme as json file:\n  Using ISO '#{simp_iso_file}'"
-            end
-            simp_iso_file
+          same_patt = Dir[simp_iso_json.gsub(%r{\.json$}, '.iso')].first
+          # TODO: support http URLs? (packer does)
+          if File.file?(vars_data['iso_url'].gsub(%r{^file://}, ''))
+            simp_iso_file = vars_data['iso_url'].gsub(%r{^file://}, '')
+            warn "INFO: ISO found at iso_url in '#{simp_iso_json}':\n  Using ISO '#{simp_iso_file}'"
+          elsif File.file?(same_patt)
+            simp_iso_file = same_patt
+            warn "INFO: falling back to ISO at same path/naming scheme as json file:\n  Using ISO '#{simp_iso_file}'"
+          end
+          simp_iso_file
         end
 
         # - create a new directory for the simp-packer "test"
@@ -171,7 +170,7 @@ module Simp
           paths = {
             'vars.json'      => File.expand_path('vars.json', dir),
             'simp_conf.yaml' => File.expand_path('simp_conf.yaml', dir),
-            'packer.yaml'    => File.expand_path('packer.yaml', dir),
+            'packer.yaml'    => File.expand_path('packer.yaml', dir)
           }
           mkdir_p dir
           File.open(paths['vars.json'], 'w') { |f| f.puts JSON.pretty_generate(vars_data) }
@@ -180,13 +179,12 @@ module Simp
           paths
         end
 
-
         # Filter unrolled matrix down to iterations with valid SIMP ISO json
         #   files that match their os
         def iterations_with_valid_simp_json(unrolled_matrix)
           unique_json_files = unrolled_matrix.map { |c| c[:json] }.uniq
           data_by_file = data_from_json_files(unique_json_files)
-          el_oses = ['RedHat','CentOS','OracleLinux','Scientific']
+          el_oses = ['RedHat', 'CentOS', 'OracleLinux', 'Scientific']
           unrolled_matrix.select do |i|
             data = data_by_file.dig(i[:json]) or next
             maj_ver = i[:os].sub(%r{^el}, '')
@@ -194,7 +192,6 @@ module Simp
             (is_el && (maj_ver == data['dist_os_maj_version']))
           end
         end
-
 
         # @param json_files [Array<String>] Paths to JSON files
         # @return [Hash] Data from each valid JSON file
