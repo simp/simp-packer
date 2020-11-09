@@ -22,12 +22,18 @@ module Simp
         JSON.parse File.read(vars_json_path)
         @vars_json_data = JSON.parse File.read(vars_json_path)
 
-        simp_box_flavors = infer_simp_flavors(@vars_json_data)
+        simp_box_flavors = [
+          @vars_json_data['box_simp_release'],
+          "el#{@vars_json_data['dist_os_maj_version']}",
+          @vars_json_data['dist_os_flavor'],
+          @vars_json_data['dist_os_version'],
+          "x86_64", # TODO: add architecture to `rake build:auto`-genned vars.json
+        ].join('-')
 
         @options = options.dup
         @options[:org] ||= 'simpci'
         @options[:name] ||= "server-#{simp_box_flavors}"
-        :options[:desc] ||= "SIMP server #{simp_box_flavors}"
+        @options[:desc] ||= "SIMP server #{simp_box_flavors}"
       end
 
       # Convert the data from a simp-packer `vars.json` to Vagrant-consumable
