@@ -27,7 +27,7 @@ module Simp
           "el#{@vars_json_data['dist_os_maj_version']}",
           @vars_json_data['dist_os_flavor'],
           @vars_json_data['dist_os_version'],
-          "x86_64", # TODO: add architecture to `rake build:auto`-genned vars.json
+          'x86_64', # TODO: add architecture to `rake build:auto`-genned vars.json
         ].join('-')
 
         @options = options.dup
