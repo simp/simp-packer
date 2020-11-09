@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- Builds intentionally fail when `simp_vars_version` is not ~> 1.x in the
+  SIMP ISO JSON files
+  - This codifies the version support drops from simp-packer 6.5.0
+  - *(For inquiring minds: JSON files' `simp_vars_version` was introduced with
+    SIMP 6.3.0 and is currently `1.0.0`)*
+
+### Changed
+- Refactored lots of code under `lib/` for bugfixes, clarity, and testing
+  - Added Rudimentary RSpec tests for `Simp::Packer::Build::Matrix`
+
+### Fixed
+- Matrix builds now **publish unique .box filenames** for each matrix arg value
+  - (`fips` vs `nofips`, `bios` vs `uefi`, `encryption` vs _\<blank\>_)
+  - This fixes a bug where large matrix builds would overwrite their own
+    iterations' .box files while publishing to a local vagrant box tree
+- OS metadata is read from ISO vars.json instead of inferring from the filename
+  (which was risky and lame)
+
+
 ## [2.5.0] - 2020-11-08
 
 ### Added
