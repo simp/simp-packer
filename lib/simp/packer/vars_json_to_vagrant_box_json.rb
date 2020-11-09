@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'json'
-require 'simp/packer/vars_json'
 
 module Simp
   module Packer
@@ -20,25 +19,15 @@ module Simp
     #
     class VarsJsonToVagrantBoxJson
       def initialize(vars_json_path, options = {})
-        @vars_json_data = Simp::Packer::VarsJson.parse_file(vars_json_path)
+        JSON.parse File.read(vars_json_path)
+        @vars_json_data = JSON.parse File.read(vars_json_path)
 
-        ### -->  6.2.0-0.el7-CentOS-7.0.x86-64
-        default_simp_box_flavors = [
-          # FIXME: recent ISO  releases' vars.json (build by `rake build:auto`)
-          # have had 'box_simp_release' = '6.X' instead of the actual release
-          # version.
-          @vars_json_data["box_simp_release"],
-          "el#{@vars_json_data["dist_os_maj_version"]}",
-          @vars_json_data["dist_os_flavor"],
-          @vars_json_data["dist_os_version"],
-          'x86_64'   # TODO: add architecture to `rake build:auto`-genned vars.json
-        ].join('-')
-
+        simp_box_flavors = infer_simp_flavors(@vars_json_data)
 
         @options = options.dup
         @options[:org] ||= 'simpci'
-        @options[:name] ||= "server-#{default_simp_box_flavors}"
-        @options[:desc] ||= "SIMP server #{default_simp_box_flavors}"
+        @options[:name] ||= "server-#{simp_box_flavors}"
+        :options[:desc] ||= "SIMP server #{simp_box_flavors}"
       end
 
       # Convert the data from a simp-packer `vars.json` to Vagrant-consumable
@@ -47,11 +36,12 @@ module Simp
       # @param vagrantbox_path [String] path to Vagrant .box file
       # @param options [Hash] optional metadata overrides
       #
-      # @option options [String]  :version       Defaults to the `.box` file's File.mtime (%Y%m%d.%H%M%S)
-      # @option options [String]  :status        (active)
-      # @option options [Boolean] :is_private    (false)
-      # @option options [Integer] :downloads     (0)
-      # @option options [String]  :provider_name (virtualbox)
+      # @option options [String]        :version       Defaults to the `.box` file's File.mtime (%Y%m%d.%H%M%S)
+      # @option options [String]        :status        (active)
+      # @option options [Boolean]       :is_private    (false)
+      # @option options [Integer]       :downloads     (0)
+      # @option options [String]        :provider_name (virtualbox)
+      # @option options [Array<String>] :flavors       Extra descriptive strings to tack onto box name
       #
       # @see https://www.vagrantup.com/docs/boxes/format.html#box-metadata
       #   Vagrant Box Metadata structure
@@ -73,10 +63,15 @@ module Simp
         warn "Calculating sha256sum of '#{vagrantbox_path}'..."
         require 'digest'
         box_checksum = Digest::SHA256.file(vagrantbox_path).hexdigest
+        box_name = options[:name] || @options[:name]
+        flavors  = options[:flavors] || []
+        unless flavors.empty?
+          box_name += "-#{flavors.join('-')}"
+        end
 
         {
-          'tag'                  => "#{@options[:org]}/#{@options[:name]}",
-          'name'                 => @options[:name],
+          'tag'                  => "#{@options[:org]}/#{box_name}",
+          'name'                 => box_name,
           'username'             => @options[:org],
           'created_at'           => created_at,
           'updated_at'           => updated_at,
@@ -109,11 +104,6 @@ module Simp
       # @todo Add more properties to vars.json in `build:auto`, so the simphack
       #   fragments aren't needed.
       def infer_simp_flavors(vars_json_data)
-        unless Gem::Dependency.new('', '~> 1.0').match?('', Gem::Version.new(vars_data['simp_vars_version']))
-          raise %[ERROR: #{simp_iso_json}: "simp_vars_version" must be \
-            "1.0.0" or greater (got '#{vars_data['simp_vars_version']}')]
-        end
-
         box_simp_release = vars_json_data['box_simp_release']
         fragment = semver_fragment(box_simp_release)
         if (simphack_fragment = semver_simpbox_hack_checks(vars_json_data))
@@ -128,7 +118,6 @@ module Simp
       # back with the simp-metadata-based ISO builds.
       #
       def semver_simpbox_hack_checks(vars_json_data)
-        require 'pry'; binding.pry
         iso_name = File.basename(vars_json_data['iso_url'])
         str = iso_name.sub(%r{^SIMP-}, '').sub(%r{\.iso$}, '').gsub(%r{-x86_64}, '.x86-64').tr('_', '-')
         if str == semver_fragment(str)

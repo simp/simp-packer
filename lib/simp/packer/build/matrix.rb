@@ -23,7 +23,7 @@ module Simp
           base_dir: Dir.pwd,
           tmp_dir: ENV['TMP_DIR'] || File.join(Dir.pwd, 'tmp'),
           dry_run: (ENV['SIMP_PACKER_dry_run'] || 'no') == 'yes',
-          extra_packer_args: ENV['SIMP_PACKER_extra_args'] || nil,
+          extra_packer_args: ENV['SIMP_PACKER_extra_args'] || nil
         }.freeze
 
         # @param matrix [Array] matrix of things
@@ -60,11 +60,11 @@ module Simp
         end
 
         # Return path to
-        def run( label = nil)
+        def run(label = nil)
           label ||= (ENV['MATRIX_LABEL'] || 'build') + Time.now.utc.strftime('_%Y%m%d_%H%M%S')
           iteration_total = @iterations.size
           iteration_number = 0
-          Dir.chdir( @opts[:base_dir] ) do |_dir|
+          Dir.chdir(@opts[:base_dir]) do |_dir|
             @iterations.each do |cfg|
               iteration_number += 1
               simp_iso_json = cfg[:json]
@@ -128,13 +128,13 @@ module Simp
               # have had 'box_simp_release' = '6.X' instead of the actual release
               # version.
               vagrant_box_name = [
-                vars_data["box_simp_release"],
+                vars_data['box_simp_release'],
                 cfg[:os],
-                vars_data["dist_os_flavor"],
-                vars_data["dist_os_version"],
+                vars_data['dist_os_flavor'],
+                vars_data['dist_os_version'],
                 firmware,
-                "#{fips ? 'fips' : 'nofips'}",
-                "#{encryption ? 'encryption-' : '' }x86_64"   # TODO: add architecture to `rake build:auto`-genned vars.json
+                (fips ? 'fips' : 'nofips').to_s,
+                "#{encryption ? 'encryption-' : ''}x86_64", # TODO: add architecture to `rake build:auto`-genned vars.json
               ].join('-')
 
               Simp::Packer::Publish::LocalDirTree.publish(
@@ -142,7 +142,7 @@ module Simp
                 new_box,
                 @opts[:vagrant_box_dir],
                 :hardlink,
-                { org: 'simpci', name: "server-#{vagrant_box_name}", desc: "SIMP Server #{vagrant_box_name}" }
+                { org: 'simpci', name: "server-#{vagrant_box_name}", desc: "SIMP Server #{vagrant_box_name}" },
               )
               sh "date >> '#{log}'"
             end

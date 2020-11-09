@@ -50,9 +50,9 @@ describe Simp::Packer::Build::Matrix do
       json_file = File.join(@tmpdir, "fake-simp-iso-#{rel}.json")
       File.open(json_file, 'w') do |f|
         f.puts(JSON.pretty_generate(mock_vars_json_data(
-          os_maj_rel: rel.match(%r{\d+}).to_a.first,
-          iso_file_path: iso_file.path,
-        )))
+                                      os_maj_rel: rel.match(%r{\d+}).to_a.first,
+                                      iso_file_path: iso_file.path,
+                                    )))
       end
     end
   end
@@ -79,7 +79,7 @@ describe Simp::Packer::Build::Matrix do
       let(:constructor_opts) do
         {
           simp_iso_json_files: iso_json_file_glob,
-          base_dir: @tmpdir,
+          base_dir: @tmpdir
         }
       end
 
