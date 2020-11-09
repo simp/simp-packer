@@ -122,19 +122,13 @@ module Simp
               next if @opts[:dry_run]
 
               new_box = File.expand_path("#{iteration_dir}/OUTPUT/#{vm_description}.box")
-              # 6.2.0-0.el7-CentOS-7.0.x86-64
-              #
-              # FIXME: recent ISO  releases' vars.json (build by `rake build:auto`)
-              # have had 'box_simp_release' = '6.X' instead of the actual release
-              # version.
               vagrant_box_name = [
                 vars_data['box_simp_release'],
                 cfg[:os],
                 vars_data['dist_os_flavor'],
                 vars_data['dist_os_version'],
-                firmware,
-                (fips ? 'fips' : 'nofips').to_s,
-                "#{encryption ? 'encryption-' : ''}x86_64", # TODO: add architecture to `rake build:auto`-genned vars.json
+                "x86_64", # TODO: add architecture to `rake build:auto`-genned vars.json
+                "#{fips ? 'fips' : 'nofips').to_s}-#{firmware}#{encryption ? '-encryption' : ''}",
               ].join('-')
 
               Simp::Packer::Publish::LocalDirTree.publish(
