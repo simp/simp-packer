@@ -15,5 +15,7 @@ RSpec.configure do |config|
   config.filter_run :focus
 
   config.mock_framework = :rspec
-  config.mock_with :rspec
+  config.mock_with :rspec do |mocks|
+    mocks.verify_doubled_constant_names = true
+  end
 end

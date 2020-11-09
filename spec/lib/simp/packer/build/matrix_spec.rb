@@ -1,12 +1,16 @@
 # frozen_string_literal: true
 
 require 'simp/packer/build/matrix'
+require 'simp/packer/publish/local_dir_tree'
+require 'support/vars_json_helpers'
 require 'spec_helper'
 require 'tmpdir'
 require 'tempfile'
 require 'digest/sha2'
 
-require 'simp/packer/publish/local_dir_tree'
+RSpec.configure do |c|
+  c.include VarsJsonHelpers
+end
 
 # rubocop:disable RSpec/InstanceVariable, RSpec/BeforeAfterAll, RSpec/MultipleMemoizedHelpers
 describe Simp::Packer::Build::Matrix do
@@ -14,7 +18,7 @@ describe Simp::Packer::Build::Matrix do
 
   after(:all) { FileUtils.rm_rf @tmpdir }
 
-  let(:iso_rels) { ['el6', 'el7', 'el8'] }
+  let(:iso_release_types) { ['el6', 'el7', 'el8'] }
   let(:iso_json_files) do
     iso_files.map { |rel, _iso_file|
       json_file = File.join(@tmpdir, "fake-simp-iso-#{rel}.json")
@@ -33,7 +37,7 @@ describe Simp::Packer::Build::Matrix do
   end
   let(:iso_files) do
     iso_files = {}
-    iso_rels.each do |rel|
+    iso_release_types.each do |rel|
       iso = Tempfile.new("fake-#{rel}-iso-", @tmpdir)
       iso.write("Fake #{rel} ISO")
       iso_files[rel] = iso
@@ -45,16 +49,10 @@ describe Simp::Packer::Build::Matrix do
     iso_files.map do |rel, iso_file|
       json_file = File.join(@tmpdir, "fake-simp-iso-#{rel}.json")
       File.open(json_file, 'w') do |f|
-        f.puts JSON.pretty_generate({
-          'simp_vars_version' => '1.0.0',
-          'iso_url' => "file://#{iso_file.path}",
-          'iso_checksum' => Digest::SHA256.hexdigest(iso_file.path),
-          "iso_checksum_type": 'sha256',
-          "new_password": 'L0oSrP@ssw0r!L0oSrP@ssw0r!L0oSrP@ssw0r!',
-          'dist_os_flavor' => 'CentOS',
-          'dist_os_version' => 'FIXME: NOT_SET_YET_IN_MATRIX_SPEC',
-          'dist_os_maj_version' => rel.match(%r{\d+}).to_a.first
-        })
+        f.puts(JSON.pretty_generate(mock_vars_json_data(
+          os_maj_rel: rel.match(%r{\d+}).to_a.first,
+          iso_file_path: iso_file.path,
+        )))
       end
     end
   end
@@ -78,7 +76,12 @@ describe Simp::Packer::Build::Matrix do
     end
 
     context 'with vars.json glob via constructor opts' do
-      let(:constructor_opts) { { simp_iso_json_files: iso_json_file_glob } }
+      let(:constructor_opts) do
+        {
+          simp_iso_json_files: iso_json_file_glob,
+          base_dir: @tmpdir,
+        }
+      end
 
       describe '#initialize' do
         it 'intializes with correct matrix' do
@@ -89,7 +92,10 @@ describe Simp::Packer::Build::Matrix do
       describe '#run' do
         it 'iterates the correct number of times' do
           n = expected_matrix.size
-          expect(Simp::Packer::Build::Runner).to receive(:new).exactly(n).times.and_return(instance_double(:run => true))
+          runner_double = instance_double('Simp::Packer::Build::Runner')
+
+          expect(Simp::Packer::Build::Runner).to receive(:new).exactly(n).times.and_return(runner_double)
+          expect(runner_double).to receive(:run).exactly(n).times
           expect(Simp::Packer::Publish::LocalDirTree).to receive(:publish).exactly(n).times
           nsubject.run
         end

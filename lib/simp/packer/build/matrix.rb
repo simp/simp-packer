@@ -2,6 +2,7 @@
 
 require 'simp/tests/matrix/unroller'
 require 'simp/packer/build/runner'
+require 'simp/packer/vars_json'
 require 'fileutils'
 require 'rake/file_utils'
 require 'pry'
@@ -19,9 +20,10 @@ module Simp
           simp_iso_json_files: ENV['SIMP_ISO_JSON_FILES'] || '',
           simp_packer_configs_dir: ENV['SIMP_PACKER_CONFIGS_DIR'] || File.expand_path('../files/configs', __dir__),
           vagrant_box_dir: ENV['VAGRANT_BOX_DIR'] || "/opt/#{ENV['USER']}/vagrant",
+          base_dir: Dir.pwd,
           tmp_dir: ENV['TMP_DIR'] || File.join(Dir.pwd, 'tmp'),
           dry_run: (ENV['SIMP_PACKER_dry_run'] || 'no') == 'yes',
-          extra_packer_args: ENV['SIMP_PACKER_extra_args'] || nil
+          extra_packer_args: ENV['SIMP_PACKER_extra_args'] || nil,
         }.freeze
 
         # @param matrix [Array] matrix of things
@@ -58,73 +60,92 @@ module Simp
         end
 
         # Return path to
-        def run(label = (ENV['MATRIX_LABEL'] || 'build') + Time.now.utc.strftime('_%Y%m%d_%H%M%S'))
+        def run( label = nil)
+          label ||= (ENV['MATRIX_LABEL'] || 'build') + Time.now.utc.strftime('_%Y%m%d_%H%M%S')
           iteration_total = @iterations.size
           iteration_number = 0
-          @iterations.each do |cfg|
-            iteration_number += 1
-            simp_iso_json = cfg[:json]
-            vars_data     = JSON.parse(File.read(simp_iso_json))
+          Dir.chdir( @opts[:base_dir] ) do |_dir|
+            @iterations.each do |cfg|
+              iteration_number += 1
+              simp_iso_json = cfg[:json]
+              vars_data     = Simp::Packer::VarsJson.parse_file(simp_iso_json)
 
-            unless Gem::Dependency.new('', '~> 1.0').match?('', Gem::Version.new(vars_data['simp_vars_version']))
-              raise %[ERROR: #{simp_iso_json}: "simp_vars_version" must be \
-                "1.0.0" or greater (got '#{vars_data['simp_vars_version']}')]
+              os_name       = "#{vars_data['dist_os_flavor']}#{vars_data['dist_os_maj_version']}".downcase
+              fips          = (cfg[:fips] || 'on') == 'on'
+              encryption    = (cfg[:encryption] || 'off') == 'on'
+              firmware      = (cfg[:firmware] || 'bios')
+              simp_iso_file = iso_url_or_best_guess(vars_data, simp_iso_json)
+              vars_data['iso_url'] = simp_iso_file
+
+              iteration_dir  = "#{label}__#{vars_data['box_simp_release']}__#{os_name}_#{firmware}_#{fips ? 'fips' : 'nofips'}"
+              iteration_dir += '_encryption' if encryption
+              iteration_summary = "os=#{os_name} fips=#{fips ? 'on' : 'off'}"
+              iteration_summary = ' encryption=on' if encryption
+              vm_description =  "SIMP#{vars_data['box_simp_release']}-#{os_name.upcase}-#{firmware.upcase}-#{fips ? 'FIPS' : 'NOFIPS'}"
+              log = "#{iteration_dir}.log"
+
+              msg = []
+              msg << "\n" * 5
+              msg << '=' * 80
+              msg << "==== Iteration #{iteration_number}/#{iteration_total}: #{vars_data['box_simp_release']} #{iteration_summary}"
+              msg << '=' * 80
+              msg << "vm_description:        #{vm_description}"
+              msg << "DIR_NAME:              #{iteration_dir}"
+              msg << "SIMP_ISO_FILE:         #{simp_iso_file}"
+              msg << "SIMP_ISO_JSON:         #{simp_iso_json}"
+              msg << "PACKER_CONFIGS_DIR:    #{@packer_configs_dir}"
+              msg << '=' * 80
+              msg << "\n" * 2
+              msg << ''
+              iterator_header_msg = msg.join("\n")
+              puts iterator_header_msg
+
+              raise "ERROR: no .iso file at #{simp_iso_file}" unless File.exist?(simp_iso_file)
+              raise "ERROR: no .json file at #{simp_iso_json}" unless File.exist?(simp_iso_json)
+
+              simp_conf_yaml = File.read(File.join(@packer_configs_dir, os_name, 'simp_conf.yaml'))
+              packer_yaml = generate_packer_yaml(vm_description, os_name, fips, encryption, firmware)
+              paths = scaffold_iteration_dir(iteration_dir, vars_data, packer_yaml, simp_conf_yaml)
+
+              sh "date > '#{log}'"
+              #
+              #  remove me
+              #
+              packer_build_runner = Simp::Packer::Build::Runner.new(File.expand_path(iteration_dir))
+
+              File.open(log, 'a') { |f| f.puts iterator_header_msg }
+              packer_build_runner.run(
+                log_file: log,
+                tmp_dir: @tmp_dir,
+                extra_packer_args: @opts[:extra_packer_args] || '--on-error=ask',
+              )
+              next if @opts[:dry_run]
+
+              new_box = File.expand_path("#{iteration_dir}/OUTPUT/#{vm_description}.box")
+              # 6.2.0-0.el7-CentOS-7.0.x86-64
+              #
+              # FIXME: recent ISO  releases' vars.json (build by `rake build:auto`)
+              # have had 'box_simp_release' = '6.X' instead of the actual release
+              # version.
+              vagrant_box_name = [
+                vars_data["box_simp_release"],
+                cfg[:os],
+                vars_data["dist_os_flavor"],
+                vars_data["dist_os_version"],
+                firmware,
+                "#{fips ? 'fips' : 'nofips'}",
+                "#{encryption ? 'encryption-' : '' }x86_64"   # TODO: add architecture to `rake build:auto`-genned vars.json
+              ].join('-')
+
+              Simp::Packer::Publish::LocalDirTree.publish(
+                paths['vars.json'],
+                new_box,
+                @opts[:vagrant_box_dir],
+                :hardlink,
+                { org: 'simpci', name: "server-#{vagrant_box_name}", desc: "SIMP Server #{vagrant_box_name}" }
+              )
+              sh "date >> '#{log}'"
             end
-
-            os_name       = "#{vars_data['dist_os_flavor']}#{vars_data['dist_os_maj_version']}".downcase
-            fips          = (cfg[:fips] || 'on') == 'on'
-            encryption    = (cfg[:encryption] || 'off') == 'on'
-            firmware      = (cfg[:firmware] || 'bios')
-            simp_iso_file = iso_url_or_best_guess(vars_data, simp_iso_json)
-            vars_data['iso_url'] = simp_iso_file
-
-            iteration_dir  = "#{label}__#{vars_data['box_simp_release']}__#{os_name}_#{firmware}_#{fips ? 'fips' : 'nofips'}"
-            iteration_dir += '_encryption' if encryption
-            iteration_summary = "os=#{os_name} fips=#{fips ? 'on' : 'off'}"
-            iteration_summary = ' encryption=on' if encryption
-            vm_description =  "SIMP#{vars_data['box_simp_release']}-#{os_name.upcase}-#{firmware.upcase}-#{fips ? 'FIPS' : 'NOFIPS'}"
-            log = "#{iteration_dir}.log"
-
-            msg = []
-            msg << "\n" * 5
-            msg << '=' * 80
-            msg << "==== Iteration #{iteration_number}/#{iteration_total}: #{vars_data['box_simp_release']} #{iteration_summary}"
-            msg << '=' * 80
-            msg << "vm_description:        #{vm_description}"
-            msg << "DIR_NAME:              #{iteration_dir}"
-            msg << "SIMP_ISO_FILE:         #{simp_iso_file}"
-            msg << "SIMP_ISO_JSON:         #{simp_iso_json}"
-            msg << "PACKER_CONFIGS_DIR:    #{@packer_configs_dir}"
-            msg << '=' * 80
-            msg << "\n" * 2
-            msg << ''
-            iterator_header_msg = msg.join("\n")
-            puts iterator_header_msg
-
-            raise "ERROR: no .iso file at #{simp_iso_file}" unless File.exist?(simp_iso_file)
-            raise "ERROR: no .json file at #{simp_iso_json}" unless File.exist?(simp_iso_json)
-
-            simp_conf_yaml = File.read(File.join(@packer_configs_dir, os_name, 'simp_conf.yaml'))
-            packer_yaml = generate_packer_yaml(vm_description, os_name, fips, encryption, firmware)
-            paths = scaffold_iteration_dir(iteration_dir, vars_data, packer_yaml, simp_conf_yaml)
-
-            sh "date > '#{log}'"
-            #
-            #  remove me
-            #
-            packer_build_runner = Simp::Packer::Build::Runner.new(File.expand_path(iteration_dir))
-
-            File.open(log, 'a') { |f| f.puts iterator_header_msg }
-            packer_build_runner.run(
-              log_file: log,
-              tmp_dir: @tmp_dir,
-              extra_packer_args: @opts[:extra_packer_args] || '--on-error=ask',
-            )
-            next if @opts[:dry_run]
-
-            new_box = File.expand_path("#{iteration_dir}/OUTPUT/#{vm_description}.box")
-            Simp::Packer::Publish::LocalDirTree.publish(paths['vars.json'], new_box, @opts[:vagrant_box_dir])
-            sh "date >> '#{log}'"
           end
         end
 
