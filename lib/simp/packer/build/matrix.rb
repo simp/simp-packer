@@ -127,8 +127,8 @@ module Simp
                 cfg[:os],
                 vars_data['dist_os_flavor'],
                 vars_data['dist_os_version'],
-                "x86_64", # TODO: add architecture to `rake build:auto`-genned vars.json
-                "#{fips ? 'fips' : 'nofips').to_s}-#{firmware}#{encryption ? '-encryption' : ''}",
+                'x86_64', # TODO: add architecture to `rake build:auto`-genned vars.json
+                "#{fips ? 'fips' : 'nofips'}-#{firmware}#{encryption ? '-encrypted' : ''}",
               ].join('-')
 
               Simp::Packer::Publish::LocalDirTree.publish(
