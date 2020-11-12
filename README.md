@@ -149,8 +149,8 @@ Build matrix elements are delimited by colons (`:`)
 | ------------- | :-------:   | :-----:   | ---------------------------------------------- |
 | `os=`         | `el6:el7`   | `el6:el7` | OSes to include in the matrix.  JSON files **will be filtered out** if their data doesn't match one of these OSes. |
 | `fips=`       | `on:off`    | `on`      |  Build SIMP Vagrant box with FIPS mode enabled |
-| `encryption=` | `on:off`    | `off`     |  Build SIMP Vagrant box with disk encryption   |
-| `firmware=`   | `bios:efi   | `bios`    |  Defines which firmware base to use            |
+| `encryption=` | `on:off`    | `off`     |    Build SIMP Vagrant box with disk encryption |
+| `firmware=`   | `bios:efi`  | `bios`    |             Defines which firmware base to use |
 | `json=`       | _filepaths_ | N/A       | _(optional, if `SIMP_ISO_JSON_FILES` is set)_ List of absolute paths/globs to SIMP ISO `.json` files to consider |
 
 

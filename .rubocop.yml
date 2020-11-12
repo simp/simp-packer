@@ -177,3 +177,5 @@ Layout/FirstHashElementIndentation:
   EnforcedStyle: consistent
 Layout/HashAlignment:
   EnforcedHashRocketStyle: table
+#Layout/AlignArguments:
+#  EnforcedStyle: with_first_argument

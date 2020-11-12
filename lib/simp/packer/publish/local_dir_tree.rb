@@ -2,6 +2,7 @@
 
 require 'fileutils'
 require 'json'
+require 'simp/packer/vars_json_to_vagrant_box_json'
 
 module Simp
   module Packer
@@ -89,10 +90,10 @@ module Simp
         # @param [String] box_path path to the `.box` file
         # @param [Symbol] link  Action taken to place `.box` file.  Valid
         #   symbols are `:hardlink`, `:copy`, or `:move` (Default: :hardlink)
-        def self.publish(vars_json_path, box_path, vagrant_box_dir, link = :hardlink)
-          converter = Simp::Packer::VarsJsonToVagrantBoxJson.new(vars_json_path)
+        def self.publish(vars_json_path, box_path, vagrant_boxes_dir, link = :hardlink, box_json_opts = nil)
+          converter = Simp::Packer::VarsJsonToVagrantBoxJson.new(vars_json_path, box_json_opts)
+          dir_tree  = Simp::Packer::Publish::LocalDirTree.new(vagrant_boxes_dir)
           box_data  = converter.vagrant_box_json(box_path)
-          dir_tree  = Simp::Packer::Publish::LocalDirTree.new(vagrant_box_dir)
           dir_tree.publish(box_data, link) # TODO: env var for copy/link action?
         end
 
