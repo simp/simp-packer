@@ -107,6 +107,15 @@ module Simp
 
           Dir.chdir working_dir do |_dir|
             puts "Logs will be written to #{opts[:log_file]}" if @verbose
+
+            fix_cmd = <<~FIX_CMD
+              set -e; set -o pipefail;
+               #{opts[:tmp_dir] ? "TMP_DIR=#{opts[:tmp_dir]} " : ''}PACKER_LOG="#{ENV['PACKER_LOG'] || 1}" \
+                 PACKER_LOG_PATH="#{opts[:plog_file]}.fix.log" \
+                    packer fix "#{working_dir}/simp.json" > "#{working_dir}/simp.json.fixed"; mv "#{working_dir}/simp.json" "#{working_dir}/simp.json.old"; mv "#{working_dir}/simp.json.fixed" "#{working_dir}/simp.json"
+            FIX_CMD
+            sh fix_cmd
+
             cmd = <<-CMD.gsub(%r{ {10}}, '')
               set -e; set -o pipefail;
               #{opts[:tmp_dir] ? "TMP_DIR=#{opts[:tmp_dir]} " : ''}PACKER_LOG="#{ENV['PACKER_LOG'] || 1}" \
