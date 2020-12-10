@@ -114,10 +114,14 @@ module Simp
                  PACKER_LOG_PATH="#{opts[:plog_file]}.fix.log" \
                     packer fix "#{working_dir}/simp.json" > "#{working_dir}/simp.json.fixed"; mv "#{working_dir}/simp.json" "#{working_dir}/simp.json.old"; mv "#{working_dir}/simp.json.fixed" "#{working_dir}/simp.json"
             FIX_CMD
-            sh fix_cmd
+            if opts[:dry_run]
+              puts cmd fix_cmd if @verbose
+            else
+              sh fix_cmd
+            end
 
             cmd = <<-CMD.gsub(%r{ {10}}, '')
-              set -e; set -o pipefail;
+              set -e; -o pipefail;
               #{opts[:tmp_dir] ? "TMP_DIR=#{opts[:tmp_dir]} " : ''}PACKER_LOG="#{ENV['PACKER_LOG'] || 1}" \
                 PACKER_LOG_PATH="#{opts[:plog_file]}" \
                 packer build -var-file="#{working_dir}/vars.json" #{opts[:extra_packer_args]} "#{working_dir}/simp.json" \
