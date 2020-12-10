@@ -77,6 +77,7 @@ variables:
 .lint_tests: &lint_tests
   stage: 'validation'
   tags: ['docker']
+  <<: *pup_6_18
   <<: *setup_bundler_env
 
 .unit_tests: &unit_tests
@@ -97,14 +98,15 @@ rubocop:
 
 shellcheck:
   stage: 'validation'
+  <<: *lint_tests
   tags: ['shellcheck']
   script:
     - 'bundle exec rake test:shellcheck'
 
 packer:
   stage: 'validation'
+  <<: *lint_tests
   tags: ['packer']
-  <<: *setup_bundler_env
   script:
     - 'packer --version'
     - 'bundle exec rake packer:validate'
