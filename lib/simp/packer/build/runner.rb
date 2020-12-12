@@ -121,7 +121,7 @@ module Simp
             end
 
             cmd = <<-CMD.gsub(%r{ {10}}, '')
-              set -e; -o pipefail;
+              set -e; set -o pipefail;
               #{opts[:tmp_dir] ? "TMP_DIR=#{opts[:tmp_dir]} " : ''}PACKER_LOG="#{ENV['PACKER_LOG'] || 1}" \
                 PACKER_LOG_PATH="#{opts[:plog_file]}" \
                 packer build -var-file="#{working_dir}/vars.json" #{opts[:extra_packer_args]} "#{working_dir}/simp.json" \
