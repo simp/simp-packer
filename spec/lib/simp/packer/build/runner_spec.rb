@@ -92,14 +92,15 @@ describe Simp::Packer::Build::Runner do
 
       context 'when unable to configure the network' do
         before(:each) do
-          allow(Kernel).to receive(:system).with(
+          allow_any_instance_of(Kernel).to receive(:system).with(
             'VBoxManage hostonlyif ipconfig vboxnet5 --ip 192.168.101.1 --netmask 255.255.255.0',
           ).and_return(false)
         end
 
         it 'fails with an error' do
-          expect { @obj.run(dry_run: true) }.to raise_error(RuntimeError,
-                                                            %r{Failure to configure.*VBoxManage hostonlyif ipconfig vboxnet5})
+          expect { @obj.run(dry_run: true) }.to raise_error(
+            RuntimeError, %r{Failure to configure.*VBoxManage hostonlyif ipconfig vboxnet5}
+          )
         end
       end
     end
