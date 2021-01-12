@@ -23,7 +23,7 @@ group :test do
   gem 'simp-rake-helpers', ENV.fetch('SIMP_RAKE_HELPERS_VERSION', '~> 5.11')
   gem 'rubocop'
   gem 'rubocop-rspec'
-  gem 'rubocop-i18n'
+  gem 'rubocop-i18n', '~> 2.0'
   gem 'yard'
   gem 'redcarpet'
   gem 'github-markup'
