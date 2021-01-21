@@ -86,6 +86,7 @@ variables:
   <<: *setup_bundler_env
   script:
     - 'bundle exec rake spec'
+    - 'bundle exec rake test:puppet'
 
 
 # Pipeline / testing matrix
