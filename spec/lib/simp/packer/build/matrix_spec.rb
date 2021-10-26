@@ -18,7 +18,7 @@ describe Simp::Packer::Build::Matrix do
 
   after(:all) { FileUtils.rm_rf @tmpdir }
 
-  let(:iso_release_types) { ['el6', 'el7', 'el8'] }
+  let(:iso_release_types) { ['el7', 'el8'] }
   let(:iso_json_files) do
     iso_files.map { |rel, _iso_file|
       json_file = File.join(@tmpdir, "fake-simp-iso-#{rel}.json")
@@ -29,7 +29,7 @@ describe Simp::Packer::Build::Matrix do
   let(:matrix_opts) do
     {
       'fips' => ['on', 'off'],
-      'os'   => ['el6', 'el7', 'el8']
+      'os'   => ['el7', 'el8']
     }
   end
   let(:matrix_args) do
@@ -57,13 +57,13 @@ describe Simp::Packer::Build::Matrix do
     end
   end
 
-  context 'with os=el6:el7,fips=on:off' do
+  context 'with os=el7:el8,fips=on:off' do
     subject(:nsubject) { described_class.new(matrix_args, constructor_opts) }
 
     let(:matrix_opts) do
       {
         'fips' => ['on', 'off'],
-        'os'   => ['el6', 'el7']
+        'os'   => ['el7', 'el8']
       }
     end
 

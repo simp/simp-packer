@@ -10,11 +10,6 @@ env=$(puppet config print environment 2> /dev/null)
 puppetmodpath="${pupenvdir}/${env}/modules"
 hieradata_dir="${pupenvdir}/${env}/data"
 
-simp_version="$(cat /etc/simp/simp.version)"
-semver=( ${simp_version//./ } )
-major="${semver[0]}"
-minor="${semver[1]}"
-
 echo "The puppet environment directory is: $pupenvdir"
 echo "The hiera data directory is: $hieradata_dir"
 

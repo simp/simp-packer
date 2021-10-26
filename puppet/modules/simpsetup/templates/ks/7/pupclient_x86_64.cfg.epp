@@ -1,15 +1,15 @@
 <%- | String $ipaddress,
       String $linuxdist,
-      String $majver,
       Boolean $fips,
 | -%>
 #
-# Replace the following strings in this file
-# #BOOTPASS# - Your SHA-512 hashed bootloader password
-# #ROOTPASS# - Your SHA-512 hashed root password
-# #KSSERVER# - The IP address of your Kickstart server
-# #YUMSERVER# - The IP address of your YUM server
-# #LINUXDIST# - The LINUX Distribution you are kickstarting
+# Required:
+#   Replace the following strings in this file:
+#     * #BOOTPASS# - Your SHA-512 hashed bootloader password
+#     * #ROOTPASS# - Your SHA-512 hashed root password
+#     * #KSSERVER# - The IP address of your Kickstart server
+#     * #YUMSERVER# - The IP address of your YUM server
+#     * #LINUXDIST# - The LINUX Distribution you are kickstarting
 #        - Current CASE SENSITIVE options: RedHat CentOS
 #
 # To generate the BOOTLOADER hash:
@@ -18,9 +18,16 @@
 # To generate the ROOTPASS hash:
 #  > ruby -r 'digest/sha2' -e 'puts "password".crypt("$6$" + rand(36**8).to_s(36))'
 #
-# Optionally:
-# - Adjust the bootloader line for UEFI boot per inline instructions below
-# - Disable FIPS per inline instructions below
+# Optional:
+#   - Enable transparent disk encryption by passing 'simp_disk_crypt' in the
+#     kernel arguments via tftpboot
+#     - See the 'Disk Encryption' section of the SIMP documentation for
+#       important information on this feature.
+#   - Adjust the bootloader line for UEFI boot per inline instructions below
+#   - Disable FIPS per inline instructions below
+#     - NOTE: It is HIGHLY recommended to start your system in FIPS mode and
+#       disable it later if required. If you do not do this, you may not be
+#       able to enable it later if necessary.
 
 authconfig --enableshadow --passalgo=sha512
 # anaconda has known issues when fips is turned on during boot, so it (fips=1)  was remove from bootloader line.
@@ -47,7 +54,7 @@ skipx
 text
 keyboard --xlayouts=us
 lang en_US
-url --noverifyssl --url https://<%= $ipaddress %>/yum/<%= $linuxdist %>/<%= $majver %>/x86_64
+url --noverifyssl --url https://<%= $ipaddress %>/yum/<%= $linuxdist %>/7/x86_64
 
 %include /tmp/part-include
 
@@ -145,12 +152,32 @@ udftools
 
 %pre
 ksserver="<%= $ipaddress %>"
+yumserver="<%= $ipaddress %>"
 wget --no-check-certificate -O /tmp/diskdetect.sh https://$ksserver/ks/diskdetect.sh;
 chmod 750 /tmp/diskdetect.sh;
 /tmp/diskdetect.sh;
+
+# Warn the user about proper partitioning.
+if [ "$simp_opt" == "prompt" ]; then
+  exec < /dev/tty6 > /dev/tty6 2> /dev/tty6
+  chvt 6
+
+  echo "If you are unsure of the partitions required, please see the"
+  echo "documentation for more information about partitioning. Certain"
+  echo "standards require specific partitions."
+  echo ""
+  echo "Specifically, most security standards require a separate /boot"
+  echo "partition"
+  echo ""
+
+  echo -n "Press enter when ready to continue. "
+  read
+
+  chvt 1
+fi
 wget --no-check-certificate -O /tmp/repodetect.sh https://$ksserver/ks/repodetect.sh;
 chmod 750 /tmp/repodetect.sh;
-/tmp/repodetect.sh '7' $ksserver;
+/tmp/repodetect.sh '7' $yumserver;
 %end
 
 %post --nochroot --erroronfail
@@ -213,10 +240,9 @@ fi
 ksserver="<%= $ipaddress %>"
 
 ## Comment out/delete the following block of commands if you want to disable FIPS compliance. ##
-### START FIPS ###
 
-# In case you need a working fallback
 <% if $fips { -%>
+# In case you need a working fallback
 BOOTDEV=`df /boot | tail -1 | cut -f1 -d' '`
 DEFAULT_KERNEL_INFO=`/sbin/grubby --default-kernel`
 DEFAULT_INITRD=`/sbin/grubby --info=${DEFAULT_KERNEL_INFO} | grep initrd | cut -f2 -d'='`
@@ -227,6 +253,7 @@ until [ "$(/sbin/grubby --info=${DEFAULT_KERNEL_INFO} | grep args | grep -o fips
   $(/sbin/grubby --remove-args="fips" --update-kernel ${DEFAULT_KERNEL_INFO})
 done
 /sbin/grubby --args="boot=${BOOTDEV} fips=1" --update-kernel ${DEFAULT_KERNEL_INFO}
+<% } -%>
 
 # For the disk crypto
 if [ -f "/etc/.cryptcreds" ]; then
@@ -237,8 +264,6 @@ for x in `ls -d /lib/modules/*`; do
   installed_kernel=`basename $x`
   dracut -f "/boot/initramfs-${installed_kernel}.img" $installed_kernel
 done
-## END FIPS ##
-<% } -%>
 
 # Notify users that bootstrap will run on firstboot
 echo "Welcome to SIMP!  If this is firstboot, SIMP bootstrap is scheduled to run.

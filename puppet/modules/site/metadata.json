@@ -1,8 +1,8 @@
 {
   "name": "simp-site",
-  "version": "2.0.6",
+  "version": "2.0.7",
   "author": "SIMP Team",
-  "summary": "Puppet site profile for packer in simp 6.4",
+  "summary": "Puppet site profile for packer in simp 6.6",
   "license": "Apache-2.0",
   "source": "https://github.com/simp/pupmod-simp-site",
   "project_page": "https://github.com/simp/pupmod-simp-site",
@@ -15,40 +15,40 @@
   "dependencies": [
     {
       "name": "simp/simplib",
-      "version_requirement": ">= 3.11.0 < 5.0.0"
+      "version_requirement": ">= 4.9.0 < 5.0.0"
     },
     {
       "name": "puppetlabs/stdlib",
-      "version_requirement": ">= 4.13.1 < 7.0.0"
+      "version_requirement": ">= 6.6.0 < 8.0.0"
     }
   ],
   "operatingsystem_support": [
     {
       "operatingsystem": "CentOS",
       "operatingsystemrelease": [
-        "6",
-        "7"
+        "7",
+        "8"
       ]
     },
     {
       "operatingsystem": "RedHat",
       "operatingsystemrelease": [
-        "6",
-        "7"
+        "7",
+        "8"
       ]
     },
     {
       "operatingsystem": "OracleLinux",
       "operatingsystemrelease": [
-        "6",
-        "7"
+        "7",
+        "8"
       ]
     }
   ],
   "requirements": [
     {
       "name": "puppet",
-      "version_requirement": ">= 5.0.0 < 7.0.0"
+      "version_requirement": ">= 6.0.0 < 8.0.0"
     }
   ]
 }

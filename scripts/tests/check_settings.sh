@@ -22,11 +22,6 @@ packerdir=${VAR_LOCAL_SIMP_DIR:-"/var/local/simp"}
 pupenvdir="$(puppet config print environmentpath 2> /dev/null)"
 hieradata_dir="${pupenvdir}/${pupenv}/data"
 
-simp_version="$(cat "${SIMP_VERSION_FILE:-/etc/simp/simp.version}")"
-semver=( ${simp_version//./ } )
-major="${semver[0]}"
-minor="${semver[1]}"
-
 simp_default="${hieradata_dir}/simp_config_settings.yaml"
 
 SIMP_PACKER_environment=$pupenv ruby "${packerdir}/scripts/tests/check_settings.rb" "${packerdir}/files/simp_conf.yaml" "${simp_default}"

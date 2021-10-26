@@ -38,8 +38,6 @@
         <%-#     // configure NAT interface -%>
         "sed -i -e 's/ONBOOT=no/ONBOOT=yes/g' -e 's/DEFROUTE=yes/DEFROUTE=no/g' /etc/sysconfig/network-scripts/ifcfg-{{user `nat_interface`}}<enter>",
         "<wait5>",
-        <%-#     //"grep NM_CONTROLLED /etc/sysconfig/network-scripts/ifcfg-{{user `nat_interface`}} || echo NM_CONTROLLED=no >> /etc/sysconfig/network-scripts/ifcfg-{{user `nat_interface`}}<enter>", -%>
-        "<wait5>",
         <%-#     // bring up NAT interface -%>
         "ifup {{user `nat_interface`}}<enter>",
         "<wait5>",
@@ -57,7 +55,7 @@
         //
         //   These can be troublesome, particularly on el6 VMs
         //   See: https://mirrors.edge.kernel.org/pub/linux/utils/kernel/hotplug/udev/udev.html#id429522
-        //
+        //   TODO: Verify this is still needed
 <%- end -%>
         "udir=/etc/udev/rules.d net_rules=\"$udir/70-persistent-net.rules\"; gen_rules=\"$udir/75-persistent-net-generator.rules\"; [ -f \"$net_rules\" ] && { service network stop; rm -f \"$net_rules\"; ln -s /dev/null \"$gen_rules\" ; ln -s /dev/null \"$net_rules\"; service network start ; } <enter>",
         "<wait5>",

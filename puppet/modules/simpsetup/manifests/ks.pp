@@ -3,7 +3,7 @@
 #  @param  $ksdir      FQ path of the kick start directory
 #  @param  $linuxdist  The linux distribution name (CentOS or RedHat)
 #  @param  $ksip       The ip address of the kick start server
-#  @param  $fips       Wether or not fips is enabled
+#  @param  $fips       Whether or not fips is enabled
 class simpsetup::ks (
   Boolean     $fips = $facts['fips_enabled'],
   String      $linuxdist = $facts['os']['name'],
@@ -12,14 +12,13 @@ class simpsetup::ks (
   String      $majver = $facts['os']['release']['major']
 ){
 
-  file { "${ksdir}/pupclient_x86_64.cfg":
+  file { "${ksdir}/pupclient_el${majver}_x86_64.cfg":
     owner   => 'root',
     group   => 'apache',
     mode    => '0640',
     content => epp("simpsetup/ks/${majver}/pupclient_x86_64.cfg.epp", {
         'ipaddress' => $ksip,
         'linuxdist' => $linuxdist,
-        'majver'    => $majver,
         'fips'      => $fips,
       }
     )

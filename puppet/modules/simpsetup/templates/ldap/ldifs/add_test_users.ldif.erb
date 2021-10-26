@@ -1,0 +1,48 @@
+<%
+  _groups = []
+  @groups.each do |name,id|
+    _groups << <<~EOM
+      dn: cn=#{name},ou=Group,#{@base_dn}
+      objectClass: posixGroup
+      objectClass: top
+      cn: #{name}
+      gidNumber: #{id}
+      description: "#{name} group"
+    EOM
+  end
+
+  _shadow_last_change = Time.now.to_i/60/60/24 - 4
+  _users = []
+  @users.each do |name,info|
+    _users << <<~EOM
+      dn: uid=#{name},ou=People,#{@base_dn}
+      uid: #{name}
+      cn: #{name}
+      givenName: #{name}
+      sn: #{name}
+      mail: #{name}@test.local
+      objectClass: inetOrgPerson
+      objectClass: posixAccount
+      objectClass: top
+      objectClass: shadowAccount
+      objectClass: ldapPublicKey
+      shadowMax: 180
+      shadowMin: 1
+      shadowWarning: 7
+      shadowLastChange: #{_shadow_last_change}
+      sshPublicKey: <some SSH public key>
+      loginShell: /bin/bash
+      uidNumber: #{info['uidNumber']}
+      gidNumber: #{info['gidNumber']}
+      homeDirectory: /home/#{name}
+      userPassword: #{@user_password_hash}
+      pwdReset: FALSE
+    EOM
+  end
+-%>
+# groups
+<%= _groups.join("\n") %>
+
+# users
+<%= _users.join("\n") %>
+
