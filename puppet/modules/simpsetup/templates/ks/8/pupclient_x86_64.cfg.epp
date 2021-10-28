@@ -54,6 +54,11 @@ keyboard us
 lang en_US
 url --noverifyssl --url https://<%= $ipaddress %>/yum/<%= $linuxdist %>/8/x86_64
 
+module --name=python36 --stream=3.6
+module --name=perl --stream=5.26
+module --name=perl-IO-Socket-SSL --stream=2.066
+module --name=perl-libwww-perl --stream=6.34
+
 network --bootproto=dhcp
 reboot
 
@@ -74,7 +79,6 @@ git
 grub2-efi-x64
 iptables
 irqbalance
-krb5-workstation
 libaio
 libutempter
 logrotate
@@ -97,7 +101,6 @@ shim-x64
 smartmontools
 sssd
 stunnel
-subversion
 sudo
 sysstat
 tmpwatch
