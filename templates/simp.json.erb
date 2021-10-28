@@ -227,16 +227,6 @@
       "script" : "scripts/puppet-usersetup.sh"
     },
 <%- if false -%>
-    //
-    // Disable NetworkManager (may prevent a problem with beaker)
-<%- end -%>
-    {
-      "type": "shell",
-      "remote_path": "/var/local/simp/inline-disable-network-manager.sh",
-      "execute_command": "sudo chmod +x {{.Path}}; {{.Vars}} sudo bash '{{.Path}}'",
-      "inline" : [ "/opt/puppetlabs/bin/puppet resource service NetworkManager ensure=stopped enable=false" ]
-    },
-<%- if false -%>
     // Now run bootstrap.
     //
     // This script also configures a puppet manifest `site::vagrant` that

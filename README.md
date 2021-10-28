@@ -125,20 +125,20 @@ A typical example would look like:
 
 ```sh
 TMPDIR="$PWD/tmp" \
-  MATRIX_LABEL=build_6.2.0RC1_ \
+  MATRIX_LABEL=build_6.6.0RC1_ \
   VAGRANT_BOX_DIR="$PATH_TO_VAGRANT_BOX_TREE" \
-  SIMP_ISO_JSON_FILES='${PATH_TO_ISO_JSON_FILES}/SIMP-6.2.0-0.el*.json' \
-  bundle exec rake simp:packer:matrix[os=el6:el7,fips=on:off]
+  SIMP_ISO_JSON_FILES='${PATH_TO_ISO_JSON_FILES}/SIMP-6.6.0-0.el*.json' \
+  bundle exec rake simp:packer:matrix[os=el7:el8,fips=on:off]
 ```
 
-Assuming the glob `${PATH_TO_ISO_JSON_FILES}/SIMP-6.2.0-0.el*.json` matched two
-files (one for `el6` and one for `el7`), this would result in four back-to-back
+Assuming the glob `${PATH_TO_ISO_JSON_FILES}/SIMP-6.6.0-0.el*.json` matched two
+files (one for `el7` and one for `el8`), this would result in four back-to-back
 simp-packer builds:
 
-* (`os=el6`, `fips=on`)  SIMP-6.2.0-0.el6 with FIPS mode enabled
-* (`os=el7`, `fips=on`)   SIMP-6.2.0-0.el7 with FIPS mode enabled
-* (`os=el6`, `fips=off`) SIMP-6.2.0-0.el6 with FIPS mode disabled
-* (`os=el7`, `fips=off`) SIMP-6.2.0-0.el7 with FIPS mode disabled
+* (`os=el7`, `fips=on`)  SIMP-6.6.0-0.el7 with FIPS mode enabled
+* (`os=el8`, `fips=on`)  SIMP-6.6.0-0.el8 with FIPS mode enabled
+* (`os=el7`, `fips=off`) SIMP-6.6.0-0.el7 with FIPS mode disabled
+* (`os=el8`, `fips=off`) SIMP-6.6.0-0.el8 with FIPS mode disabled
 
 
 #### Build matrix elements
@@ -147,7 +147,7 @@ Build matrix elements are delimited by colons (`:`)
 
 | Matrix args   | Supported   | Default   |  Description                                   |
 | ------------- | :-------:   | :-----:   | ---------------------------------------------- |
-| `os=`         | `el6:el7`   | `el6:el7` | OSes to include in the matrix.  JSON files **will be filtered out** if their data doesn't match one of these OSes. |
+| `os=`         | `el7:el8`   | `el7:el8` | OSes to include in the matrix.  JSON files **will be filtered out** if their data doesn't match one of these OSes. |
 | `fips=`       | `on:off`    | `on`      |  Build SIMP Vagrant box with FIPS mode enabled |
 | `encryption=` | `on:off`    | `off`     |    Build SIMP Vagrant box with disk encryption |
 | `firmware=`   | `bios:efi`  | `bios`    |             Defines which firmware base to use |
@@ -158,14 +158,14 @@ Build matrix elements are delimited by colons (`:`)
 `SIMP_ISO_JSON_FILES`) are _filtered_ based on whether their data matches the
 `os=` matrix argument.
 
-* If `os=el6` and the glob `${PATH_TO_ISO_JSON_FILES}/SIMP-6.2.0-0.el*.json`
-  matched two files (one with data for `el6` and one for `el7`), only the file
-  with data for `el6` would be included in the matrix (and the `el7` file would
+* If `os=el7` and the glob `${PATH_TO_ISO_JSON_FILES}/SIMP-6.6.0-0.el*.json`
+  matched two files (one with data for `el7` and one for `el8`), only the file
+  with data for `el7` would be included in the matrix (and the `el8` file would
   not be used).
-* If `os=el6:el7` and the glob
-  `${PATH_TO_ISO_JSON_FILES}/SIMP-6.2.0-0.el*.json` matched two files (one with
-  data for `el6` and one for `el7`), only the file with data for `el6` would be
-  included in the matrix—and the `el7` file would not be used.
+* If `os=el7:el8` and the glob
+  `${PATH_TO_ISO_JSON_FILES}/SIMP-6.6.0-0.el*.json` matched two files (one with
+  data for `el7` and one for `el8`), the files with data for `el7` and `el8`
+  would be included in the matrix.
 
 
 #### Environment variables for build matrices

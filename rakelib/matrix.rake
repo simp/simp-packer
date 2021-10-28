@@ -28,8 +28,8 @@ namespace :simp do
 
       Examples:
 
-        rake simp:packer:matrix[os=el6:el7]
-        rake simp:packer:matrix[os=el6:el7,fips=on:off]
+        rake simp:packer:matrix[os=el7:el8]
+        rake simp:packer:matrix[os=el7:el8,fips=on:off]
 
     DESC
     task :matrix => [:clean] do |task, args|

@@ -1,7 +1,5 @@
 #!/bin/sh
 
-ORIGINAL_UMASK="$(umask)"
-
 # run bootstrap
 echo "**********************"
 echo "Running Simp Bootstrap"

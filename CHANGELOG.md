@@ -8,6 +8,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Support for SIMP 6.6.0, including configuration to build boxes for EL8 SIMP
+  servers
+
+### Changed
+- Refactored the `simpsetup::ldap` class to support OpenLDAP and 389-DS
+  LDAP servers
+- Modernized static assets
+
+### Fixed
+- Fixed unused variable issues identified by the shell script linter
+
+### Removed
+- Dropped support for all SIMP releases older than 6.6.0.
+- Dropped support for EL6 builds
+- OBE logic to disable NetworkManager during the box build
+
+## [2.6.0] - 2021-10-27
+
+### Added
 - Builds intentionally fail when `simp_vars_version` is not ~> 1.x in the
   SIMP ISO JSON files
   - This codifies the version support drops from simp-packer 6.5.0

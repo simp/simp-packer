@@ -1,0 +1,27 @@
+#!/bin/bash
+
+root_ldap_password="<%= $simpsetup::ldap::openldap::root_ldap_password %>"
+base_dn="<%= $simpsetup::ldap::openldap::base_dn %>"
+ldap_dir="<%= $simpsetup::ldap::openldap::ldap_dir %>"
+
+echo "Add groups and users"
+/usr/bin/ldapadd -Z -x -w ${root_ldap_password} \
+  -D cn=LDAPAdmin,OU=People,${base_dn} \
+  -f ${ldap_dir}/ldifs/add_test_users.ldif
+
+if [ "$?" != "0" ]; then
+  echo "ERROR: Failed to add users"
+  exit 1
+fi
+
+echo "Adding users to their secondary groups"
+/usr/bin/ldapmodify -Z -x -w ${root_ldap_password} \
+  -D cn=LDAPAdmin,OU=People,${base_dn} \
+  -f ${ldap_dir}/ldifs/modify_test_users.ldif
+
+if [ "$?" != "0" ]; then
+  echo "ERROR: Failed to add users to secondary groups"
+  exit 1
+fi
+
+exit 0

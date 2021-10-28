@@ -72,9 +72,9 @@ class CheckSettings
   end
 
   # Verifies that the puppetserver and puppetdb services are running.
-  def check_puppet_services_running
+  def check_puppet_services_running(include_puppetdb = false)
     check_service_status('puppetserver', 'running')
-    check_service_status('puppetdb', 'running')
+    check_service_status('puppetdb', 'running') if include_puppetdb
   end
 
   # Verifies that the system is set to the SIMP default for selinux mode.

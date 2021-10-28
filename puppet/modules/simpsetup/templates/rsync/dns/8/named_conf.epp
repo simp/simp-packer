@@ -7,6 +7,7 @@ options
   version " ";
   query-source    port 53;
   query-source-v6 port 53;
+  empty-zones-enable yes;
 
   directory "/var/named";
   dump-file     "data/cache_dump.db";
@@ -17,7 +18,7 @@ options
   allow-recursion { <%= $simpsetup::dns::allowed_nets %>; };
   allow-transfer { "none"; };
 };
-logging 
+logging
 {
   channel default_syslog {
     syslog daemon;
@@ -100,15 +101,10 @@ zone "0.in-addr.arpa" IN {
   allow-update { none; };
 };
 
+zone "." in {
+  type forward;
+  forwarders { 8.8.8.8; };
+};
+
 include "/etc/zones/<%= $simpsetup::dns::domain %>";
 
-zone "higher.domain" IN {
-  type forward;
-  forwarders { 10.0.1.4; 10.0.1.6; };
-};
-
-zone "." IN {
-  type forward;
-  forward only;
-  forwarders { 10.0.1.4; 10.0.1.6; };
-};
