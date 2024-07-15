@@ -342,7 +342,7 @@ GEM
       commander (>= 4.4.3, < 4.6.0)
       faraday (~> 0.17.0)
     websocket (1.2.9)
-    yard (0.9.26)
+    yard (0.9.36)
 
 PLATFORMS
   ruby
